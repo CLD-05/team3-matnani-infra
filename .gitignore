@@ -1,0 +1,24 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+
+# 환경별 변수 (secrets 포함)
+*.tfvars
+*.tfvars.json
+!example.tfvars
+
+# 백엔드 설정 (팀원별 로컬 설정)
+backend.tf
+!backend.tf.example
+
+# 기타
+.DS_Store
+*.pem
+*.key
+.env
+.env.*
