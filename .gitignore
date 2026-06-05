@@ -22,3 +22,16 @@ backend.tf
 *.key
 .env
 .env.*
+
+# Terraform lock info
+.terraform.tfstate.lock.info
+
+# Terraform override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform CLI configuration files
+.terraformrc
+terraform.rc
