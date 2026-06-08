@@ -16,9 +16,18 @@ module "network" {
 
   # dev: 단일 NAT GW로 비용 절감 (prod은 AZ별 NAT GW 사용)
   single_nat_gateway = true
+}
 
-  # dev: 팀 작업 IP로 제한 권장, 임시로 전체 허용
-  bastion_allowed_cidrs = ["0.0.0.0/0"]
+# ─────────────────────── Bastion ───────────────────────
+module "bastion" {
+  source = "../../../modules/bastion"
+
+  team    = "team3"
+  project = "matnani"
+
+  vpc_id           = module.network.vpc_id
+  public_subnet_id = module.network.public_subnet_ids[0]
+  instance_type    = "t3.micro"
 }
 
 # ─────────────────────── Database ──────────────────────
@@ -36,15 +45,18 @@ module "database" {
   vpc_id         = module.network.vpc_id
   db_subnet_ids  = module.network.db_subnet_ids
   eks_node_sg_id = module.network.sg_eks_node_id
-  bastion_sg_id  = module.network.sg_bastion_id
+  bastion_sg_id  = module.bastion.security_group_id
 
-  instance_class          = "db.t3.micro"
+  instance_class          = var.db_instance_class
   allocated_storage       = 20
   max_allocated_storage   = 50
   multi_az                = false
   deletion_protection     = false
   skip_final_snapshot     = true
   backup_retention_period = 1
+
+  create_read_replica    = var.create_read_replica
+  replica_instance_class = var.replica_instance_class
 }
 
 # ─────────────────────── ElastiCache ───────────────────
