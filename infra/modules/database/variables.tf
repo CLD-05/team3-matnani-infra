@@ -51,14 +51,24 @@ variable "max_allocated_storage" {
   default     = 100
 }
 
+variable "vpc_id" {
+  description = "VPC ID for the RDS security group"
+  type        = string
+}
+
 variable "db_subnet_ids" {
   description = "DB subnet IDs for the subnet group"
   type        = list(string)
 }
 
-variable "vpc_security_group_ids" {
-  description = "Security group IDs attached to the RDS instance"
-  type        = list(string)
+variable "eks_node_sg_id" {
+  description = "EKS node security group ID — allowed to connect to RDS"
+  type        = string
+}
+
+variable "bastion_sg_id" {
+  description = "Bastion security group ID — allowed to connect to RDS"
+  type        = string
 }
 
 variable "multi_az" {
