@@ -5,6 +5,9 @@
 # - tfstate_bucket_arn : GitHub Actions OIDC role이나 IAM policy에서 state bucket 접근 권한 줄 때 사용
 # - backend_keys : 각 root module이 사용할 state key 경로 안내용
 # - backend_region : ap-northeast-2
+# - account_id
+# - github_oidc_provider_arn
+# - github_oidc_provider_url
 
 output "tfstate_bucket_name" {
   description = "S3 state 버킷 이름 — envs/*/backend.tf에서 참조"
