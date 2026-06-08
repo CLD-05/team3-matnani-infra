@@ -9,6 +9,35 @@ locals {
   }
 }
 
+resource "aws_security_group" "rds" {
+  name        = "${local.name_prefix}-sg-rds"
+  description = "RDS MySQL: inbound from EKS nodes and Bastion"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [var.eks_node_sg_id]
+  }
+
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [var.bastion_sg_id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.common_tags, { Name = "${local.name_prefix}-sg-rds" })
+}
+
 resource "aws_db_subnet_group" "this" {
   name        = "${local.name_prefix}-db-subnet-group"
   description = "DB subnet group for ${local.name_prefix}"
@@ -86,7 +115,7 @@ resource "aws_db_instance" "this" {
   storage_encrypted     = true
 
   db_subnet_group_name   = aws_db_subnet_group.this.name
-  vpc_security_group_ids = var.vpc_security_group_ids
+  vpc_security_group_ids = [aws_security_group.rds.id]
   parameter_group_name   = aws_db_parameter_group.this.name
 
   multi_az            = var.multi_az

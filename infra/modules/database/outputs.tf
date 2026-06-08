@@ -1,3 +1,8 @@
+output "sg_rds_id" {
+  description = "RDS Security Group ID"
+  value       = aws_security_group.rds.id
+}
+
 output "db_instance_id" {
   description = "RDS instance identifier"
   value       = aws_db_instance.this.id

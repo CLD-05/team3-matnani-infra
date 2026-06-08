@@ -1,3 +1,8 @@
+output "sg_redis_id" {
+  description = "Redis Security Group ID"
+  value       = aws_security_group.redis.id
+}
+
 output "redis_replication_group_id" {
   description = "ElastiCache replication group ID"
   value       = aws_elasticache_replication_group.this.id

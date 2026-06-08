@@ -33,8 +33,10 @@ module "database" {
   db_username = var.db_username
   db_password = var.db_password
 
-  db_subnet_ids          = module.network.db_subnet_ids
-  vpc_security_group_ids = [module.network.sg_rds_id]
+  vpc_id         = module.network.vpc_id
+  db_subnet_ids  = module.network.db_subnet_ids
+  eks_node_sg_id = module.network.sg_eks_node_id
+  bastion_sg_id  = module.network.sg_bastion_id
 
   instance_class          = "db.t3.micro"
   allocated_storage       = 20
@@ -56,8 +58,9 @@ module "elasticache" {
   redis_version = "7.1"
   node_type     = "cache.t3.micro"
 
-  subnet_ids             = module.network.db_subnet_ids
-  vpc_security_group_ids = [module.network.sg_redis_id]
+  vpc_id         = module.network.vpc_id
+  subnet_ids     = module.network.db_subnet_ids
+  eks_node_sg_id = module.network.sg_eks_node_id
 
   # dev: 단일 노드, 장애조치 비활성
   num_cache_clusters         = 1

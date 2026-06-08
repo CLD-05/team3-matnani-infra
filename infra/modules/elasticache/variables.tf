@@ -33,14 +33,19 @@ variable "num_cache_clusters" {
   default     = 2
 }
 
+variable "vpc_id" {
+  description = "VPC ID for the Redis security group"
+  type        = string
+}
+
 variable "subnet_ids" {
   description = "Subnet IDs for the ElastiCache subnet group (use DB/isolated subnets)"
   type        = list(string)
 }
 
-variable "vpc_security_group_ids" {
-  description = "Security group IDs attached to the replication group"
-  type        = list(string)
+variable "eks_node_sg_id" {
+  description = "EKS node security group ID — allowed to connect to Redis"
+  type        = string
 }
 
 variable "automatic_failover_enabled" {

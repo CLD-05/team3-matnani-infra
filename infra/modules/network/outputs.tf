@@ -43,12 +43,3 @@ output "sg_eks_node_id" {
   value       = aws_security_group.eks_node.id
 }
 
-output "sg_rds_id" {
-  description = "RDS Security Group ID"
-  value       = aws_security_group.rds.id
-}
-
-output "sg_redis_id" {
-  description = "ElastiCache Redis Security Group ID"
-  value       = aws_security_group.redis.id
-}
