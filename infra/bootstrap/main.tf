@@ -6,12 +6,7 @@
 #   - aws_s3_bucket_public_access_block                  : 퍼블릭 접근 차단
 #   - aws_s3_bucket_versioning                           : state 버전 관리
 #   - aws_s3_bucket_server_side_encryption_configuration : AES256 암호화
-
-
-# 실행 후:
-#   - envs/dev/infra/backend.tf, envs/dev/platform-addons/backend.tf
-#     envs/prod/infra/backend.tf, envs/prod/platform-addons/backend.tf
-#     에서 bucket = "team3-matnani-tfstate" 로 참조
+#   - aws_iam_openid_connect_provider
 
 locals {
   team        = "team3"
@@ -32,10 +27,10 @@ data "aws_caller_identity" "current" {}
 
 
 # backend key를 다르게 해서 state를 분리
-# team3/dev/infra/terraform.tfstate
-# team3/dev/platform-addons/terraform.tfstate
-# team3/prod/infra/terraform.tfstate
-# team3/prod/platform-addons/terraform.tfstate
+/* team3/dev/infra/terraform.tfstate
+team3/dev/platform-addons/terraform.tfstate
+team3/prod/infra/terraform.tfstate
+team3/prod/platform-addons/terraform.tfstate */
 resource "aws_s3_bucket" "tfstate" {
   bucket        = local.bucket_name
   force_destroy = false
@@ -85,4 +80,23 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate" {
       sse_algorithm = "AES256"
     }
   }
+}
+
+
+# GitHub Actions OIDC Provider
+# 계정당 1개만 존재 가능 → bootstrap에서 한 번만 생성
+# 다른 팀이 이미 생성한 경우 아래 import 블록이 기존 리소스를 가져옴
+import {
+  to = aws_iam_openid_connect_provider.github
+  id = "arn:aws:iam::495599735720:oidc-provider/token.actions.githubusercontent.com"
+}
+
+resource "aws_iam_openid_connect_provider" "github" {
+  url            = "https://token.actions.githubusercontent.com"
+  client_id_list = ["sts.amazonaws.com"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+
+  tags = merge(local.common_tags, {
+    Name = "github-oidc-provider"
+  })
 }
