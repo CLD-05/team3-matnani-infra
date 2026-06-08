@@ -90,6 +90,8 @@ resource "aws_iam_role" "rds_monitoring" {
     }]
   })
 
+  permissions_boundary = "arn:aws:iam::495599735720:policy/TeamRuntimeBoundary"
+
   tags = local.common_tags
 }
 
