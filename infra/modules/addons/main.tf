@@ -6,7 +6,7 @@ resource "kubernetes_namespace" "namespaces" {
     name = each.key
     labels = {
       "managed-by"  = "terraform"
-      "team"        = "team3"
+      "Team"        = "team3"
       "project"     = "matnani"
       "environment" = var.environment
     }
