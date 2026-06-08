@@ -5,7 +5,7 @@ resource "aws_s3_bucket" "frontend" {
 
   tags = {
     Name = "team3-matnani-frontend-${var.environment}"
-    team = "team3"
+    Team = "team3"
   }
 }
 
