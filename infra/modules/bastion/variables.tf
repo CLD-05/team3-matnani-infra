@@ -25,3 +25,9 @@ variable "instance_type" {
   type        = string
   default     = "t3.micro"
 }
+
+variable "permissions_boundary" {
+  description = "IAM Role 권한 경계 ARN — team3-* role 생성 시 필수"
+  type        = string
+  default     = "arn:aws:iam::495599735720:policy/TeamRuntimeBoundary"
+}

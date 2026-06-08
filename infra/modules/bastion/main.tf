@@ -42,6 +42,7 @@ data "aws_ami" "ubuntu" {
 # IAM
 resource "aws_iam_role" "bastion" {
   name = "${local.name}-role"
+  permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
