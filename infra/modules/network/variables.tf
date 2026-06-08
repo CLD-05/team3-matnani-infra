@@ -45,3 +45,9 @@ variable "single_nat_gateway" {
   type        = bool
   default     = false
 }
+
+variable "bastion_allowed_cidrs" {
+  description = "CIDR blocks allowed to SSH into the bastion host (port 22)"
+  type        = list(string)
+  default     = []
+}

@@ -15,4 +15,7 @@ module "network" {
 
   # dev: 단일 NAT GW로 비용 절감 (prod은 AZ별 NAT GW 사용)
   single_nat_gateway = true
+
+  # dev: 팀 작업 IP로 제한 권장, 임시로 전체 허용
+  bastion_allowed_cidrs = ["0.0.0.0/0"]
 }

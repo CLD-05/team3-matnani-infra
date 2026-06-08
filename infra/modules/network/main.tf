@@ -215,10 +215,33 @@ resource "aws_security_group" "eks_node" {
   tags = merge(local.common_tags, { Name = "${local.name_prefix}-sg-eks-node" })
 }
 
-# RDS: MySQL 3306 from EKS nodes only
+# Bastion: SSH inbound from allowed CIDRs
+resource "aws_security_group" "bastion" {
+  name        = "${local.name_prefix}-sg-bastion"
+  description = "Bastion host: SSH inbound from allowed CIDRs"
+  vpc_id      = aws_vpc.this.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.bastion_allowed_cidrs
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(local.common_tags, { Name = "${local.name_prefix}-sg-bastion" })
+}
+
+# RDS: MySQL 3306 from EKS nodes and Bastion
 resource "aws_security_group" "rds" {
   name        = "${local.name_prefix}-sg-rds"
-  description = "RDS MySQL: inbound from EKS nodes"
+  description = "RDS MySQL: inbound from EKS nodes and Bastion"
   vpc_id      = aws_vpc.this.id
 
   ingress {
@@ -226,6 +249,13 @@ resource "aws_security_group" "rds" {
     to_port         = 3306
     protocol        = "tcp"
     security_groups = [aws_security_group.eks_node.id]
+  }
+
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion.id]
   }
 
   egress {
