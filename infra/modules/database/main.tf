@@ -78,6 +78,29 @@ resource "aws_db_parameter_group" "this" {
   }
 }
 
+resource "aws_db_instance" "replica" {
+  count = var.create_read_replica ? 1 : 0
+
+  identifier = "${local.name_prefix}-mysql-replica"
+
+  replicate_source_db = aws_db_instance.this.identifier
+  instance_class      = var.replica_instance_class
+  storage_encrypted   = true
+
+  publicly_accessible = false
+  skip_final_snapshot = true
+
+  performance_insights_enabled          = true
+  performance_insights_retention_period = 7
+
+  monitoring_interval = 60
+  monitoring_role_arn = aws_iam_role.rds_monitoring.arn
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-mysql-replica"
+  })
+}
+
 resource "aws_iam_role" "rds_monitoring" {
   name = "${local.name_prefix}-rds-enhanced-monitoring"
 

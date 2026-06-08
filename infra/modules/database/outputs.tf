@@ -37,3 +37,13 @@ output "db_subnet_group_name" {
   description = "DB subnet group name"
   value       = aws_db_subnet_group.this.name
 }
+
+output "replica_endpoint" {
+  description = "Read Replica 엔드포인트 (create_read_replica = false면 null)"
+  value       = var.create_read_replica ? aws_db_instance.replica[0].endpoint : null
+}
+
+output "replica_host" {
+  description = "Read Replica 호스트명"
+  value       = var.create_read_replica ? aws_db_instance.replica[0].address : null
+}
