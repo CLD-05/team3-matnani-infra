@@ -74,7 +74,19 @@ variable "bastion_sg_id" {
 variable "multi_az" {
   description = "Enable Multi-AZ standby replica"
   type        = bool
-  default     = true
+  default     = false
+}
+
+variable "create_read_replica" {
+  description = "Read Replica 생성 여부"
+  type        = bool
+  default     = false
+}
+
+variable "replica_instance_class" {
+  description = "Read Replica 인스턴스 타입 (create_read_replica = true 시 필수)"
+  type        = string
+  default     = null
 }
 
 variable "deletion_protection" {

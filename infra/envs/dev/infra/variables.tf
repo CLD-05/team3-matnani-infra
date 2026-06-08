@@ -12,3 +12,21 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "db_instance_class" {
+  description = "RDS 인스턴스 타입"
+  type        = string
+  default     = "db.t3.large"
+}
+
+variable "create_read_replica" {
+  description = "Read Replica 생성 여부"
+  type        = bool
+  default     = false
+}
+
+variable "replica_instance_class" {
+  description = "Read Replica 인스턴스 타입 (create_read_replica = true 시 필수)"
+  type        = string
+  default     = null
+}
