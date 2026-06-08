@@ -31,3 +31,18 @@ output "backend_keys" {
     prod_platform_addons = "team3/prod/platform-addons/terraform.tfstate"
   }
 }
+
+output "account_id" {
+  description = "AWS 계정 ID 확인용"
+  value       = data.aws_caller_identity.current.account_id
+}
+
+output "github_oidc_provider_arn" {
+  description = "github_oidc 모듈에서 data source로 참조"
+  value       = aws_iam_openid_connect_provider.github.arn
+}
+
+output "github_oidc_provider_url" {
+  description = "IRSA 신뢰 정책 Condition 작성 시 참조"
+  value       = aws_iam_openid_connect_provider.github.url
+}
