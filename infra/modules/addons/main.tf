@@ -15,7 +15,7 @@ resource "kubernetes_namespace" "namespaces" {
 
 # 2. GitOps 핵심 엔진 - ArgoCD 배포
 resource "helm_release" "argocd" {
-  name       = "team3-argocd"
+  name       = "team3-matnani-argocd"
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argo-cd"
   version    = "7.3.1"
@@ -40,7 +40,7 @@ resource "helm_release" "argocd" {
 
 # 3. 인그레스 제어 엔진 - AWS Load Balancer Controller 배포
 resource "helm_release" "alb_controller" {
-  name       = "aws-load-balancer-controller"
+  name       = "team3-matnani-aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
   version    = "1.7.2"
@@ -67,18 +67,22 @@ resource "helm_release" "alb_controller" {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
     value = var.alb_controller_role_arn
   }
+
+  depends_on = [kubernetes_namespace.namespaces]
+  wait    = true
+  timeout = 600
+  atomic  = true
 }
 
 # 4. AWS SSM 연동 시크릿 주입 엔진 - External Secrets Operator (ESO) 배포
 resource "helm_release" "eso" {
-  name       = "external-secrets"
+  name       = "team3-matnani-external-secrets"
   repository = "https://charts.external-secrets.io"
   chart      = "external-secrets"
   version    = "0.9.18"
   namespace  = "external-secrets"
 
   depends_on = [kubernetes_namespace.namespaces]
-
   # 노드 0개 축소/복구 대비 안전장치
   wait    = true
   timeout = 600
