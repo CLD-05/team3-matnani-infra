@@ -1,0 +1,13 @@
+# infra/envs/prod/infra/terraform.tfvars.example
+# 민감 정보(db_username, db_password)는 환경변수로 주입
+#   export TF_VAR_db_username="matnani"
+#   export TF_VAR_db_password="..."
+
+# ──────────── RDS ────────────
+db_instance_class      = "db.m6i.large"
+create_read_replica    = true
+replica_instance_class = "db.m6i.large"
+
+# ──────────── ElastiCache ────────────
+redis_node_type = "cache.r6g.large"
+redis_num_nodes = 2
