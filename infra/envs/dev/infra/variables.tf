@@ -30,3 +30,16 @@ variable "replica_instance_class" {
   type        = string
   default     = null
 }
+
+# ──────────────── ElastiCache ────────────────
+variable "redis_node_type" {
+  description = "ElastiCache Redis 노드 타입"
+  type        = string
+  default     = "cache.t3.micro"
+}
+
+variable "redis_num_nodes" {
+  description = "Redis replication group 노드 수 (1 = primary only)"
+  type        = number
+  default     = 1
+}

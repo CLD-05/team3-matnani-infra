@@ -68,15 +68,15 @@ module "elasticache" {
   project = "matnani"
 
   redis_version = "7.1"
-  node_type     = "cache.t3.micro"
+  node_type     = var.redis_node_type
 
   vpc_id         = module.network.vpc_id
   subnet_ids     = module.network.db_subnet_ids
   eks_node_sg_id = module.network.sg_eks_node_id
 
-  # dev: 단일 노드, 장애조치 비활성
-  num_cache_clusters         = 1
-  automatic_failover_enabled = false
+  # dev: 단일 노드(redis_num_nodes=1), 장애조치 비활성
+  num_cache_clusters         = var.redis_num_nodes
+  automatic_failover_enabled = var.redis_num_nodes > 1
 
   at_rest_encryption_enabled = true
   transit_encryption_enabled = false
