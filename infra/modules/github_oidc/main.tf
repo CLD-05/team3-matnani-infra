@@ -1,7 +1,7 @@
 # modules/github_oidc/main.tf
 
 # 생성 리소스:
-#   - aws_iam_openid_connect_provider : GitHub Actions OIDC Provider (계정당 1개, 중복 생성 불가)
+#   - aws_iam_openid_connect_provider : GitHub Actions OIDC Provider 조회
 #   - aws_iam_role (gha-ci-role)      : app repo CI용
 #                                       ECR push + S3 sync + CloudFront invalidation
 #   - aws_iam_role_policy (ecr)       : ECR push 권한 (ECR ARN 한정)

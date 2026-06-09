@@ -147,3 +147,31 @@ resource "helm_release" "external_dns" {
     value = var.external_dns_role_arn
   }
 }
+
+# metrics-server
+resource "helm_release" "metrics_server" {
+  name       = "team3-matnani-metrics-server"
+  repository = "https://kubernetes-sigs.github.io/metrics-server"
+  chart      = "metrics-server"
+  version    = "3.12.1"
+  namespace  = "kube-system"
+
+  depends_on = [kubernetes_namespace.namespaces]
+  wait       = true
+  timeout    = 300
+  atomic     = true
+}
+
+# KEDA
+resource "helm_release" "keda" {
+  name       = "team3-matnani-keda"
+  repository = "https://kedacore.github.io/charts"
+  chart      = "keda"
+  version    = "2.14.2"
+  namespace  = "kube-system"
+
+  depends_on = [kubernetes_namespace.namespaces]
+  wait       = true
+  timeout    = 300
+  atomic     = true
+}
