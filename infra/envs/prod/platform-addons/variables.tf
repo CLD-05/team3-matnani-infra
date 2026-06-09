@@ -1,5 +1,3 @@
-# variables.tf
-
 variable "team" {
   type    = string
   default = "team3"
@@ -16,15 +14,15 @@ variable "env" {
 }
 
 variable "cluster_name" {
-  description = "EKS 클러스터 이름 (Prod)"
+  description = "EKS 클러스터 이름"
   type        = string
-  default     = "team3-matnani-prod-eks"
+  default     = "team3-matnani-eks"
 }
 
-variable "permissions_boundary_name" {
-  description = "IAM Role 권한 경계 정책 이름"
+variable "permissions_boundary" {
+  description = "IAM Role 권한 경계"
   type        = string
-  default     = "TeamRuntimeBoundary"
+  default     = "arn:aws:iam::495599735720:policy/TeamRuntimeBoundary" 
 }
 
 variable "route53_zone_id" {
