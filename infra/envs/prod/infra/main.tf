@@ -18,6 +18,31 @@ module "network" {
   single_nat_gateway = false
 }
 
+# ─────────────────────── EKS ───────────────────────────
+module "eks" {
+  source = "../../../modules/eks"
+
+  team    = "team3"
+  project = "matnani"
+
+  vpc_id             = module.network.vpc_id
+  private_subnet_ids = module.network.private_subnet_ids
+
+  # prod: 퍼블릭 API 접근 차단
+  endpoint_public_access = false
+
+  node_instance_types = ["m6i.large"]
+  node_desired_size   = 3
+  node_min_size       = 3
+  node_max_size       = 8
+
+  vpc_cni_version            = "v1.19.3-eksbuild.1"
+  coredns_version            = "v1.11.4-eksbuild.2"
+  kube_proxy_version         = "v1.32.3-eksbuild.2"
+  ebs_csi_version            = "v1.41.0-eksbuild.1"
+  pod_identity_agent_version = "v1.3.4-eksbuild.1"
+}
+
 # ─────────────────────── Database ──────────────────────
 module "database" {
   source = "../../../modules/database"
@@ -32,7 +57,7 @@ module "database" {
 
   vpc_id         = module.network.vpc_id
   db_subnet_ids  = module.network.db_subnet_ids
-  eks_node_sg_id = module.network.sg_eks_node_id
+  eks_node_sg_id = module.eks.node_sg_id
   bastion_sg_id  = ""
 
   instance_class          = var.db_instance_class
@@ -60,7 +85,7 @@ module "elasticache" {
 
   vpc_id         = module.network.vpc_id
   subnet_ids     = module.network.db_subnet_ids
-  eks_node_sg_id = module.network.sg_eks_node_id
+  eks_node_sg_id = module.eks.node_sg_id
 
   # prod: 멀티 노드, 장애조치 활성
   num_cache_clusters         = var.redis_num_nodes
