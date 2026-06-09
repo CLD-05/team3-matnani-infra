@@ -6,7 +6,7 @@
 #   - aws_s3_bucket_public_access_block                  : 퍼블릭 접근 차단
 #   - aws_s3_bucket_versioning                           : state 버전 관리
 #   - aws_s3_bucket_server_side_encryption_configuration : AES256 암호화
-#   - aws_iam_openid_connect_provider
+#   - aws_iam_openid_connect_provider                    : GitHub Actions OIDC Provider 생성
 
 locals {
   team        = "team3"
