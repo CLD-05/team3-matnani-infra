@@ -31,8 +31,14 @@ resource "helm_release" "fluent_bit" {
   chart      = "aws-for-fluent-bit"
   namespace  = "kube-system"
 
-  set { name = "cloudWatchLogs.region"; value = "ap-northeast-2" }
-  set { name = "cloudWatchLogs.logGroupName"; value = aws_cloudwatch_log_group.eks_logs.name }
+  set { 
+    name  = "cloudWatchLogs.region"
+    value = "ap-northeast-2" 
+  }
+  set { 
+    name = "cloudWatchLogs.logGroupName" 
+    value = aws_cloudwatch_log_group.eks_logs.name 
+        }
 }
 
 # 3. 알람 파이프라인 (SNS + Chatbot)
