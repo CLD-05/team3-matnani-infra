@@ -16,7 +16,7 @@ variable "env" {
 variable "cluster_name" {
   description = "EKS 클러스터 이름"
   type        = string
-  default     = "team3-matnani-dev"
+  default     = "team3-matnani-eks"
 }
 
 variable "permissions_boundary" {
