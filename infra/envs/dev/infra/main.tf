@@ -1,29 +1,28 @@
-# ─────────────────────── Network ───────────────────────
+# envs/dev/infra/main.tf
+
 module "network" {
   source = "../../../modules/network"
 
-  env     = "dev"
-  team    = "team3"
-  project = "matnani"
+  env     = var.env
+  team    = var.team
+  project = var.project
 
-  vpc_cidr = "10.3.0.0/16"
-
-  azs = ["ap-northeast-2a", "ap-northeast-2c"]
-
-  public_subnet_cidrs  = ["10.3.1.0/24", "10.3.2.0/24"]
-  private_subnet_cidrs = ["10.3.11.0/24", "10.3.12.0/24"]
-  db_subnet_cidrs      = ["10.3.21.0/24", "10.3.22.0/24"]
+  vpc_cidr = var.vpc_cidr
+  azs = var.azs
+  public_subnet_cidrs  = var.public_cidrs
+  private_subnet_cidrs = var.private_cidrs
+  db_subnet_cidrs      = var.isolated_cidrs
 
   # dev: 단일 NAT GW로 비용 절감 (prod은 AZ별 NAT GW 사용)
   single_nat_gateway = true
 }
 
-# ─────────────────────── EKS ───────────────────────────
+
 module "eks" {
   source = "../../../modules/eks"
-
-  team    = "team3"
-  project = "matnani"
+  permissions_boundary = var.permissions_boundary
+  team    = var.team
+  project = var.project
 
   vpc_id             = module.network.vpc_id
   private_subnet_ids = module.network.private_subnet_ids
@@ -31,41 +30,49 @@ module "eks" {
   # dev: 퍼블릭 API 접근 허용
   endpoint_public_access = true
 
-  node_instance_types = ["t3.medium"]
-  node_desired_size   = 2
-  node_min_size       = 2
-  node_max_size       = 2
+  node_instance_types = var.node_instance_type
+  node_desired_size   = var.node_desired
+  node_min_size       = var.node_min
+  node_max_size       = var.node_max
 
-  vpc_cni_version            = "v1.19.3-eksbuild.1"
-  coredns_version            = "v1.11.4-eksbuild.2"
-  kube_proxy_version         = "v1.32.3-eksbuild.2"
-  ebs_csi_version            = "v1.41.0-eksbuild.1"
-  pod_identity_agent_version = "v1.3.4-eksbuild.1"
+  vpc_cni_version            = var.vpc_cni_version
+  coredns_version            = var.coredns_version
+  kube_proxy_version         = var.kube_proxy_version
+  ebs_csi_version            = var.ebs_csi_version
+  pod_identity_agent_version = var.pod_identity_agent_version
 }
 
-# ─────────────────────── Bastion ───────────────────────
+
 module "bastion" {
   source = "../../../modules/bastion"
-
-  team    = "team3"
-  project = "matnani"
+  permissions_boundary = var.permissions_boundary
+  team    = var.team
+  project = var.project
 
   vpc_id           = module.network.vpc_id
   public_subnet_id = module.network.public_subnet_ids[0]
-  instance_type    = "t3.micro"
+  instance_type    = var.bastion_instance_type
 }
 
-# ─────────────────────── Database ──────────────────────
+data "aws_ssm_parameter" "db_username" {
+  name = "/team3/matnani/dev/db-username"
+}
+
+data "aws_ssm_parameter" "db_password" {
+  name            = "/team3/matnani/dev/db-password"
+  with_decryption = true
+}
+
 module "database" {
   source = "../../../modules/database"
 
-  env     = "dev"
-  team    = "team3"
-  project = "matnani"
+  env     = var.env
+  team    = var.team
+  project = var.project
 
-  db_name     = "matnani"
-  db_username = var.db_username
-  db_password = var.db_password
+  db_name     = var.db_name
+  db_username = data.aws_ssm_parameter.db_username.value
+  db_password = data.aws_ssm_parameter.db_password.value
 
   vpc_id         = module.network.vpc_id
   db_subnet_ids  = module.network.db_subnet_ids
@@ -73,26 +80,25 @@ module "database" {
   bastion_sg_id  = module.bastion.security_group_id
 
   instance_class          = var.db_instance_class
-  allocated_storage       = 20
-  max_allocated_storage   = 50
-  multi_az                = false
-  deletion_protection     = false
-  skip_final_snapshot     = true
-  backup_retention_period = 1
+  allocated_storage       = var.allocated_storage
+  max_allocated_storage   = var.max_allocated_storage
+  multi_az                = var.multi_az
+  deletion_protection     = var.deletion_protection
+  skip_final_snapshot     = var.skip_final_snapshot
+  backup_retention_period = var.backup_retention_period
 
   create_read_replica    = var.create_read_replica
   replica_instance_class = var.replica_instance_class
 }
 
-# ─────────────────────── ElastiCache ───────────────────
 module "elasticache" {
   source = "../../../modules/elasticache"
 
-  env     = "dev"
-  team    = "team3"
-  project = "matnani"
+  env     = var.env
+  team    = var.team
+  project = var.project
 
-  redis_version = "7.1"
+  redis_version = var.redis_version
   node_type     = var.redis_node_type
 
   vpc_id         = module.network.vpc_id
@@ -103,9 +109,73 @@ module "elasticache" {
   num_cache_clusters         = var.redis_num_nodes
   automatic_failover_enabled = var.redis_num_nodes > 1
 
-  at_rest_encryption_enabled = true
-  transit_encryption_enabled = false
+  at_rest_encryption_enabled = var.redis_at_rest_encryption
+  transit_encryption_enabled = var.redis_transit_encryption
 
-  snapshot_retention_limit = 0
-  apply_immediately        = true
+  snapshot_retention_limit = var.redis_snapshot_retention_limit
+  apply_immediately        = var.redis_apply_immediately
+}
+
+
+module "ecr" {
+  source = "../../../modules/ecr"
+
+  team    = var.team
+  project = var.project
+  env     = var.env
+
+  repositories = ["api"]
+}
+
+module "cloudfront" {
+  source = "../../../modules/cloudfront"
+  team    = var.team
+  project = var.project
+  env     = var.env
+
+}
+
+
+module "github_oidc" {
+  source = "../../../modules/github_oidc"
+
+  team    = var.team
+  project = var.project
+  env     = var.env
+
+  github_org  = var.github_org
+  github_repo = var.github_repo
+  infra_repo           = var.infra_repo
+  ecr_repository_arns  = values(module.ecr.repository_arns)
+  permissions_boundary = var.permissions_boundary
+}
+
+
+data "aws_ssm_parameter" "grafana_password" {
+  name            = "team3/matnani/dev/grafana-password"
+  with_decryption = true
+}
+
+# SSM에서 읽기
+data "aws_ssm_parameter" "slack_webhook" {
+  name            = "/team3/matnani/dev/monitoring/slack-webhook"
+  with_decryption = true
+}
+
+module "monitoring" {
+  source = "../../../modules/monitoring"
+
+  team    = var.team
+  project = var.project
+  env     = var.env
+
+  prometheus_storage_class = var.prometheus_storage_class
+  prometheus_storage_size  = var.prometheus_storage_class
+  eks_cluster_name       = module.eks.cluster_name
+  rds_instance_id        = module.database.db_instance_id
+  alb_name               = ""
+  nat_gateway_id         = module.network.nat_gateway_ids
+  slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
+  grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
+  permissions_boundary   = var.permissions_boundary
 }

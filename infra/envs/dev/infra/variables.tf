@@ -1,16 +1,34 @@
 # TF_VAR_db_username / TF_VAR_db_password 환경변수로 주입
 # prod에서는 AWS Secrets Manager 또는 SSM Parameter Store 사용 권장
 
-variable "db_username" {
-  description = "RDS master username"
-  type        = string
-  sensitive   = true
+# 공통
+variable "env" {
+  type    = string
+  default = "dev"
 }
 
-variable "db_password" {
-  description = "RDS master password"
+variable "team" {
+  type    = string
+  default = "team3"
+}
+
+variable "project" {
+  type    = string
+  default = "matnani"
+}
+
+variable "permissions_boundary" {
+  description = "IAM Role 권한 경계 ARN — 미적용 시 생성 거부"
   type        = string
-  sensitive   = true
+  default     = "arn:aws:iam::495599735720:policy/TeamRuntimeBoundary"
+}
+
+
+# DB
+variable "db_name" {
+  description = "RDS name"
+  type        = string
+  default     = "matnani"
 }
 
 variable "db_instance_class" {
@@ -30,8 +48,39 @@ variable "replica_instance_class" {
   type        = string
   default     = null
 }
+variable "allocated_storage" {
+  type        = number
+  default     = 20
+}
 
-# ──────────────── ElastiCache ────────────────
+variable "max_allocated_storage" {
+  type        = number
+  default     = 50
+}
+
+variable "backup_retention_period" {
+  type        = number
+  default     = 1
+}
+
+variable "multi_az" {
+  type    = bool
+  default = false
+}
+
+variable "deletion_protection" {
+  type    = bool
+  default = false
+}
+
+variable "skip_final_snapshot" {
+  type    = bool
+  default = true
+}
+
+
+
+# Redis
 variable "redis_node_type" {
   description = "ElastiCache Redis 노드 타입"
   type        = string
@@ -42,4 +91,174 @@ variable "redis_num_nodes" {
   description = "Redis replication group 노드 수 (1 = primary only)"
   type        = number
   default     = 1
+}
+
+variable "redis_version" {
+  description = "ElastiCache Redis version"
+  type        = string
+  default     = "7.1"
+}
+
+variable "redis_at_rest_encryption" {
+  type        = bool
+  description = "저장 데이터 암호화(Encryption at Rest) 활성화 여부"
+  default     = true
+}
+
+variable "redis_transit_encryption" {
+  type        = bool
+  description = "전송 중 데이터 암호화(Encryption in Transit) 활성화 여부"
+  default     = false
+}
+
+variable "redis_snapshot_retention_limit" {
+  type        = number
+  description = "ElastiCache 자동 백업 스냅샷 보존 기간 (일)"
+  default     = 0
+}
+
+variable "redis_apply_immediately" {
+  type        = bool
+  description = "설정 변경 사항 즉시 반영 여부 (prod 환경은 정기 점검 시 반영 권장)"
+  default     = true
+}
+
+
+
+# VPC
+variable "vpc_cidr" {
+  type    = string
+  default = "10.33.0.0/16"
+}
+
+variable "azs" {
+  type    = list(string)
+  default = ["ap-northeast-2a", "ap-northeast-2c"]
+}
+
+variable "public_cidrs" {
+  type    = list(string)
+  default = ["10.33.1.0/24", "10.33.2.0/24"]
+}
+
+variable "private_cidrs" {
+  type    = list(string)
+  default = ["10.33.11.0/24", "10.33.12.0/24"]
+}
+
+variable "isolated_cidrs" {
+  type    = list(string)
+  default = ["10.33.21.0/24", "10.33.22.0/24"]
+}
+
+
+# EKS
+variable "node_instance_type" {
+  type    = string
+  default = "t3.medium"
+}
+
+variable "node_min" {
+  type    = number
+  default = 2
+}
+
+variable "node_max" {
+  type    = number
+  default = 8
+}
+
+variable "node_desired" {
+  type    = number
+  default = 2
+}
+
+# EKS 클러스터 필수 애드온 버전 관리
+variable "vpc_cni_version" {
+  type    = string
+  default = "v1.19.3-eksbuild.1"
+}
+
+variable "coredns_version" {
+  type    = string
+  default = "v1.11.4-eksbuild.2"
+}
+
+variable "kube_proxy_version" {
+  type    = string
+  default = "v1.32.3-eksbuild.2"
+}
+
+variable "ebs_csi_version" {
+  type    = string
+  default = "v1.41.0-eksbuild.1"
+}
+
+variable "pod_identity_agent_version" {
+  type    = string
+  default = "v1.3.4-eksbuild.1"
+}
+
+
+# Bastion
+variable "bastion_instance_type" {
+  type    = string
+  default = "t3.micro"
+}
+
+output "ecr_repository_urls" {
+  description = "GitHub Actions CI에서 이미지 push 시 참조"
+  value       = module.ecr.repository_urls
+}
+
+output "ecr_repository_arns" {
+  description = "github_oidc 모듈 gha-ci-role 정책 Resource 지정 시 참조"
+  value       = module.ecr.repository_arns
+}
+
+
+# GitHub OIDC
+output "gha_ci_role_arn" {
+  description = "GitHub Actions CI workflow role-to-assume 값"
+  value       = module.github_oidc.gha_ci_role_arn
+}
+
+output "gha_dev_role_arn" {
+  description = "GitHub Actions dev infra workflow role-to-assume 값"
+  value       = module.github_oidc.gha_dev_role_arn
+}
+
+output "gha_prod_role_arn" {
+  description = "GitHub Actions prod infra workflow role-to-assume 값"
+  value       = module.github_oidc.gha_prod_role_arn
+}
+
+
+# CloudFront
+output "cloudfront_domain_name" {
+  description = "프론트엔드 접속 URL (prod만 생성)"
+  value       = module.cloudfront.cloudfront_domain_name
+}
+
+variable "github_org" {
+  type        = string
+  description = "GitHub 조직명 또는 사용자명"
+}
+
+variable "github_repo" {
+  type        = string
+  description = "GitHub 레포지토리명"
+}
+
+variable "infra_repo" { type = string }
+
+# monitoring
+variable "prometheus_storage_class" {
+  type        = string
+  description = "gp2"
+}
+
+variable "prometheus_storage_size" {
+  type        = string
+  description = "10Gi"
 }
