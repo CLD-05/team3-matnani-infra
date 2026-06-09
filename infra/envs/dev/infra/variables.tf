@@ -16,7 +16,7 @@ variable "db_password" {
 variable "db_instance_class" {
   description = "RDS 인스턴스 타입"
   type        = string
-  default     = "db.t3.large"
+  default     = "db.t4g.micro"
 }
 
 variable "create_read_replica" {
@@ -35,7 +35,7 @@ variable "replica_instance_class" {
 variable "redis_node_type" {
   description = "ElastiCache Redis 노드 타입"
   type        = string
-  default     = "cache.t3.micro"
+  default     = "cache.t4g.micro"
 }
 
 variable "redis_num_nodes" {

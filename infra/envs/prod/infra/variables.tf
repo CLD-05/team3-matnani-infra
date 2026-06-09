@@ -16,26 +16,26 @@ variable "db_password" {
 variable "db_instance_class" {
   description = "RDS 인스턴스 타입"
   type        = string
-  default     = "db.m6i.large"
+  default     = "db.t3.large" # 추후 db.m6i.large 변경 가능
 }
 
 variable "create_read_replica" {
   description = "Read Replica 생성 여부"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "replica_instance_class" {
   description = "Read Replica 인스턴스 타입"
   type        = string
-  default     = "db.m6i.large"
+  default     = "db.t3.large"
 }
 
 # ──────────── ElastiCache ────────────
 variable "redis_node_type" {
   description = "ElastiCache Redis 노드 타입"
   type        = string
-  default     = "cache.r6g.large"
+  default     = "cache.t4g.small" # 가이드: cache.m7g.large
 }
 
 variable "redis_num_nodes" {
