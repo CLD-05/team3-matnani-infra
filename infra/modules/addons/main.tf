@@ -46,10 +46,6 @@ resource "helm_release" "alb_controller" {
   version    = "1.7.2"
   namespace  = "kube-system"
 
-  # 노드 0개 축소/복구 대비 안전장치
-  wait    = true
-  timeout = 600
-  atomic  = true
 
   set {
     name  = "clusterName"
@@ -69,6 +65,7 @@ resource "helm_release" "alb_controller" {
   }
 
   depends_on = [kubernetes_namespace.namespaces]
+  # 노드 0개 축소/복구 대비 안전장치
   wait    = true
   timeout = 600
   atomic  = true
@@ -87,4 +84,66 @@ resource "helm_release" "eso" {
   wait    = true
   timeout = 600
   atomic  = true
+}
+
+#  Prometheus + Grafana
+resource "helm_release" "kube_prometheus_stack" {
+  name       = "team3-matnani-kube-prometheus-stack"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart      = "kube-prometheus-stack"
+  version    = "61.3.2"
+  namespace  = "monitoring"
+
+  depends_on = [kubernetes_namespace.namespaces]
+  wait       = true
+  timeout    = 600
+  atomic     = true
+
+  set {
+    name  = "grafana.adminPassword"
+    value = var.grafana_admin_password
+  }
+
+  # EBS CSI로 PV 생성 — ebs-csi addon이 먼저 있어야 함
+  set {
+    name  = "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName"
+    value = "gp2"
+  }
+  set {
+    name  = "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage"
+    value = "10Gi"  # dev: 10Gi / prod: 50Gi
+  }
+}
+
+# ExternalDNS
+resource "helm_release" "external_dns" {
+  name       = "team3-matnani-external-dns"
+  repository = "https://kubernetes-sigs.github.io/external-dns"
+  chart      = "external-dns"
+  version    = "1.14.5"
+  namespace  = "kube-system"
+
+  depends_on = [kubernetes_namespace.namespaces]
+  wait       = true
+  timeout    = 300
+  atomic     = true
+
+  set {
+    name  = "provider"
+    value = "aws"
+  }
+  set {
+    name  = "aws.region"
+    value = "ap-northeast-2"
+  }
+  # dev: sync (레코드 자동 생성/삭제)
+  # prod: upsert-only (실수 삭제 차단)
+  set {
+    name  = "policy"
+    value = var.environment == "prod" ? "upsert-only" : "sync"
+  }
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = var.external_dns_role_arn
+  }
 }

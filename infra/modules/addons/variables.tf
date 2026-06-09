@@ -19,3 +19,14 @@ variable "alb_controller_role_arn" {
     description = "AWS Load Balancer Controller 가 사용할 IAM IRSA Role ARN"
     type = string
 }
+
+variable "external_dns_role_arn" {
+    description = "ExternalDNS IRSA Role ARN"
+    type        = string
+}
+
+variable "grafana_admin_password" {
+    description = "Grafana 관리자 비밀번호 — SSM에서 주입"
+    type        = string
+    sensitive   = true
+}
