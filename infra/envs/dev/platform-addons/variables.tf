@@ -13,6 +13,12 @@ variable "env" {
   default = "dev"
 }
 
+variable "cluster_name" {
+  description = "EKS 클러스터 이름"
+  type        = string
+  default     = "team3-matnani-dev"
+}
+
 variable "permissions_boundary" {
   type    = string
   default = "arn:aws:iam::495599735720:policy/TeamRuntimeBoundary"

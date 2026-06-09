@@ -1,18 +1,22 @@
-# 1. infra state 참조 (클러스터 뼈대 정보 가져오기)
-data "terraform_remote_state" "infra" {
-  backend = "s3"
-  config = {
-    bucket = "tfstate-lionkdt5-team3"
-    key    = "team3/dev/infra/terraform.tfstate"
-    region = "ap-northeast-2"
-  }
+# 현재 AWS 계정 정보 (Account ID) 가져오기
+data "aws_caller_identity" "current" {}
+
+# infra/outputs.tf 대신 AWS에서 EKS 클러스터 정보를 직접 조회합니다!
+data "aws_eks_cluster" "cluster" {
+  name = var.cluster_name
 }
 
 locals {
-  cluster_name     = data.terraform_remote_state.infra.outputs.cluster_name
-  cluster_endpoint = data.terraform_remote_state.infra.outputs.cluster_endpoint
-  cluster_ca       = data.terraform_remote_state.infra.outputs.cluster_ca
-  oidc_issuer_url  = data.terraform_remote_state.infra.outputs.oidc_issuer_url
+  # EKS 데이터 소스에서 필요한 정보 추출
+  cluster_name     = data.aws_eks_cluster.cluster.name
+  cluster_endpoint = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca       = data.aws_eks_cluster.cluster.certificate_authority[0].data
+  vpc_id           = data.aws_eks_cluster.cluster.vpc_config[0].vpc_id
+  oidc_issuer_url  = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+
+  # OIDC 문자열을 용도에 맞게 가공
+  oidc_provider_host = replace(local.oidc_issuer_url, "https://", "")
+  oidc_provider_arn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_provider_host}"
 
   common_tags = {
     Team      = var.team
@@ -21,7 +25,9 @@ locals {
   }
 }
 
-# 2. IRSA Role 4개 생성 (권한 경계 필수 부착됨)
+
+# 2. IRSA Role 4개
+
 
 # EBS CSI — Prometheus PV 생성용
 resource "aws_iam_role" "ebs_csi" {
@@ -32,17 +38,16 @@ resource "aws_iam_role" "ebs_csi" {
     Version = "2012-10-17"
     Statement = [{
       Effect    = "Allow"
-      Principal = { Federated = local.oidc_issuer_url }
+      Principal = { Federated = local.oidc_provider_arn }
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${local.oidc_issuer_url}:aud" = "sts.amazonaws.com"
-          "${local.oidc_issuer_url}:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com" 
+          "${local.oidc_provider_host}:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
         }
       }
     }]
   })
-
   tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-ebs-csi-role" })
 }
 
@@ -66,17 +71,16 @@ resource "aws_iam_role" "alb_controller" {
     Version = "2012-10-17"
     Statement = [{
       Effect    = "Allow"
-      Principal = { Federated = local.oidc_issuer_url }
+      Principal = { Federated = local.oidc_provider_arn }
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${local.oidc_issuer_url}:aud" = "sts.amazonaws.com"
-          "${local.oidc_issuer_url}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
+          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com" 
+          "${local.oidc_provider_host}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
         }
       }
     }]
   })
-
   tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-alb-controller-role" })
 }
 
@@ -94,17 +98,16 @@ resource "aws_iam_role" "eso" {
     Version = "2012-10-17"
     Statement = [{
       Effect    = "Allow"
-      Principal = { Federated = local.oidc_issuer_url }
+      Principal = { Federated = local.oidc_provider_arn }
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${local.oidc_issuer_url}:aud" = "sts.amazonaws.com"
-          "${local.oidc_issuer_url}:sub" = "system:serviceaccount:external-secrets:external-secrets-sa"
+          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com" 
+          "${local.oidc_provider_host}:sub" = "system:serviceaccount:external-secrets:external-secrets-sa"
         }
       }
     }]
   })
-
   tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-eso-role" })
 }
 
@@ -116,11 +119,7 @@ resource "aws_iam_role_policy" "eso_ssm" {
     Version = "2012-10-17"
     Statement = [{
       Effect   = "Allow"
-      Action   = [
-        "ssm:GetParameter",
-        "ssm:GetParameters",
-        "ssm:GetParametersByPath"
-      ]
+      Action   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath"]
       Resource = "arn:aws:ssm:ap-northeast-2:*:parameter/matnani/dev/*"
     }]
   })
@@ -135,17 +134,16 @@ resource "aws_iam_role" "external_dns" {
     Version = "2012-10-17"
     Statement = [{
       Effect    = "Allow"
-      Principal = { Federated = local.oidc_issuer_url }
+      Principal = { Federated = local.oidc_provider_arn } 
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${local.oidc_issuer_url}:aud" = "sts.amazonaws.com"
-          "${local.oidc_issuer_url}:sub" = "system:serviceaccount:kube-system:external-dns"
+          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com" 
+          "${local.oidc_provider_host}:sub" = "system:serviceaccount:kube-system:external-dns"
         }
       }
     }]
   })
-
   tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-external-dns-role" })
 }
 
@@ -156,33 +154,26 @@ resource "aws_iam_role_policy" "external_dns_route53" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["route53:ChangeResourceRecordSets"]
-        Resource = "arn:aws:route53:::hostedzone/${var.route53_zone_id}"
-      },
-      {
-        Effect   = "Allow"
-        Action   = [
-          "route53:ListHostedZones",
-          "route53:ListResourceRecordSets"
-        ]
-        Resource = "*"
-      }
+      { Effect = "Allow", Action = ["route53:ChangeResourceRecordSets"], Resource = "arn:aws:route53:::hostedzone/${var.route53_zone_id}" },
+      { Effect = "Allow", Action = ["route53:ListHostedZones", "route53:ListResourceRecordSets"], Resource = "*" }
     ]
   })
 }
 
+
 # 3. modules/addons 호출
+
 module "addons" {
-  source = "../../../modules/addons" 
+  source = "../../../modules/addons"
 
   team                    = var.team
   project                 = var.project
   environment             = var.env  
   cluster_name            = local.cluster_name
   cluster_endpoint        = local.cluster_endpoint
-  cluster_ca_certificate  = local.cluster_ca  
+  cluster_ca_certificate  = local.cluster_ca
+  
+  vpc_id                  = local.vpc_id  # vpc_id 전달
   
   alb_controller_role_arn = aws_iam_role.alb_controller.arn
   eso_role_arn            = aws_iam_role.eso.arn
