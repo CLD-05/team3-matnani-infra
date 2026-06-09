@@ -41,15 +41,15 @@ variable "endpoint_public_access" {
 
 # 노드그룹 설정
 variable "node_desired_size" {
-  description = "dev: 1 / prod: 3"
+  description = "dev: 2 / prod: 3"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "node_min_size" {
-  description = "dev: 1 / prod: 3"
+  description = "dev: 2 / prod: 3"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "node_max_size" {
