@@ -28,13 +28,3 @@ output "nat_gateway_ids" {
   value       = aws_nat_gateway.this[*].id
 }
 
-output "sg_alb_id" {
-  description = "ALB Security Group ID"
-  value       = aws_security_group.alb.id
-}
-
-output "sg_eks_node_id" {
-  description = "EKS Node Security Group ID"
-  value       = aws_security_group.eks_node.id
-}
-
