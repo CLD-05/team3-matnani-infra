@@ -1,3 +1,16 @@
+# infra/modules/addons/main.tf
+
+# Helm Release 설치 목록
+/*
+argo-cd (7.3.1)
+aws-load-balancer-controller (1.13.0)
+external-secrets (0.9.18)
+kube-prometheus-stack (61.3.2)
+external-dns (1.14.5)
+metrics-server (3.12.1)
+keda (2.14.2)
+*/
+
 # 1. 공통 격리 네임스페이스 일괄 생성
 resource "kubernetes_namespace" "namespaces" {
   for_each = toset(["argocd", "monitoring", "external-secrets", "matnani"])
@@ -38,14 +51,13 @@ resource "helm_release" "argocd" {
   }
 }
 
-# 3. 인그레스 제어 엔진 - AWS Load Balancer Controller 배포
+# 3. ALB Controller — Ingress 감지 후 ALB 설치
 resource "helm_release" "alb_controller" {
   name       = "team3-matnani-aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-load-balancer-controller"
-  version    = "1.7.2"
+  version    = "1.13.0"
   namespace  = "kube-system"
-
 
   set {
     name  = "clusterName"
@@ -63,6 +75,15 @@ resource "helm_release" "alb_controller" {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
     value = var.alb_controller_role_arn
   }
+  set {
+    name  = "region"
+    value = "ap-northeast-2"
+  }
+  set {
+    name  = "vpcId"
+    value = var.vpc_id
+  }
+  # featureGates 없음 — Ingress + ALB 방식
 
   depends_on = [kubernetes_namespace.namespaces]
   # 노드 0개 축소/복구 대비 안전장치
