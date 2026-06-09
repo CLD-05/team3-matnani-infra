@@ -30,3 +30,18 @@ variable "grafana_admin_password" {
     type        = string
     sensitive   = true
 }
+
+variable "vpc_id" {
+    description = "ALB Controller가 ALB를 생성할 VPC ID"
+    type        = string
+}
+
+variable "team" {
+    type    = string
+    default = "team3"
+}
+
+variable "project" {
+    type    = string
+    default = "matnani"
+}
