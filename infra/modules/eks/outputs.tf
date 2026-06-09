@@ -38,3 +38,8 @@ output "oidc_issuer_url" {
   description = "EKS OIDC Issuer URL — platform-addons IRSA 신뢰 정책에서 참조"
   value       = aws_eks_cluster.this.identity[0].oidc[0].issuer
 }
+
+output "oidc_provider_arn" {
+  description = "IAM OIDC OpenID Connect Provider ARN"
+  value       = aws_iam_openid_connect_provider.eks.arn
+}
