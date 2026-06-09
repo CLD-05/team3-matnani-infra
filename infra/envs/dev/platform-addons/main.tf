@@ -1,3 +1,30 @@
+# infra/envs/dev/platform-addons/main.tf
+
+# 생성 리소스:
+#   - data.terraform_remote_state    : dev/infra state에서 클러스터 정보 참조
+#                                      cluster_name, cluster_endpoint, cluster_ca, oidc_issuer_url
+#
+#   - aws_iam_role (ebs-csi)         : EBS CSI Driver IRSA Role
+#     -> ebs-csi-controller-sa ServiceAccount에 EBS 볼륨 생성/마운트 권한 부여
+#     -> Prometheus/Grafana PV 생성 시 사용
+#
+#   - aws_iam_role (alb-controller)  : ALB Controller IRSA Role
+#     -> aws-load-balancer-controller ServiceAccount에 ALB 생성/수정/삭제 권한 부여
+#     -> Ingress 감지 후 ALB 자동 생성
+#
+#   - aws_iam_role (eso)             : External Secrets Operator IRSA Role
+#     -> external-secrets-sa ServiceAccount에 SSM 읽기 권한 부여
+#     -> /matnani/dev/* 경로 한정
+#
+#   - aws_iam_role (external-dns)    : ExternalDNS IRSA Role
+#     -> external-dns ServiceAccount에 Route53 레코드 변경 권한 부여
+#     -> dev: sync 정책 (레코드 자동 생성/삭제)
+#
+#   - module.addons                  : Helm 차트 설치
+#     -> ArgoCD, ALB Controller, ESO, Prometheus+Grafana
+#     -> ExternalDNS, metrics-server, KEDA
+
+
 # 현재 AWS 계정 정보 (Account ID) 가져오기
 data "aws_caller_identity" "current" {}
 
