@@ -133,7 +133,7 @@ module "ecr" {
 
 module "cloudfront" {
   source = "../../../modules/cloudfront"
-  environment = var.env
+  env = var.env
 }
 
 
