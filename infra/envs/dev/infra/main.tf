@@ -122,17 +122,12 @@ module "ecr" {
 
   team    = var.team
   project = var.project
-  env     = var.env
-
   repositories = ["api"]
 }
 
 module "cloudfront" {
   source = "../../../modules/cloudfront"
-  team    = var.team
-  project = var.project
-  env     = var.env
-
+  environment = var.env
 }
 
 
@@ -141,13 +136,13 @@ module "github_oidc" {
 
   team    = var.team
   project = var.project
-  env     = var.env
-
   github_org  = var.github_org
-  github_repo = var.github_repo
   infra_repo           = var.infra_repo
   ecr_repository_arns  = values(module.ecr.repository_arns)
   permissions_boundary = var.permissions_boundary
+  frontend_bucket_arn         = module.cloudfront.frontend_bucket_arn
+  cloudfront_distribution_arn = module.cloudfront.distribution_arn
+  app_repo                  = var.app_repo
 }
 
 
@@ -169,13 +164,20 @@ module "monitoring" {
   project = var.project
   env     = var.env
 
+  # 필수: 슬랙 알람 발송을 위한 채널 정보 매핑 - 만들어지면 tfvars에 넣기
+  #slack_workspace_id = var.slack_workspace_id
+  #slack_channel_id   = var.slack_channel_id
+  slack_workspace_id = "T0000000000"
+  slack_channel_id   = "C0000000000"
+
   prometheus_storage_class = var.prometheus_storage_class
-  prometheus_storage_size  = var.prometheus_storage_class
+  prometheus_storage_size  = var.prometheus_storage_size
   eks_cluster_name       = module.eks.cluster_name
   rds_instance_id        = module.database.db_instance_id
   alb_name               = ""
   nat_gateway_id         = module.network.nat_gateway_ids
-  slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
+  # slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
+  slack_webhook_url      = ""
   grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
   permissions_boundary   = var.permissions_boundary
 }

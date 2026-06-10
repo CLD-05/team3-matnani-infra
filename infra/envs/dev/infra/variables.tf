@@ -154,8 +154,8 @@ variable "isolated_cidrs" {
 
 # EKS
 variable "node_instance_type" {
-  type    = string
-  default = "t3.medium"
+  type    = list(string)
+  default = ["t3.medium"]
 }
 
 variable "node_min" {
@@ -171,6 +171,11 @@ variable "node_max" {
 variable "node_desired" {
   type    = number
   default = 2
+}
+
+variable "team_member_user_arns" {
+  description = "EKS Access Entry 팀원 IAM 유저 ARN 맵 — tfvars에서 주입"
+  type        = map(string)
 }
 
 # EKS 클러스터 필수 애드온 버전 관리
@@ -206,51 +211,20 @@ variable "bastion_instance_type" {
   default = "t3.micro"
 }
 
-output "ecr_repository_urls" {
-  description = "GitHub Actions CI에서 이미지 push 시 참조"
-  value       = module.ecr.repository_urls
-}
-
-output "ecr_repository_arns" {
-  description = "github_oidc 모듈 gha-ci-role 정책 Resource 지정 시 참조"
-  value       = module.ecr.repository_arns
-}
-
-
-# GitHub OIDC
-output "gha_ci_role_arn" {
-  description = "GitHub Actions CI workflow role-to-assume 값"
-  value       = module.github_oidc.gha_ci_role_arn
-}
-
-output "gha_dev_role_arn" {
-  description = "GitHub Actions dev infra workflow role-to-assume 값"
-  value       = module.github_oidc.gha_dev_role_arn
-}
-
-output "gha_prod_role_arn" {
-  description = "GitHub Actions prod infra workflow role-to-assume 값"
-  value       = module.github_oidc.gha_prod_role_arn
-}
-
-
-# CloudFront
-output "cloudfront_domain_name" {
-  description = "프론트엔드 접속 URL (prod만 생성)"
-  value       = module.cloudfront.cloudfront_domain_name
-}
-
 variable "github_org" {
   type        = string
-  description = "GitHub 조직명 또는 사용자명"
+  description = "GitHub 조직명 또는 사용자명 — tfvars에서 주입"
 }
 
-variable "github_repo" {
+variable "app_repo" {
   type        = string
-  description = "GitHub 레포지토리명"
+  description = "앱 소스 레포지토리명 — tfvars에서 주입"
 }
 
-variable "infra_repo" { type = string }
+variable "infra_repo" {
+  type        = string
+  description = "인프라 관리 레포지토리명 — tfvars에서 주입"
+}
 
 # monitoring
 variable "prometheus_storage_class" {
@@ -261,4 +235,14 @@ variable "prometheus_storage_class" {
 variable "prometheus_storage_size" {
   type        = string
   description = "10Gi"
+}
+
+variable "slack_workspace_id" {
+  type        = string
+  description = "팀 공용 슬랙 워크스페이스 ID"
+}
+
+variable "slack_channel_id" {
+  type        = string
+  description = "알림을 수신할 팀 공용 슬랙 채널 ID"
 }

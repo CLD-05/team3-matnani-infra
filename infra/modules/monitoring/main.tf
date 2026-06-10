@@ -13,15 +13,17 @@ resource "helm_release" "monitoring" {
   atomic           = true
   values           = [file("${path.module}/values.yaml")]
 
-  set {
-    name  = "prometheus.prometheusSpec.externalLabels.environment"
-    value = var.environment
-  }
+  set = [
+    {
+      name  = "prometheus.prometheusSpec.externalLabels.environment"
+      value = var.env
+    }
+  ]
 }
 
 # 2. 로그 수집 파이프라인 (CloudWatch)
 resource "aws_cloudwatch_log_group" "eks_logs" {
-  name              = "/aws/eks/team3-matnani-${var.environment}/application"
+  name              = "/aws/eks/team3-matnani-${var.env}/application"
   retention_in_days = 3
 }
 
@@ -31,19 +33,21 @@ resource "helm_release" "fluent_bit" {
   chart      = "aws-for-fluent-bit"
   namespace  = "kube-system"
 
-  set { 
-    name  = "cloudWatchLogs.region"
-    value = "ap-northeast-2" 
-  }
-  set { 
-    name = "cloudWatchLogs.logGroupName" 
-    value = aws_cloudwatch_log_group.eks_logs.name 
-        }
+  set = [
+    {
+      name  = "cloudWatchLogs.region"
+      value = "ap-northeast-2"
+    },
+    {
+      name  = "cloudWatchLogs.logGroupName"
+      value = aws_cloudwatch_log_group.eks_logs.name
+    }
+  ]
 }
 
 # 3. 알람 파이프라인 (SNS + Chatbot)
 resource "aws_sns_topic" "matnani_alerts" {
-  name = "team3-matnani-monitoring-alerts-${var.environment}"
+  name = "team3-matnani-monitoring-alerts-${var.env}"
 }
 
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
@@ -55,7 +59,7 @@ resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
 }
 
 resource "aws_iam_role" "chatbot_role" {
-  name = "team3-matnani-chatbot-role-${var.environment}"
+  name = "team3-matnani-chatbot-role-${var.env}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -78,8 +82,9 @@ resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
 
 # 4. 통합 알람 로직
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
-  count               = var.rds_identifier != null ? 1 : 0
-  alarm_name          = "team3-matnani-rds-cpu-high-${var.environment}"
+  count               = var.rds_instance_id != "" ? 1 : 0
+
+  alarm_name          = "team3-matnani-rds-cpu-high-${var.env}"
   comparison_operator = "GreaterThanThreshold"
   threshold           = "80"
   metric_name         = "CPUUtilization"
@@ -87,6 +92,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
   period              = "120"
   evaluation_periods  = "2"
   statistic           = "Average"
-  dimensions          = { DBInstanceIdentifier = var.rds_identifier }
+
+  dimensions          = { DBInstanceIdentifier = var.rds_instance_id }
   alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
 }

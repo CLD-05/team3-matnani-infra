@@ -77,7 +77,7 @@ resource "aws_security_group" "bastion" {
 
   # 인바운드: 없음 (SSH 22번 닫음 — SSM은 아웃바운드만 필요)
   egress {
-    description = "전체 아웃바운드 허용 (SSM 통신용)"
+    description = "Allow all outbound traffic for SSM"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
