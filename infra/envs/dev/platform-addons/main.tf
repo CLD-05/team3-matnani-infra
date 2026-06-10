@@ -28,6 +28,7 @@
 # 현재 AWS 계정 정보 (Account ID) 가져오기
 data "aws_caller_identity" "current" {}
 
+# infra/outputs.tf 대신 AWS에서 EKS 클러스터 정보를 직접 조회합니다!
 data "aws_eks_cluster" "cluster" {
   name = var.cluster_name
 }
@@ -57,7 +58,7 @@ locals {
 
 # EBS CSI — Prometheus PV 생성용
 resource "aws_iam_role" "ebs_csi" {
-  name                 = "${var.team}-${var.project}-ebs-csi-role"
+  name                 = "${var.team}-${var.project}-${var.env}-ebs-csi-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
@@ -68,13 +69,13 @@ resource "aws_iam_role" "ebs_csi" {
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com" 
+          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com"
           "${local.oidc_provider_host}:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
         }
       }
     }]
   })
-  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-ebs-csi-role" })
+  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-${var.env}-ebs-csi-role" })
 }
 
 resource "aws_iam_role_policy_attachment" "ebs_csi" {
@@ -84,13 +85,13 @@ resource "aws_iam_role_policy_attachment" "ebs_csi" {
 
 # ALB Controller — ALB 생성/수정/삭제용
 resource "aws_iam_policy" "alb_controller" {
-  name   = "${var.team}-${var.project}-alb-controller-policy"
+  name   = "${var.team}-${var.project}-${var.env}-alb-controller-policy"
   policy = file("${path.module}/policies/alb-controller-policy.json")
   tags   = local.common_tags
 }
 
 resource "aws_iam_role" "alb_controller" {
-  name                 = "${var.team}-${var.project}-alb-controller-role"
+  name                 = "${var.team}-${var.project}-${var.env}-alb-controller-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
@@ -101,13 +102,13 @@ resource "aws_iam_role" "alb_controller" {
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com" 
+          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com"
           "${local.oidc_provider_host}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
         }
       }
     }]
   })
-  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-alb-controller-role" })
+  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-${var.env}-alb-controller-role" })
 }
 
 resource "aws_iam_role_policy_attachment" "alb_controller" {
@@ -117,7 +118,7 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
 
 # ESO — SSM Parameter Store 읽기용
 resource "aws_iam_role" "eso" {
-  name                 = "${var.team}-${var.project}-eso-role"
+  name                 = "${var.team}-${var.project}-${var.env}-eso-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
@@ -128,17 +129,17 @@ resource "aws_iam_role" "eso" {
       Action    = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com" 
+          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com"
           "${local.oidc_provider_host}:sub" = "system:serviceaccount:external-secrets:external-secrets-sa"
         }
       }
     }]
   })
-  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-eso-role" })
+  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-${var.env}-eso-role" })
 }
 
 resource "aws_iam_role_policy" "eso_ssm" {
-  name = "${var.team}-${var.project}-eso-ssm"
+  name = "${var.team}-${var.project}-${var.env}-eso-ssm"
   role = aws_iam_role.eso.id
 
   policy = jsonencode({
@@ -192,15 +193,15 @@ resource "aws_iam_role_policy" "eso_ssm" {
 module "addons" {
   source = "../../../modules/addons"
 
-  team                    = var.team
-  project                 = var.project
-  env                     = var.env  
-  cluster_name            = local.cluster_name
-  cluster_endpoint        = local.cluster_endpoint
-  cluster_ca_certificate  = local.cluster_ca
-  
-  vpc_id                  = local.vpc_id  # vpc_id 전달
-  
+  team                   = var.team
+  project                = var.project
+  env                    = var.env
+  cluster_name           = local.cluster_name
+  cluster_endpoint       = local.cluster_endpoint
+  cluster_ca_certificate = local.cluster_ca
+
+  vpc_id = local.vpc_id # vpc_id 전달
+
   alb_controller_role_arn = aws_iam_role.alb_controller.arn
   eso_role_arn            = aws_iam_role.eso.arn
   external_dns_role_arn   = ""

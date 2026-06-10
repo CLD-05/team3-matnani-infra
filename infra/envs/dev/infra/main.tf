@@ -41,6 +41,8 @@ module "eks" {
   kube_proxy_version         = var.kube_proxy_version
   ebs_csi_version            = var.ebs_csi_version
   pod_identity_agent_version = var.pod_identity_agent_version
+
+  team_member_user_arns = var.team_member_user_arns
 }
 
 
@@ -132,8 +134,10 @@ module "ecr" {
 }
 
 module "cloudfront" {
-  source = "../../../modules/cloudfront"
-  env = var.env
+  source  = "../../../modules/cloudfront"
+  env     = var.env
+  team    = var.team
+  project = var.project
 }
 
 
