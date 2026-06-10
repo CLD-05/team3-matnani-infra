@@ -2,7 +2,7 @@
 
 # 1. Prometheus & Grafana 배포
 resource "helm_release" "monitoring" {
-  name             = "team3-matnani-monitoring"
+  name             = "team3-matnani-${var.env}-monitoring"
   repository       = "https://prometheus-community.github.io/helm-charts"
   chart            = "kube-prometheus-stack"
   version          = "60.0.0"
@@ -28,7 +28,7 @@ resource "aws_cloudwatch_log_group" "eks_logs" {
 }
 
 resource "helm_release" "fluent_bit" {
-  name       = "team3-matnani-fluent-bit"
+  name       = "team3-matnani-${var.env}-fluent-bit"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-for-fluent-bit"
   namespace  = "kube-system"
@@ -47,7 +47,7 @@ resource "helm_release" "fluent_bit" {
 
 # 3. 알람 파이프라인 (SNS + Chatbot)
 resource "aws_sns_topic" "matnani_alerts" {
-  name = "team3-matnani-monitoring-alerts-${var.env}"
+  name = "team3-matnani-${var.env}-monitoring-alerts"
 }
 
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
@@ -59,7 +59,7 @@ resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
 }
 
 resource "aws_iam_role" "chatbot_role" {
-  name = "team3-matnani-chatbot-role-${var.env}"
+  name = "team3-matnani-${var.env}-chatbot-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -84,7 +84,7 @@ resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
   count               = 1
 
-  alarm_name          = "team3-matnani-rds-cpu-high-${var.env}"
+  alarm_name          = "team3-matnani-${var.env}-rds-cpu-high"
   comparison_operator = "GreaterThanThreshold"
   threshold           = "80"
   metric_name         = "CPUUtilization"
