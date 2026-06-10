@@ -1,5 +1,4 @@
-variable "environment" {
+variable "env" {
   description = "배포 환경 (dev / prod)"
   type        = string
-  default     = "dev"
 }

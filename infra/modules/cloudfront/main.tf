@@ -1,10 +1,10 @@
 # 1. 프론트엔드 정적 파일 저장용 S3 버킷
 resource "aws_s3_bucket" "frontend" {
-  bucket        = "team3-matnani-frontend-${var.environment}"
+  bucket        = "team3-matnani-${var.env}-frontend"
   force_destroy = true # 인프라 일일 셧다운 및 테스트 편의를 위해 임시 허용
 
   tags = {
-    Name = "team3-matnani-frontend-${var.environment}"
+    Name = "team3-matnani-${var.env}-frontend"
     Team = "team3"
   }
 }
@@ -21,7 +21,7 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 
 # 3. CloudFront OAC (Origin Access Control) 생성
 resource "aws_cloudfront_origin_access_control" "this" {
-  name                              = "team3-matnani-oac-${var.environment}"
+  name                              = "team3-matnani-${var.env}-oac"
   description                       = "OAC for Matnani Frontend"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
@@ -69,7 +69,7 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   tags = {
-    Name = "team3-matnani-cf-${var.environment}"
+    Name = "team3-matnani-${var.env}-cf"
     team = "team3"
   }
 }

@@ -50,3 +50,7 @@ variable "eso_role_arn" {
     type        = string
     default     = null
 }
+variable "env" {
+    description = "배포 환경 (dev/prod)"
+    type    = string
+}
