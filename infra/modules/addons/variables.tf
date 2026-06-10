@@ -45,3 +45,8 @@ variable "project" {
     type    = string
     default = "matnani"
 }
+variable "eso_role_arn" {
+    description = "ESO가 SSM에 접근하기 위한 IAM Role ARN"
+    type        = string
+    default     = null
+}
