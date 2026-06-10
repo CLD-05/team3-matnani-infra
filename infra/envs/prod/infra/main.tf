@@ -158,7 +158,7 @@ module "github_oidc" {
 }
 
 # SSM에서 민감값 읽기 — prod 경로
-data "aws_ssm_parameter" "grafana_password" {
+/*data "aws_ssm_parameter" "grafana_password" {
   name            = "/team3/matnani/prod/grafana-password"
   with_decryption = true
 }
@@ -171,9 +171,9 @@ data "aws_ssm_parameter" "slack_workspace_id" {
 data "aws_ssm_parameter" "slack_channel_id" {
   name            = "/team3/matnani/prod/slack-channel-id"
   with_decryption = true
-}
+}*/
 
-module "monitoring" {
+/*module "monitoring" {
   source = "../../../modules/monitoring"
 
   team        = var.team
@@ -184,6 +184,6 @@ module "monitoring" {
   log_retention_days   = var.log_retention_days
   slack_workspace_id   = data.aws_ssm_parameter.slack_workspace_id.value
   slack_channel_id     = data.aws_ssm_parameter.slack_channel_id.value
-  rds_identifier       = module.database.db_instance_id
+  rds_instance_id       = module.database.db_instance_id
   permissions_boundary = var.permissions_boundary
-}
+}*/

@@ -160,8 +160,8 @@ variable "isolated_cidrs" {
 # EKS
 
 variable "node_instance_type" {
-  type    = string
-  default = "m6i.large"
+  type    = list(string)
+  default = ["m6i.large"]
 }
 
 variable "node_min" {

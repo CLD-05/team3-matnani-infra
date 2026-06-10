@@ -55,7 +55,7 @@ locals {
 
 # 1. EBS CSI
 resource "aws_iam_role" "ebs_csi" {
-  name                 = "${var.team}-${var.project}-ebs-csi-role-${var.env}"
+  name                 = "${var.team}-${var.project}-${var.env}-ebs-csi-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
@@ -72,7 +72,7 @@ resource "aws_iam_role" "ebs_csi" {
       }
     }]
   })
-  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-ebs-csi-role-${var.env}" })
+  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-${var.env}-ebs-csi-role" })
 }
 
 resource "aws_iam_role_policy_attachment" "ebs_csi" {
@@ -82,13 +82,13 @@ resource "aws_iam_role_policy_attachment" "ebs_csi" {
 
 # 2. ALB Controller
 resource "aws_iam_policy" "alb_controller" {
-  name   = "${var.team}-${var.project}-alb-controller-policy-${var.env}"
+  name   = "${var.team}-${var.project}-${var.env}-alb-controller-policy"
   policy = file("${path.module}/policies/alb-controller-policy.json")
   tags   = local.common_tags
 }
 
 resource "aws_iam_role" "alb_controller" {
-  name                 = "${var.team}-${var.project}-alb-controller-role-${var.env}"
+  name                 = "${var.team}-${var.project}-${var.env}-alb-controller-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
@@ -105,7 +105,7 @@ resource "aws_iam_role" "alb_controller" {
       }
     }]
   })
-  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-alb-controller-role-${var.env}" })
+  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-${var.env}-alb-controller-role" })
 }
 
 resource "aws_iam_role_policy_attachment" "alb_controller" {
@@ -115,7 +115,7 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
 
 # 3. ESO (Prod Parameter Store 전용)
 resource "aws_iam_role" "eso" {
-  name                 = "${var.team}-${var.project}-eso-role-${var.env}"
+  name                 = "${var.team}-${var.project}-${var.env}-eso-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
@@ -132,11 +132,14 @@ resource "aws_iam_role" "eso" {
       }
     }]
   })
-  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-eso-role-${var.env}" })
+  tags = merge(local.common_tags, {
+    Name = "${var.team}-${var.project}-${var.env}-eso-role"
+  }
+  )
 }
 
 resource "aws_iam_role_policy" "eso_ssm" {
-  name = "${var.team}-${var.project}-eso-ssm-${var.env}"
+  name = "${var.team}-${var.project}-${var.env}-eso-ssm"
   role = aws_iam_role.eso.id
 
   policy = jsonencode({
@@ -151,7 +154,7 @@ resource "aws_iam_role_policy" "eso_ssm" {
 
 # 4. ExternalDNS
 resource "aws_iam_role" "external_dns" {
-  name                 = "${var.team}-${var.project}-external-dns-role-${var.env}"
+  name                 = "${var.team}-${var.project}-${var.env}-external-dns-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
@@ -168,11 +171,11 @@ resource "aws_iam_role" "external_dns" {
       }
     }]
   })
-  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-external-dns-role-${var.env}" })
+  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-${var.env}-external-dns-role" })
 }
 
 resource "aws_iam_role_policy" "external_dns_route53" {
-  name = "${var.team}-${var.project}-external-dns-route53-${var.env}"
+  name = "${var.team}-${var.project}-${var.env}-external-dns-route53"
   role = aws_iam_role.external_dns.id
 
   policy = jsonencode({
