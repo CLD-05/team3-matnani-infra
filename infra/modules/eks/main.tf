@@ -20,12 +20,13 @@
 
 
 locals {
-  cluster_name = "${var.team}-${var.project}-eks"
+  cluster_name = "${var.team}-${var.project}-${var.env}-eks"
 
   common_tags = {
-    Team      = var.team
-    Project   = var.project
-    ManagedBy = "terraform"
+    Team        = var.team
+    Project     = var.project
+    Environment = var.env
+    ManagedBy   = "terraform"
   }
 }
 
@@ -178,7 +179,7 @@ resource "aws_eks_addon" "vpc_cni" {
   cluster_name                = aws_eks_cluster.this.name
   addon_name                  = "vpc-cni"
   addon_version               = var.vpc_cni_version
-  resolve_conflicts_on_update = "PRESERVE"
+  resolve_conflicts_on_update = "OVERWRITE"
 
   tags = local.common_tags
 }
@@ -187,7 +188,7 @@ resource "aws_eks_addon" "coredns" {
   cluster_name                = aws_eks_cluster.this.name
   addon_name                  = "coredns"
   addon_version               = var.coredns_version
-  resolve_conflicts_on_update = "PRESERVE"
+  resolve_conflicts_on_update = "OVERWRITE"
 
   tags = local.common_tags
 
@@ -198,24 +199,17 @@ resource "aws_eks_addon" "kube_proxy" {
   cluster_name                = aws_eks_cluster.this.name
   addon_name                  = "kube-proxy"
   addon_version               = var.kube_proxy_version
-  resolve_conflicts_on_update = "PRESERVE"
+  resolve_conflicts_on_update = "OVERWRITE"
 
   tags = local.common_tags
 }
 
-resource "aws_eks_addon" "ebs_csi" {
-  cluster_name                = aws_eks_cluster.this.name
-  addon_name                  = "aws-ebs-csi-driver"
-  addon_version               = var.ebs_csi_version
-  resolve_conflicts_on_update = "PRESERVE"
-
-  tags = local.common_tags
-}
 
 resource "aws_eks_addon" "pod_identity_agent" {
-  cluster_name  = aws_eks_cluster.this.name
-  addon_name    = "eks-pod-identity-agent"
-  addon_version = var.pod_identity_agent_version
+  cluster_name                = aws_eks_cluster.this.name
+  addon_name                  = "eks-pod-identity-agent"
+  addon_version               = var.pod_identity_agent_version
+  resolve_conflicts_on_update = "OVERWRITE"
 
   tags = local.common_tags
 }

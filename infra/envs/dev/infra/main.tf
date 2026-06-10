@@ -21,6 +21,7 @@ module "network" {
 module "eks" {
   source = "../../../modules/eks"
   permissions_boundary = var.permissions_boundary
+  env     = var.env
   team    = var.team
   project = var.project
 
@@ -46,6 +47,7 @@ module "eks" {
 module "bastion" {
   source = "../../../modules/bastion"
   permissions_boundary = var.permissions_boundary
+  env     = var.env
   team    = var.team
   project = var.project
 
@@ -89,6 +91,9 @@ module "database" {
 
   create_read_replica    = var.create_read_replica
   replica_instance_class = var.replica_instance_class
+
+  # dev: db.t4g.micro는 Performance Insights 미지원
+  performance_insights_enabled = false
 }
 
 module "elasticache" {
@@ -120,6 +125,7 @@ module "elasticache" {
 module "ecr" {
   source = "../../../modules/ecr"
 
+  env     = var.env
   team    = var.team
   project = var.project
   repositories = ["api"]
@@ -134,6 +140,7 @@ module "cloudfront" {
 module "github_oidc" {
   source = "../../../modules/github_oidc"
 
+  env     = var.env
   team    = var.team
   project = var.project
   github_org  = var.github_org
@@ -146,38 +153,34 @@ module "github_oidc" {
 }
 
 
-/*data "aws_ssm_parameter" "grafana_password" {
-  name            = "/team3/matnani/dev/grafana-password"
-  with_decryption = true
-}*/
+# TODO: EKS 클러스터 생성 후 활성화 (kubernetes provider 필요)
+# data "aws_ssm_parameter" "grafana_password" {
+#   name            = "/team3/matnani/dev/grafana-password"
+#   with_decryption = true
+# }
 
-# SSM에서 읽기
-data "aws_ssm_parameter" "slack_webhook" {
-  name            = "/team3/matnani/dev/monitoring/slack-webhook"
-  with_decryption = true
-}
+# data "aws_ssm_parameter" "slack_webhook" {
+#   name            = "/team3/matnani/dev/monitoring/slack-webhook"
+#   with_decryption = true
+# }
 
-/*module "monitoring" {
-  source = "../../../modules/monitoring"
-
-  team    = var.team
-  project = var.project
-  env     = var.env
-
-  # 필수: 슬랙 알람 발송을 위한 채널 정보 매핑 - 만들어지면 tfvars에 넣기
-  #slack_workspace_id = var.slack_workspace_id
-  #slack_channel_id   = var.slack_channel_id
-  slack_workspace_id = "T0000000000"
-  slack_channel_id   = "C0000000000"
-
-  prometheus_storage_class = var.prometheus_storage_class
-  prometheus_storage_size  = var.prometheus_storage_size
-  eks_cluster_name       = module.eks.cluster_name
-  rds_instance_id        = module.database.db_instance_id
-  alb_name               = ""
-  nat_gateway_id         = module.network.nat_gateway_ids
-  # slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
-  slack_webhook_url      = ""
-  grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
-  permissions_boundary   = var.permissions_boundary
-}*/
+# module "monitoring" {
+#   source = "../../../modules/monitoring"
+#
+#   team    = var.team
+#   project = var.project
+#   env     = var.env
+#
+#   slack_workspace_id = var.slack_workspace_id
+#   slack_channel_id   = var.slack_channel_id
+#
+#   prometheus_storage_class = var.prometheus_storage_class
+#   prometheus_storage_size  = var.prometheus_storage_size
+#   eks_cluster_name       = module.eks.cluster_name
+#   rds_instance_id        = module.database.db_instance_id
+#   alb_name               = ""
+#   nat_gateway_id         = module.network.nat_gateway_ids[0]
+#   slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
+#   grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
+#   permissions_boundary   = var.permissions_boundary
+# }

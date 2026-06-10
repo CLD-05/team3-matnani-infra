@@ -10,6 +10,11 @@ variable "project" {
   type        = string
 }
 
+variable "env" {
+  description = "배포 환경 (dev/prod)"
+  type        = string
+}
+
 variable "permissions_boundary" {
   description = "IAM Role 권한 경계 ARN — team3-* role 생성 시 필수"
   type        = string

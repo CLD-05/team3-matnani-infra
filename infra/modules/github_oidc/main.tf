@@ -11,7 +11,7 @@
 
 
 locals {
-  name = "${var.team}-${var.project}"
+  name = "${var.team}-${var.project}-${var.env}"
 
   common_tags = {
     Team      = var.team

@@ -21,6 +21,7 @@ module "eks" {
   source               = "../../../modules/eks"
   permissions_boundary = var.permissions_boundary
 
+  env     = var.env
   team    = var.team
   project = var.project
 
@@ -49,6 +50,7 @@ module "bastion" {
   source               = "../../../modules/bastion"
   permissions_boundary = var.permissions_boundary
 
+  env     = var.env
   team    = var.team
   project = var.project
 
@@ -124,6 +126,7 @@ module "elasticache" {
 module "ecr" {
   source = "../../../modules/ecr"
 
+  env          = var.env
   team         = var.team
   project      = var.project
   repositories = ["api"]
@@ -140,6 +143,7 @@ module "cloudfront" {
 module "github_oidc" {
   source = "../../../modules/github_oidc"
 
+  env     = var.env
   team    = var.team
   project = var.project
 

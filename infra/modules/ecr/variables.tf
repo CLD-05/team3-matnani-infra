@@ -10,6 +10,11 @@ variable "project" {
   type        = string
 }
 
+variable "env" {
+  description = "배포 환경 (dev/prod)"
+  type        = string
+}
+
 variable "repositories" {
   description = "생성할 ECR 레포지토리 이름 목록"
   type        = list(string)

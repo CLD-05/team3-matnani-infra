@@ -181,27 +181,27 @@ variable "team_member_user_arns" {
 # EKS 클러스터 필수 애드온 버전 관리
 variable "vpc_cni_version" {
   type    = string
-  default = "v1.19.3-eksbuild.1"
+  default = "v1.22.1-eksbuild.2"
 }
 
 variable "coredns_version" {
   type    = string
-  default = "v1.11.4-eksbuild.2"
+  default = "v1.14.3-eksbuild.2"
 }
 
 variable "kube_proxy_version" {
   type    = string
-  default = "v1.32.3-eksbuild.2"
+  default = "v1.35.3-eksbuild.11"
 }
 
 variable "ebs_csi_version" {
   type    = string
-  default = "v1.41.0-eksbuild.1"
+  default = "v1.61.1-eksbuild.1"
 }
 
 variable "pod_identity_agent_version" {
   type    = string
-  default = "v1.3.4-eksbuild.1"
+  default = "v1.3.10-eksbuild.3"
 }
 
 

@@ -106,3 +106,9 @@ variable "backup_retention_period" {
   type        = number
   default     = 7
 }
+
+variable "performance_insights_enabled" {
+  description = "Performance Insights 활성화 여부 (db.t4g.micro 등 일부 인스턴스 미지원)"
+  type        = bool
+  default     = true
+}

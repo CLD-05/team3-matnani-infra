@@ -10,6 +10,11 @@ variable "project" {
   type        = string
 }
 
+variable "env" {
+  description = "배포 환경 (dev/prod)"
+  type        = string
+}
+
 variable "vpc_id" {
   description = "network 모듈 output — Security Group 생성용"
   type        = string
