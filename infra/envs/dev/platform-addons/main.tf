@@ -28,7 +28,6 @@
 # 현재 AWS 계정 정보 (Account ID) 가져오기
 data "aws_caller_identity" "current" {}
 
-# infra/outputs.tf 대신 AWS에서 EKS 클러스터 정보를 직접 조회합니다!
 data "aws_eks_cluster" "cluster" {
   name = var.cluster_name
 }
