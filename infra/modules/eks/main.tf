@@ -109,7 +109,7 @@ resource "aws_security_group" "node" {
 
 
   egress {
-    description = "전체 아웃바운드 허용"
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"

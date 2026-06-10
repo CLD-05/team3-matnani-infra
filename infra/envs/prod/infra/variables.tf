@@ -158,11 +158,6 @@ variable "isolated_cidrs" {
 
 
 # EKS
-variable "endpoint_public_access" {
-  type        = bool
-  description = "EKS 클러스터 제어 평면(API Server)의 퍼블릭 엔드포인트 활성화 여부"
-  default     = false
-}
 
 variable "node_instance_type" {
   type    = string
@@ -210,34 +205,22 @@ variable "pod_identity_agent_version" {
   default = "v1.3.4-eksbuild.1"
 }
 
+variable "endpoint_public_access" {
+  description = "prod: false (퍼블릭 API 접근 차단)"
+  type        = bool
+  default     = false
+}
+
+variable "team_member_user_arns" {
+  description = "EKS Access Entry 팀원 IAM 유저 ARN 맵"
+  type        = map(string)
+  default     = {}
+}
 
 # Bastion
 variable "bastion_instance_type" {
   type    = string
   default = "t3.micro"
-}
-
-# GitHub OIDC
-output "gha_ci_role_arn" {
-  description = "GitHub Actions CI workflow role-to-assume 값"
-  value       = module.github_oidc.gha_ci_role_arn
-}
-
-output "gha_dev_role_arn" {
-  description = "GitHub Actions dev infra workflow role-to-assume 값"
-  value       = module.github_oidc.gha_dev_role_arn
-}
-
-output "gha_prod_role_arn" {
-  description = "GitHub Actions prod infra workflow role-to-assume 값"
-  value       = module.github_oidc.gha_prod_role_arn
-}
-
-
-# CloudFront
-output "cloudfront_domain_name" {
-  description = "프론트엔드 접속 URL (prod만 생성)"
-  value       = module.cloudfront.cloudfront_domain_name
 }
 
 variable "github_org" {
@@ -250,12 +233,26 @@ variable "github_repo" {
   description = "GitHub 레포지토리명"
 }
 
-variable "infra_repo" { type = string }
+variable "app_repo" {
+  type        = string
+  description = "앱 소스 레포지토리명"
+  default     = "team3-matnani-app"
+}
+
+variable "infra_repo" {
+  type = string
+}
 
 # monitoring
 variable "prometheus_storage_class" {
   type        = string
   description = "gp2"
+}
+
+variable "log_retention_days" {
+  description = "CloudWatch 로그 보존 기간 (dev: 3 / prod: 30)"
+  type        = number
+  default     = 30
 }
 
 variable "prometheus_storage_size" {

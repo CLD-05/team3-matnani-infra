@@ -7,3 +7,18 @@ output "s3_bucket_name" {
   description = "정적 파일 업로드용 S3 버킷 이름"
   value       = aws_s3_bucket.frontend.id
 }
+
+output "distribution_arn" {
+  description = "CloudFront 배포의 전체 ARN (GitHub OIDC 및 모니터링 연동용)"
+  value       = aws_cloudfront_distribution.this.arn
+}
+
+output "frontend_bucket_arn" {
+  description = "프론트엔드 정적 파일이 저장되는 S3 버킷의 ARN"
+  value       = aws_s3_bucket.frontend.arn
+}
+
+output "distribution_id" {
+  description = "CloudFront 배포 ID (필요 시 캐시 무효화 등에 사용)"
+  value       = aws_cloudfront_distribution.this.id
+}
