@@ -82,7 +82,7 @@ resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
 
 # 4. 통합 알람 로직
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
-  count               = var.rds_instance_id != "" ? 1 : 0
+  count               = 1
 
   alarm_name          = "team3-matnani-rds-cpu-high-${var.env}"
   comparison_operator = "GreaterThanThreshold"
