@@ -20,12 +20,13 @@
 
 
 locals {
-  cluster_name = "${var.team}-${var.project}-eks"
+  cluster_name = "${var.team}-${var.project}-${var.env}-eks"
 
   common_tags = {
-    Team      = var.team
-    Project   = var.project
-    ManagedBy = "terraform"
+    Team        = var.team
+    Project     = var.project
+    Environment = var.env
+    ManagedBy   = "terraform"
   }
 }
 

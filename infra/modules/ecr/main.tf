@@ -19,7 +19,7 @@ resource "aws_ecr_repository" "this" {
   for_each = toset(var.repositories)
 
   # 이름 형식: team3-matnani-api
-  name                 = "${var.team}-${var.project}-${each.value}"
+  name                 = "${var.team}-${var.project}-${var.env}-${each.value}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
