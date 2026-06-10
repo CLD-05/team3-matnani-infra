@@ -1,13 +1,4 @@
 terraform {
-  # 🚨 Prod 전용 S3 백엔드 경로 (dev와 분리)
-  backend "s3" {
-    bucket       = "tfstate-lionkdt5-team3"
-    key          = "team3/prod/platform-addons/terraform.tfstate"
-    region       = "ap-northeast-2"
-    encrypt      = true
-    use_lockfile = true
-  }
-
   required_providers {
     aws        = { source = "hashicorp/aws", version = "~> 5.0" }
     kubernetes = { source = "hashicorp/kubernetes", version = "~> 2.0" }
