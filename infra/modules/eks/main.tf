@@ -120,6 +120,10 @@ resource "aws_security_group" "node" {
   tags = merge(local.common_tags, {
     Name = "${local.cluster_name}-node-sg"
   })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 

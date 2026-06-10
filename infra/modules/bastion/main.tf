@@ -87,6 +87,10 @@ resource "aws_security_group" "bastion" {
   tags = merge(local.common_tags, {
     Name = "${local.name}-sg"
   })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # EC2
