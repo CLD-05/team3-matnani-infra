@@ -146,10 +146,10 @@ module "github_oidc" {
 }
 
 
-data "aws_ssm_parameter" "grafana_password" {
-  name            = "team3/matnani/dev/grafana-password"
+/*data "aws_ssm_parameter" "grafana_password" {
+  name            = "/team3/matnani/dev/grafana-password"
   with_decryption = true
-}
+}*/
 
 # SSM에서 읽기
 data "aws_ssm_parameter" "slack_webhook" {
@@ -157,7 +157,7 @@ data "aws_ssm_parameter" "slack_webhook" {
   with_decryption = true
 }
 
-module "monitoring" {
+/*module "monitoring" {
   source = "../../../modules/monitoring"
 
   team    = var.team
@@ -180,4 +180,4 @@ module "monitoring" {
   slack_webhook_url      = ""
   grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
   permissions_boundary   = var.permissions_boundary
-}
+}*/

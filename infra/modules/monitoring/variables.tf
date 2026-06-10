@@ -53,8 +53,8 @@ variable "alb_name" {
 
 variable "nat_gateway_id" {
   description = "감시할 NAT Gateway의 ID"
-  type        = string
-  default     = null
+  type        = list(string)
+  default     = []
 }
 
 variable "prometheus_storage_class" {
