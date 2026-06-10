@@ -153,39 +153,39 @@ resource "aws_iam_role_policy" "eso_ssm" {
 }
 
 # ExternalDNS — Route53 레코드 자동 등록용
-resource "aws_iam_role" "external_dns" {
-  name                 = "${var.team}-${var.project}-external-dns-role"
-  permissions_boundary = var.permissions_boundary
+# resource "aws_iam_role" "external_dns" {
+#   name                 = "${var.team}-${var.project}-external-dns-role"
+#   permissions_boundary = var.permissions_boundary
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect    = "Allow"
-      Principal = { Federated = local.oidc_provider_arn } 
-      Action    = "sts:AssumeRoleWithWebIdentity"
-      Condition = {
-        StringEquals = {
-          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com" 
-          "${local.oidc_provider_host}:sub" = "system:serviceaccount:kube-system:external-dns"
-        }
-      }
-    }]
-  })
-  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-external-dns-role" })
-}
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [{
+#       Effect    = "Allow"
+#       Principal = { Federated = local.oidc_provider_arn } 
+#       Action    = "sts:AssumeRoleWithWebIdentity"
+#       Condition = {
+#         StringEquals = {
+#           "${local.oidc_provider_host}:aud" = "sts.amazonaws.com" 
+#           "${local.oidc_provider_host}:sub" = "system:serviceaccount:kube-system:external-dns"
+#         }
+#       }
+#     }]
+#   })
+#   tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-external-dns-role" })
+# }
 
-resource "aws_iam_role_policy" "external_dns_route53" {
-  name = "${var.team}-${var.project}-external-dns-route53"
-  role = aws_iam_role.external_dns.id
+# resource "aws_iam_role_policy" "external_dns_route53" {
+#   name = "${var.team}-${var.project}-external-dns-route53"
+#   role = aws_iam_role.external_dns.id
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      { Effect = "Allow", Action = ["route53:ChangeResourceRecordSets"], Resource = "arn:aws:route53:::hostedzone/${var.route53_zone_id}" },
-      { Effect = "Allow", Action = ["route53:ListHostedZones", "route53:ListResourceRecordSets"], Resource = "*" }
-    ]
-  })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       { Effect = "Allow", Action = ["route53:ChangeResourceRecordSets"], Resource = "arn:aws:route53:::hostedzone/${var.route53_zone_id}" },
+#       { Effect = "Allow", Action = ["route53:ListHostedZones", "route53:ListResourceRecordSets"], Resource = "*" }
+#     ]
+#   })
+# }
 
 
 # 3. modules/addons 호출
@@ -195,7 +195,7 @@ module "addons" {
 
   team                    = var.team
   project                 = var.project
-  environment             = var.env  
+  env                     = var.env  
   cluster_name            = local.cluster_name
   cluster_endpoint        = local.cluster_endpoint
   cluster_ca_certificate  = local.cluster_ca
@@ -204,6 +204,6 @@ module "addons" {
   
   alb_controller_role_arn = aws_iam_role.alb_controller.arn
   eso_role_arn            = aws_iam_role.eso.arn
-  external_dns_role_arn   = aws_iam_role.external_dns.arn
-  grafana_admin_password  = var.grafana_admin_password
+  external_dns_role_arn   = ""
+  grafana_admin_password  = ""
 }
