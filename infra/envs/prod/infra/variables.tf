@@ -34,7 +34,7 @@ variable "db_name" {
 variable "db_instance_class" {
   description = "RDS 인스턴스 타입"
   type        = string
-  default     = "db.t3.large" # 추후 db.m6i.large 변경 가능
+  default     = "db.m6i.large"
 }
 
 variable "create_read_replica" {
@@ -84,7 +84,7 @@ variable "skip_final_snapshot" {
 variable "redis_node_type" {
   description = "ElastiCache Redis 노드 타입"
   type        = string
-  default     = "cache.t4g.small" # 가이드: cache.m7g.large
+  default     = "cache.m7g.large"
 }
 
 variable "redis_num_nodes" {
