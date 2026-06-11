@@ -122,4 +122,7 @@ resource "aws_instance" "bastion" {
   tags = merge(local.common_tags, {
     Name = local.name
   })
+  lifecycle {
+    ignore_changes = [ami]
+  }
 }
