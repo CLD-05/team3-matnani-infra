@@ -36,3 +36,5 @@ terraform.rc
 .DS_Store
 .idea/
 .vscode/
+
+infra/bootstrap/envs/
