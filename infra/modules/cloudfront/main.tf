@@ -98,3 +98,55 @@ resource "aws_s3_bucket_policy" "frontend" {
     ]
   })
 }
+# 6. 유저 이미지 업로드용 S3 버킷 생성
+resource "aws_s3_bucket" "image_bucket" {
+  bucket        = "team3-matnani-${var.env}-images"
+  force_destroy = true 
+
+  tags = {
+    Name = "team3-matnani-${var.env}-images"
+    Team = "team3"
+  }
+}
+
+# 7. S3 퍼블릭 액세스 전면 개방 (누구나 이미지 볼 수 있게)
+resource "aws_s3_bucket_public_access_block" "image_bucket_public_access" {
+  bucket = aws_s3_bucket.image_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# 8. 버킷 정책 (퍼블릭 읽기 허용)
+resource "aws_s3_bucket_policy" "image_bucket_policy" {
+  bucket = aws_s3_bucket.image_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.image_bucket.arn}/*"
+      }
+    ]
+  })
+  
+  depends_on = [aws_s3_bucket_public_access_block.image_bucket_public_access]
+}
+
+# 9. CORS 설정 (프론트엔드 에러 방지)
+resource "aws_s3_bucket_cors_configuration" "image_bucket_cors" {
+  bucket = aws_s3_bucket.image_bucket.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "PUT", "POST", "DELETE"]
+    allowed_origins = ["*"] 
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
