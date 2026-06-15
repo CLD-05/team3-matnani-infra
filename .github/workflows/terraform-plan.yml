@@ -123,7 +123,6 @@ jobs:
               body,
             });
 
-      # EKS GHA access entry 복구 후 아래 주석 해제
-      # - name: Plan 실패 시 워크플로우 실패 처리
-      #   if: steps.plan.outputs.exitcode == '1'
-      #   run: exit 1
+      - name: Plan 실패 시 워크플로우 실패 처리
+        if: steps.plan.outputs.exitcode == '1'
+        run: exit 1
