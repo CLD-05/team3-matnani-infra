@@ -114,3 +114,9 @@ variable "gha_role_arn" {
   type        = string
   default     = ""
 }
+
+variable "enable_gha_access" {
+  description = "GHA role EKS access entry 생성 여부 — computed ARN을 count에 쓸 수 없어서 별도 플래그로 분리"
+  type        = bool
+  default     = false
+}

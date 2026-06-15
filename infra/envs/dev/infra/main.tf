@@ -44,6 +44,7 @@ module "eks" {
 
   team_member_user_arns = var.team_member_user_arns
   gha_role_arn          = module.github_oidc.gha_dev_role_arn
+  enable_gha_access     = true
 }
 
 
@@ -131,7 +132,7 @@ module "ecr" {
   env     = var.env
   team    = var.team
   project = var.project
-  repositories = ["api"]
+  repositories = ["api", "frontend"]
 }
 
 module "cloudfront" {
