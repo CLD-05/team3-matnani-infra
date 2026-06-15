@@ -132,7 +132,7 @@ module "ecr" {
   env     = var.env
   team    = var.team
   project = var.project
-  repositories = ["api", "frontend"]
+  repositories = ["api"]
 }
 
 module "cloudfront" {
