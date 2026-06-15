@@ -246,6 +246,29 @@ resource "aws_eks_access_policy_association" "member" {
   }
 }
 
+# GitHub Actions role EKS 접근 — CI에서 terraform plan/apply 시 kubernetes provider 인증용
+resource "aws_eks_access_entry" "gha" {
+  count         = var.gha_role_arn != "" ? 1 : 0
+  cluster_name  = aws_eks_cluster.this.name
+  principal_arn = var.gha_role_arn
+  type          = "STANDARD"
+
+  tags = merge(local.common_tags, {
+    Name = "${local.cluster_name}-access-gha"
+  })
+}
+
+resource "aws_eks_access_policy_association" "gha" {
+  count         = var.gha_role_arn != "" ? 1 : 0
+  cluster_name  = aws_eks_cluster.this.name
+  principal_arn = var.gha_role_arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
+}
+
 data "tls_certificate" "eks" {
   url = aws_eks_cluster.this.identity[0].oidc[0].issuer
 }
