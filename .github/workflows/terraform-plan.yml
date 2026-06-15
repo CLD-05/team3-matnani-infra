@@ -14,7 +14,7 @@ permissions:
 env:
   AWS_REGION: ap-northeast-2
   ROLE_ARN: arn:aws:iam::495599735720:role/team3-matnani-dev-gha-dev-role
-  TF_VERSION: "1.10.0"
+  TF_VERSION: "1.15.0"
 
 jobs:
   plan-dev-infra:
