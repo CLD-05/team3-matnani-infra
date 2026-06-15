@@ -3,7 +3,7 @@
 #
 # 생성 리소스:
 #   - aws_ecr_repository      : 컨테이너 이미지 저장소 team3-matnani-api
-#                                frontend는 S3+CloudFront 정적 호스팅으로 대체
+#                               frontend는 S3+CloudFront 정적 호스팅으로 대체
 #   - aws_ecr_lifecycle_policy : 이미지 10개 초과 시 오래된 것부터 자동 삭제
 #                                저장 비용 절감
 
