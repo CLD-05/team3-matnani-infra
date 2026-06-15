@@ -108,3 +108,9 @@ variable "team_member_user_arns" {
   #   yueun    = "arn:aws:iam::495599735720:user/team3-yueun"
   # }
 }
+
+variable "gha_role_arn" {
+  description = "GitHub Actions dev role ARN — CI에서 kubectl/terraform 사용 시 EKS 접근"
+  type        = string
+  default     = ""
+}

@@ -1,0 +1,68 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infra/**"
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-2
+  ROLE_ARN: arn:aws:iam::495599735720:role/team3-matnani-dev-gha-dev-role
+  TF_VERSION: "1.15.0"
+
+jobs:
+  apply-dev-infra:
+    name: Apply / dev-infra
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/envs/dev/infra
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var-file=terraform.ci.tfvars
+
+  apply-dev-platform-addons:
+    name: Apply / dev-platform-addons
+    runs-on: ubuntu-latest
+    needs: apply-dev-infra
+    defaults:
+      run:
+        working-directory: infra/envs/dev/platform-addons
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var-file=terraform.ci.tfvars

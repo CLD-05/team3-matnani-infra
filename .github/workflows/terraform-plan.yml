@@ -1,0 +1,128 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "infra/**"
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_REGION: ap-northeast-2
+  ROLE_ARN: arn:aws:iam::495599735720:role/team3-matnani-dev-gha-dev-role
+  TF_VERSION: "1.15.0"
+
+jobs:
+  plan-dev-infra:
+    name: Plan / dev-infra
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/envs/dev/infra
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan -no-color -var-file=terraform.ci.tfvars 2>&1 | tee plan.txt
+          echo "exitcode=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: PR 코멘트 - dev/infra plan
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('infra/envs/dev/infra/plan.txt', 'utf8');
+            const truncated = plan.length > 60000 ? plan.slice(-60000) + '\n...(truncated)' : plan;
+            const body = `## 📋 Terraform Plan — \`dev/infra\`
+            <details><summary>결과 펼치기</summary>
+
+            \`\`\`hcl
+            ${truncated}
+            \`\`\`
+            </details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Plan 실패 시 워크플로우 실패 처리
+        if: steps.plan.outputs.exitcode == '1'
+        run: exit 1
+
+  plan-dev-platform-addons:
+    name: Plan / dev-platform-addons
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/envs/dev/platform-addons
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan -no-color -var-file=terraform.ci.tfvars 2>&1 | tee plan.txt
+          echo "exitcode=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: PR 코멘트 - dev/platform-addons plan
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('infra/envs/dev/platform-addons/plan.txt', 'utf8');
+            const truncated = plan.length > 60000 ? plan.slice(-60000) + '\n...(truncated)' : plan;
+            const body = `## 📋 Terraform Plan — \`dev/platform-addons\`
+            <details><summary>결과 펼치기</summary>
+
+            \`\`\`hcl
+            ${truncated}
+            \`\`\`
+            </details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Plan 실패 시 워크플로우 실패 처리
+        if: steps.plan.outputs.exitcode == '1'
+        run: exit 1
