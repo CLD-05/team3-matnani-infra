@@ -43,6 +43,7 @@ module "eks" {
   pod_identity_agent_version = var.pod_identity_agent_version
 
   team_member_user_arns = var.team_member_user_arns
+  gha_role_arn          = module.github_oidc.gha_prod_role_arn
 }
 
 # prod bastion — SSM 접속, SSH 22번 닫음
