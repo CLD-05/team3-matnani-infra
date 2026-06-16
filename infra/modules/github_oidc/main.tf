@@ -126,7 +126,7 @@ resource "aws_iam_role_policy" "gha_ci_frontend" {
 # dev Role (infra repo)
 # 역할: dev 환경 terraform apply 자동 실행
 resource "aws_iam_role" "gha_dev" {
-  name                 = "${local.name}-gha-dev-role"
+  name                 = "${local.name}-gha-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
@@ -161,7 +161,7 @@ resource "aws_iam_role_policy_attachment" "gha_dev" {
 # prod Role (infra repo)
 # 역할: prod 환경 terraform apply — GitHub Environment 수동 승인 후에만 실행
 resource "aws_iam_role" "gha_prod" {
-  name                 = "${local.name}-gha-prod-role"
+  name                 = "${var.team}-${var.project}-gha-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
