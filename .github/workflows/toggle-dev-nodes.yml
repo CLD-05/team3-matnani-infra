@@ -1,0 +1,53 @@
+name: 🎛️ Dev Env - Toggle EKS Nodes & NAT
+
+on:
+  workflow_dispatch:
+    inputs:
+      node_desired:
+        description: 'EKS 노드 개수 (0: 비용 0원 모드 / 2: 기본 운영 모드 / 8: 스케일 아웃)'
+        required: true
+        default: '0'
+        type: choice
+        options:
+          - '0'
+          - '2'
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-2
+  ROLE_ARN: arn:aws:iam::495599735720:role/team3-matnani-dev-gha-role
+  TF_VERSION: "1.15.0"
+
+
+jobs:
+  apply-infrastructure:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./infra/envs/dev/infra
+
+    steps:
+      - name: 1. 저장소 코드 불러오기
+        uses: actions/checkout@v4
+
+      - name: 2. AWS 권한 인증 (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 3. 테라폼 설치
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: 4. 테라폼 초기화 (Init)
+        run: terraform init
+
+      - name: 5. 🚀 테라폼 자동 적용 (Apply)
+        run: |
+          terraform apply -auto-approve -var="node_desired=${{ github.event.inputs.node_desired }}" -var-file="terraform.ci.tfvars"
