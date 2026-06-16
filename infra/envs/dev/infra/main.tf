@@ -15,6 +15,7 @@ module "network" {
 
   # dev: 단일 NAT GW로 비용 절감 (prod은 AZ별 NAT GW 사용)
   single_nat_gateway = true
+  enable_nat = var.node_desired > 0
 }
 
 
