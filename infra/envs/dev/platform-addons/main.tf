@@ -28,6 +28,11 @@
 # 현재 AWS 계정 정보 (Account ID) 가져오기
 data "aws_caller_identity" "current" {}
 
+data "aws_ssm_parameter" "grafana_password" {
+  name            = "/team3/matnani/dev/grafana-password"
+  with_decryption = true
+}
+
 # infra/outputs.tf 대신 AWS에서 EKS 클러스터 정보를 직접 조회합니다!
 data "aws_eks_cluster" "cluster" {
   name = var.cluster_name
@@ -205,5 +210,5 @@ module "addons" {
   alb_controller_role_arn = aws_iam_role.alb_controller.arn
   eso_role_arn            = aws_iam_role.eso.arn
   external_dns_role_arn   = ""
-  grafana_admin_password  = ""
+  grafana_admin_password  = data.aws_ssm_parameter.grafana_password.value
 }
