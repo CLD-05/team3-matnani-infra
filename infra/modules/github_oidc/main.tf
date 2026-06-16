@@ -154,6 +154,10 @@ resource "aws_iam_role" "gha_dev" {
   })
 }
 
+/*
+주석 처리 상태로 terraform apply → gha-prod-role 생성됨
+AWS 콘솔에서 team3-matnani-prod-gha-role에 AdministratorAccess 수동 attach
+ */
 /*resource "aws_iam_role_policy_attachment" "gha_dev" {
   role       = aws_iam_role.gha_dev.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
@@ -187,6 +191,10 @@ resource "aws_iam_role" "gha_prod" {
   })
 }
 
+/*
+주석 처리 상태로 terraform apply → gha-prod-role 생성됨
+AWS 콘솔에서 team3-matnani-prod-gha-role에 AdministratorAccess 수동 attach
+ */
 /*resource "aws_iam_role_policy_attachment" "gha_prod" {
   role       = aws_iam_role.gha_prod.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
