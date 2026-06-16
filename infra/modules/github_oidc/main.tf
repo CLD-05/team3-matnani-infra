@@ -154,10 +154,10 @@ resource "aws_iam_role" "gha_dev" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "gha_dev" {
+/*resource "aws_iam_role_policy_attachment" "gha_dev" {
   role       = aws_iam_role.gha_dev.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
-}
+}*/
 
 # prod Role (infra repo)
 # 역할: prod 환경 terraform apply — GitHub Environment 수동 승인 후에만 실행
@@ -187,7 +187,7 @@ resource "aws_iam_role" "gha_prod" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "gha_prod" {
+/*resource "aws_iam_role_policy_attachment" "gha_prod" {
   role       = aws_iam_role.gha_prod.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
-}
+}*/
