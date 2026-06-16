@@ -45,3 +45,9 @@ variable "single_nat_gateway" {
   type        = bool
   default     = false
 }
+
+variable "enable_nat" {
+  description = "NAT Gateway 및 관련 리소스 생성 여부 (노드 개수에 연동)"
+  type        = bool
+  default     = true
+}
