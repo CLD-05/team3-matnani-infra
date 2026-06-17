@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       node_desired:
-        description: 'EKS 노드 개수 (0: 비용 0원 모드 / 2: 기본 운영 모드 / 8: 스케일 아웃)'
+        description: 'EKS 노드 개수 (0: 비용 0원 모드 / 2: 기본 운영 모드)'
         required: true
         default: '0'
         type: choice
@@ -12,6 +12,7 @@ on:
           - '0'
           - '2'
 
+        
 permissions:
   id-token: write
   contents: read
