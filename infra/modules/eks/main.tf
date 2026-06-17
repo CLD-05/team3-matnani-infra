@@ -163,7 +163,7 @@ resource "aws_eks_node_group" "this" {
 
   scaling_config {
     desired_size = var.node_desired_size
-    min_size     = var.node_desired_size == 0 ? 0 : var.node_min_size
+    min_size     = 0
     max_size     = var.node_desired_size == 0 ? 0 : var.node_max_size
   }
 
