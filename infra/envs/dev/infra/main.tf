@@ -144,6 +144,7 @@ module "cloudfront" {
   env     = var.env
   team    = var.team
   project = var.project
+  alb_dns_name = var.alb_dns_name
 }
 
 
