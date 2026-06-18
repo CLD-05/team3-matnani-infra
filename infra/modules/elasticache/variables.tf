@@ -48,6 +48,11 @@ variable "eks_node_sg_id" {
   type        = string
 }
 
+variable "eks_cluster_sg_id" {
+  description = "EKS cluster security group ID (auto-created) — allowed to connect to Redis"
+  type        = string
+}
+
 variable "automatic_failover_enabled" {
   description = "Enable automatic failover — requires num_cache_clusters >= 2"
   type        = bool

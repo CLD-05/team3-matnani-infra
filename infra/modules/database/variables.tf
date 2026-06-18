@@ -66,6 +66,11 @@ variable "eks_node_sg_id" {
   type        = string
 }
 
+variable "eks_cluster_sg_id" {
+  description = "EKS cluster security group ID (auto-created) — allowed to connect to RDS"
+  type        = string
+}
+
 variable "bastion_sg_id" {
   description = "Bastion security group ID — allowed to connect to RDS"
   type        = string

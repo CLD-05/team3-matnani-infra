@@ -25,6 +25,13 @@ resource "aws_security_group" "rds" {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
+    security_groups = [var.eks_cluster_sg_id]
+  }
+
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
     security_groups = [var.bastion_sg_id]
   }
 

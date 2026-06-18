@@ -83,8 +83,9 @@ module "database" {
 
   vpc_id         = module.network.vpc_id
   db_subnet_ids  = module.network.db_subnet_ids
-  eks_node_sg_id = module.eks.node_sg_id
-  bastion_sg_id  = module.bastion.security_group_id
+  eks_node_sg_id    = module.eks.node_sg_id
+  eks_cluster_sg_id = module.eks.cluster_sg_id
+  bastion_sg_id     = module.bastion.security_group_id
 
   instance_class          = var.db_instance_class
   allocated_storage       = var.allocated_storage
@@ -111,9 +112,10 @@ module "elasticache" {
   redis_version = var.redis_version
   node_type     = var.redis_node_type
 
-  vpc_id         = module.network.vpc_id
-  subnet_ids     = module.network.db_subnet_ids
-  eks_node_sg_id = module.eks.node_sg_id
+  vpc_id            = module.network.vpc_id
+  subnet_ids        = module.network.db_subnet_ids
+  eks_node_sg_id    = module.eks.node_sg_id
+  eks_cluster_sg_id = module.eks.cluster_sg_id
 
   # dev: 단일 노드(redis_num_nodes=1), 장애조치 비활성
   num_cache_clusters         = var.redis_num_nodes
