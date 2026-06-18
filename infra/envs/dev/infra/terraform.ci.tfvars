@@ -1,4 +1,4 @@
-node_desired = 2
+node_desired = 4
 node_min     = 0
 node_max     = 4
 
