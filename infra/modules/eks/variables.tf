@@ -92,6 +92,11 @@ variable "ebs_csi_version" {
   type        = string
 }
 
+variable "ebs_csi_role_arn" {
+  description = "EBS CSI IRSA Role ARN — ebs-csi-controller-sa에 연결"
+  type        = string
+}
+
 variable "pod_identity_agent_version" {
   description = "eks-pod-identity-agent add-on 버전"
   type        = string

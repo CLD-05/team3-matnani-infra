@@ -128,7 +128,7 @@ resource "helm_release" "kube_prometheus_stack" {
   # EBS CSI로 PV 생성 — ebs-csi addon이 먼저 있어야 함
   set {
     name  = "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName"
-    value = "gp2"
+    value = "gp3"
   }
   set {
     name  = "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage"
