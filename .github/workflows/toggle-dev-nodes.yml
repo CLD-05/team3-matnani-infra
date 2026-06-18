@@ -49,6 +49,15 @@ jobs:
       - name: 4. 테라폼 초기화 (Init)
         run: terraform init
 
-      - name: 5. 🚀 테라폼 자동 적용 (Apply)
+      - name: 5. 🚀 테라폼 자동 적용 (Apply) - 0원 모드 시 2단계 분리 배포
         run: |
-          terraform apply -auto-approve -var="node_desired=${{ github.event.inputs.node_desired }}" -var-file="terraform.ci.tfvars"
+          if [ "${{ github.event.inputs.node_desired }}" == "0" ]; then
+            echo "📉 비용 0원 모드: 파드들의 안전한 종료를 위해 노드를 먼저 0으로 축소합니다 (NAT 유지)."
+            terraform apply -auto-approve -target="module.eks" -var="node_desired_size=0" -var-file="terraform.ci.tfvars"
+            
+            echo "🗑️ 노드 축소 완료. 이제 불필요해진 NAT GW를 삭제합니다."
+            terraform apply -auto-approve -var="node_desired_size=0" -var-file="terraform.ci.tfvars"
+          else
+            echo "📈 운영 모드: NAT GW와 EKS 노드를 프로비저닝합니다."
+            terraform apply -auto-approve -var="node_desired_size=2" -var-file="terraform.ci.tfvars"
+          fi
