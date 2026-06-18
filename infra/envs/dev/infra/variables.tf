@@ -49,18 +49,18 @@ variable "replica_instance_class" {
   default     = null
 }
 variable "allocated_storage" {
-  type        = number
-  default     = 20
+  type    = number
+  default = 20
 }
 
 variable "max_allocated_storage" {
-  type        = number
-  default     = 50
+  type    = number
+  default = 50
 }
 
 variable "backup_retention_period" {
-  type        = number
-  default     = 1
+  type    = number
+  default = 1
 }
 
 variable "multi_az" {
@@ -224,17 +224,6 @@ variable "app_repo" {
 variable "infra_repo" {
   type        = string
   description = "인프라 관리 레포지토리명 — tfvars에서 주입"
-}
-
-# monitoring
-variable "prometheus_storage_class" {
-  type        = string
-  description = "gp2"
-}
-
-variable "prometheus_storage_size" {
-  type        = string
-  description = "10Gi"
 }
 
 variable "slack_workspace_id" {
