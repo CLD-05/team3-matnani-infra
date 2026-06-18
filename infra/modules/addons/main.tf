@@ -134,6 +134,12 @@ resource "helm_release" "kube_prometheus_stack" {
     name  = "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage"
     value = "10Gi"  # dev: 10Gi / prod: 50Gi
   }
+
+  # dev: 노드 공간 부족으로 pre-upgrade hook 타임아웃 방지
+  set {
+    name  = "prometheusOperator.admissionWebhooks.enabled"
+    value = "false"
+  }
 }
 
 # ExternalDNS
