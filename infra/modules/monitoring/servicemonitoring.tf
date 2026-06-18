@@ -15,4 +15,6 @@ resource "kubernetes_manifest" "backend_service_monitor" {
       endpoints = [{ port = "http", path = "/actuator/prometheus" }]
     }
   }
+
+  depends_on = [helm_release.monitoring]
 }

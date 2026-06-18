@@ -1,5 +1,3 @@
-# modules/monitoring/main.tf
-
 # 1. Prometheus & Grafana 배포
 resource "helm_release" "monitoring" {
   name             = "team3-matnani-${var.env}-monitoring"
@@ -11,17 +9,28 @@ resource "helm_release" "monitoring" {
   wait             = true
   timeout          = 600
   atomic           = true
-  values           = [file("${path.module}/values.yaml")]
+
+  values = [
+    file("${path.module}/values.yaml")
+  ]
 
   set = [
     {
       name  = "prometheus.prometheusSpec.externalLabels.environment"
       value = var.env
+    },
+    {
+      name  = "grafana.adminPassword"
+      value = var.grafana_admin_password
+    },
+    {
+      name  = "alertmanager.config.receivers[0].slack_configs[0].api_url"
+      value = var.slack_webhook_url
     }
   ]
 }
 
-# 2. 로그 수집 파이프라인 (CloudWatch)
+# 2. 로그 및 알람 파이프라인
 resource "aws_cloudwatch_log_group" "eks_logs" {
   name              = "/aws/eks/team3-matnani-${var.env}/application"
   retention_in_days = 3
@@ -45,7 +54,6 @@ resource "helm_release" "fluent_bit" {
   ]
 }
 
-# 3. 알람 파이프라인 (SNS + Chatbot)
 resource "aws_sns_topic" "matnani_alerts" {
   name = "team3-matnani-${var.env}-monitoring-alerts"
 }
@@ -63,13 +71,13 @@ resource "aws_iam_role" "chatbot_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
       Principal = { Service = "chatbot.amazonaws.com" }
     }]
   })
 }
-# Chatbot에 필요한 최소 권한 부여
+
 resource "aws_iam_role_policy_attachment" "chatbot_readonly" {
   role       = aws_iam_role.chatbot_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
@@ -80,10 +88,7 @@ resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess"
 }
 
-# 4. 통합 알람 로직
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
-  count               = 1
-
   alarm_name          = "team3-matnani-${var.env}-rds-cpu-high"
   comparison_operator = "GreaterThanThreshold"
   threshold           = "80"
@@ -92,7 +97,6 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
   period              = "120"
   evaluation_periods  = "2"
   statistic           = "Average"
-
   dimensions          = { DBInstanceIdentifier = var.rds_instance_id }
   alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
 }
