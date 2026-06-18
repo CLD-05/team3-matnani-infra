@@ -41,6 +41,7 @@ module "eks" {
   coredns_version            = var.coredns_version
   kube_proxy_version         = var.kube_proxy_version
   ebs_csi_version            = var.ebs_csi_version
+  ebs_csi_role_arn           = "arn:aws:iam::495599735720:role/team3-matnani-dev-ebs-csi-role"
   pod_identity_agent_version = var.pod_identity_agent_version
 
   team_member_user_arns = var.team_member_user_arns
