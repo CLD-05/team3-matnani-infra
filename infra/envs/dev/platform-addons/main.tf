@@ -120,6 +120,12 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
 resource "aws_iam_role" "eso" {
   name                 = "${var.team}-${var.project}-${var.env}-eso-role"
   permissions_boundary = var.permissions_boundary
+  
+  lifecycle {
+    ignore_changes = [
+      assume_role_policy,
+    ]
+  }
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
