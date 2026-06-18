@@ -1,10 +1,9 @@
 # modules/monitoring/values.yaml
-# 팀원들의 애플리케이션 매트릭을 수집하기 위한 기본 환경을 정의합니다.
 
 # [1] Grafana (시각화 대시보드)
 grafana:
   enabled: true
-  adminPassword: "admin"
+  adminPassword: "" # main.tf에서 SSM 파라미터 값으로 동적 주입됩니다!
   defaultDashboardsTimezone: Asia/Seoul
   service:
     type: ClusterIP
@@ -14,16 +13,9 @@ grafana:
 # [2] Prometheus (메트릭 수집기)
 prometheus:
   prometheusSpec:
-    # 데이터 영구 보존용 스토리지(storageSpec) 블록을 완전히 제거하여 비용 0원 달성
-    # 매일 파드가 초기화되므로 보관 주기는 1일로 최소화하여 메모리 낭비 방지
-
     retention: 1d
-
-    # 다른 네임스페이스(matnani)에 띄울 백엔드 앱을 자동 인식하기 위한 설정
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
-    
-    # 안정적인 수집을 위한 최소 리소스 보장
     resources:
       requests:
         cpu: 200m
@@ -32,15 +24,29 @@ prometheus:
 # [3] Alertmanager (알람 발송 컴포넌트)
 alertmanager:
   enabled: true
-  # 알람 내역을 저장할 외장 하드(EBS)를 만들지 않음
   persistence:
     enabled: false
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['namespace', 'alertname']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'slack-notifications'
+    receivers:
+    - name: 'slack-notifications'
+      slack_configs:
+      - api_url: "" # main.tf에서 SSM 파라미터 값으로 동적 주입됩니다!
+        channel: '#team3-alerts' # 실제 알람을 받을 슬랙 채널명으로 맞춰주세요
+        send_resolved: true
 
 # [4] 기타 인프라 모니터링 도구
 kubeStateMetrics:
   enabled: true
 
-# 불필요한 EKS 기본 경고 규칙 정리 (알람 피로도 감소)
+# 불필요한 EKS 기본 경고 규칙 정리
 defaultRules:
   create: true
   rules:

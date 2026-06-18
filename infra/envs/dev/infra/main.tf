@@ -7,24 +7,24 @@ module "network" {
   team    = var.team
   project = var.project
 
-  vpc_cidr = var.vpc_cidr
-  azs = var.azs
+  vpc_cidr             = var.vpc_cidr
+  azs                  = var.azs
   public_subnet_cidrs  = var.public_cidrs
   private_subnet_cidrs = var.private_cidrs
   db_subnet_cidrs      = var.isolated_cidrs
 
   # dev: 단일 NAT GW로 비용 절감 (prod은 AZ별 NAT GW 사용)
   single_nat_gateway = true
-  enable_nat = var.node_desired > 0
+  enable_nat         = var.node_desired > 0
 }
 
 
 module "eks" {
-  source = "../../../modules/eks"
+  source               = "../../../modules/eks"
   permissions_boundary = var.permissions_boundary
-  env     = var.env
-  team    = var.team
-  project = var.project
+  env                  = var.env
+  team                 = var.team
+  project              = var.project
 
   vpc_id             = module.network.vpc_id
   private_subnet_ids = module.network.private_subnet_ids
@@ -51,11 +51,11 @@ module "eks" {
 
 
 module "bastion" {
-  source = "../../../modules/bastion"
+  source               = "../../../modules/bastion"
   permissions_boundary = var.permissions_boundary
-  env     = var.env
-  team    = var.team
-  project = var.project
+  env                  = var.env
+  team                 = var.team
+  project              = var.project
 
   vpc_id           = module.network.vpc_id
   public_subnet_id = module.network.public_subnet_ids[0]
@@ -82,8 +82,8 @@ module "database" {
   db_username = data.aws_ssm_parameter.db_username.value
   db_password = data.aws_ssm_parameter.db_password.value
 
-  vpc_id         = module.network.vpc_id
-  db_subnet_ids  = module.network.db_subnet_ids
+  vpc_id            = module.network.vpc_id
+  db_subnet_ids     = module.network.db_subnet_ids
   eks_node_sg_id    = module.eks.node_sg_id
   eks_cluster_sg_id = module.eks.cluster_sg_id
   bastion_sg_id     = module.bastion.security_group_id
@@ -133,17 +133,17 @@ module "elasticache" {
 module "ecr" {
   source = "../../../modules/ecr"
 
-  env     = var.env
-  team    = var.team
-  project = var.project
+  env          = var.env
+  team         = var.team
+  project      = var.project
   repositories = ["api"]
 }
 
 module "cloudfront" {
-  source  = "../../../modules/cloudfront"
-  env     = var.env
-  team    = var.team
-  project = var.project
+  source       = "../../../modules/cloudfront"
+  env          = var.env
+  team         = var.team
+  project      = var.project
   alb_dns_name = var.alb_dns_name
 }
 
@@ -151,47 +151,51 @@ module "cloudfront" {
 module "github_oidc" {
   source = "../../../modules/github_oidc"
 
-  env     = var.env
-  team    = var.team
-  project = var.project
-  github_org  = var.github_org
-  infra_repo           = var.infra_repo
-  ecr_repository_arns  = values(module.ecr.repository_arns)
-  permissions_boundary = var.permissions_boundary
+  env                         = var.env
+  team                        = var.team
+  project                     = var.project
+  github_org                  = var.github_org
+  infra_repo                  = var.infra_repo
+  ecr_repository_arns         = values(module.ecr.repository_arns)
+  permissions_boundary        = var.permissions_boundary
   frontend_bucket_arn         = module.cloudfront.frontend_bucket_arn
   cloudfront_distribution_arn = module.cloudfront.distribution_arn
-  app_repo                  = var.app_repo
+  app_repo                    = var.app_repo
 }
 
 
 # TODO: EKS 클러스터 생성 후 활성화 (kubernetes provider 필요)
-# data "aws_ssm_parameter" "grafana_password" {
-#   name            = "/team3/matnani/dev/grafana-password"
-#   with_decryption = true
-# }
+data "aws_ssm_parameter" "grafana_password" {
+  name            = "/team3/matnani/dev/grafana-password"
+  with_decryption = true
+}
 
-# data "aws_ssm_parameter" "slack_webhook" {
-#   name            = "/team3/matnani/dev/monitoring/slack-webhook"
-#   with_decryption = true
-# }
+data "aws_ssm_parameter" "slack_webhook" {
+  name            = "/team3/matnani/dev/monitoring/slack-webhook"
+  with_decryption = true
+}
 
-# module "monitoring" {
-#   source = "../../../modules/monitoring"
-#
-#   team    = var.team
-#   project = var.project
-#   env     = var.env
-#
-#   slack_workspace_id = var.slack_workspace_id
-#   slack_channel_id   = var.slack_channel_id
-#
-#   prometheus_storage_class = var.prometheus_storage_class
-#   prometheus_storage_size  = var.prometheus_storage_size
-#   eks_cluster_name       = module.eks.cluster_name
-#   rds_instance_id        = module.database.db_instance_id
-#   alb_name               = ""
-#   nat_gateway_id         = module.network.nat_gateway_ids[0]
-#   slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
-#   grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
-#   permissions_boundary   = var.permissions_boundary
-# }
+# 모니터링 모듈 호출
+module "monitoring" {
+  source = "../../../modules/monitoring"
+
+  team    = var.team
+  project = var.project
+  env     = var.env
+
+  slack_workspace_id = var.slack_workspace_id
+  slack_channel_id   = var.slack_channel_id
+
+  prometheus_storage_class = var.prometheus_storage_class
+  prometheus_storage_size  = var.prometheus_storage_size
+  eks_cluster_name         = module.eks.cluster_name
+  rds_instance_id          = module.database.db_instance_id
+  alb_name                 = ""
+
+  nat_gateway_id = module.network.nat_gateway_ids
+
+  # SSM에서 꺼낸 값을 모듈로 전달
+  slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
+  grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
+  permissions_boundary   = var.permissions_boundary
+}
