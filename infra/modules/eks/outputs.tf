@@ -43,3 +43,8 @@ output "oidc_provider_arn" {
   description = "IAM OIDC OpenID Connect Provider ARN"
   value       = aws_iam_openid_connect_provider.eks.arn
 }
+
+output "cluster_sg_id" {
+  description = "EKS 클러스터 SG ID (자동 생성) — database, elasticache 인바운드 규칙에서 참조"
+  value       = aws_eks_cluster.this.vpc_config[0].cluster_security_group_id
+}
