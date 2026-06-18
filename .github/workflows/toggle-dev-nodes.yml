@@ -62,6 +62,7 @@ jobs:
 
           TF_ARGS=(
             -auto-approve
+            -input=false
             -lock-timeout=5m
             -var-file=terraform.ci.tfvars
             "-var=node_desired=${NODE_DESIRED}"
