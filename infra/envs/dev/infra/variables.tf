@@ -170,7 +170,7 @@ variable "node_max" {
 
 variable "node_desired" {
   type    = number
-  default = 2
+  default = 4
 }
 
 variable "team_member_user_arns" {
