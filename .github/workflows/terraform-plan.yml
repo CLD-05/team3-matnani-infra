@@ -39,10 +39,26 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Read current EKS node count
+        id: current_nodes
+        run: |
+          desired=$(aws eks describe-nodegroup \
+            --cluster-name team3-matnani-dev-eks \
+            --nodegroup-name team3-matnani-dev-eks-ng \
+            --query "nodegroup.scalingConfig.desiredSize" \
+            --output text)
+          echo "desired=${desired}" >> "$GITHUB_OUTPUT"
+          echo "현재 EKS 노드 수 ${desired}개를 plan에 사용합니다."
+
       - name: Terraform Plan
         id: plan
         run: |
-          terraform plan -no-color -var-file=terraform.ci.tfvars 2>&1 | tee plan.txt
+          terraform plan \
+            -no-color \
+            -lock-timeout=5m \
+            -var-file=terraform.ci.tfvars \
+            -var="node_desired=${{ steps.current_nodes.outputs.desired }}" \
+            2>&1 | tee plan.txt
           echo "exitcode=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
         continue-on-error: true
 
