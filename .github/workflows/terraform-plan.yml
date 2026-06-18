@@ -55,6 +55,7 @@ jobs:
         run: |
           terraform plan \
             -no-color \
+            -input=false \
             -lock-timeout=5m \
             -var-file=terraform.ci.tfvars \
             -var="node_desired=${{ steps.current_nodes.outputs.desired }}" \
@@ -113,7 +114,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: |
-          terraform plan -no-color -var-file=terraform.ci.tfvars 2>&1 | tee plan.txt
+          terraform plan -no-color -input=false -var-file=terraform.ci.tfvars 2>&1 | tee plan.txt
           echo "exitcode=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
         continue-on-error: true
 

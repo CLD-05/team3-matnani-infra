@@ -57,6 +57,7 @@ jobs:
         run: |
           terraform apply \
             -auto-approve \
+            -input=false \
             -lock-timeout=5m \
             -var-file=terraform.ci.tfvars \
             -var="node_desired=${{ steps.current_nodes.outputs.desired }}"
@@ -85,4 +86,4 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var-file=terraform.ci.tfvars
+        run: terraform apply -auto-approve -input=false -var-file=terraform.ci.tfvars
