@@ -28,18 +28,56 @@ resource "aws_cloudfront_origin_access_control" "this" {
   signing_protocol                  = "sigv4"
 }
 
+data "aws_cloudfront_cache_policy" "caching_disabled" {
+  name = "Managed-CachingDisabled"
+}
+
+data "aws_cloudfront_origin_request_policy" "all_viewer" {
+  name = "Managed-AllViewerAndCustomHeaders"
+}
+
 # 4. CloudFront Distribution 생성
 resource "aws_cloudfront_distribution" "this" {
+
+  # 기존 원본: S3 (프론트엔드)
   origin {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_id                = "S3-${aws_s3_bucket.frontend.id}"
     origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
 
+  # ALB (백엔드)
+  origin {
+    domain_name = var.alb_dns_name
+    origin_id   = "ALB-Backend"
+
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
 
+  # 백엔드 API 라우팅 (/api/*)
+  ordered_cache_behavior {
+    path_pattern     = "/api/*"
+    target_origin_id = "ALB-Backend"
+
+    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods   = ["GET", "HEAD"]
+
+    cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer.id
+
+    viewer_protocol_policy = "redirect-to-https"
+  }
+
+  # S3 프론트엔드 라우팅
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
@@ -58,6 +96,21 @@ resource "aws_cloudfront_distribution" "this" {
     max_ttl                = 86400
   }
 
+  # SPA (React 등) 라우팅을 위한 403/404 에러 처리 추가
+  custom_error_response {
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/index.html"
+    error_caching_min_ttl = 10
+  }
+
+  custom_error_response {
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/index.html"
+    error_caching_min_ttl = 10
+  }
+
   restrictions {
     geo_restriction {
       restriction_type = "none"
@@ -73,6 +126,8 @@ resource "aws_cloudfront_distribution" "this" {
     team = "team3"
   }
 }
+
+
 
 # 5. S3 버킷 정책
 resource "aws_s3_bucket_policy" "frontend" {

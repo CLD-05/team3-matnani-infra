@@ -246,3 +246,8 @@ variable "slack_channel_id" {
   type        = string
   description = "알림을 수신할 팀 공용 슬랙 채널 ID"
 }
+
+variable "alb_dns_name" {
+  type        = string
+  description = "alb dns name"
+}

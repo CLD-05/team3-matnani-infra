@@ -12,3 +12,8 @@ variable "env" {
   description = "배포 환경 (dev / prod)"
   type        = string
 }
+
+variable "alb_dns_name" {
+  description = "alb_dns_name"
+  type        = string
+}
