@@ -164,7 +164,7 @@ resource "aws_eks_node_group" "this" {
   scaling_config {
     desired_size = var.node_desired_size
     min_size     = 0
-    max_size     = 2
+    max_size     = var.node_max_size
   }
 
   tags = merge(local.common_tags, {
