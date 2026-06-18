@@ -33,7 +33,7 @@ data "aws_cloudfront_cache_policy" "caching_disabled" {
 }
 
 data "aws_cloudfront_origin_request_policy" "all_viewer" {
-  name = "Managed-AllViewerAndCustomHeaders"
+  name = "Managed-AllViewerExceptHostHeader"
 }
 
 # 4. CloudFront Distribution 생성
