@@ -1,34 +1,5 @@
-# 1. Prometheus & Grafana 배포
-resource "helm_release" "monitoring" {
-  name             = "team3-matnani-${var.env}-monitoring"
-  repository       = "https://prometheus-community.github.io/helm-charts"
-  chart            = "kube-prometheus-stack"
-  version          = "60.0.0"
-  namespace        = "monitoring"
-  create_namespace = true
-  wait             = true
-  timeout          = 600
-  atomic           = true
-
-  values = [
-    file("${path.module}/values.yaml")
-  ]
-
-  set = [
-    {
-      name  = "prometheus.prometheusSpec.externalLabels.environment"
-      value = var.env
-    },
-    {
-      name  = "grafana.adminPassword"
-      value = var.grafana_admin_password
-    },
-    {
-      name  = "alertmanager.config.receivers[0].slack_configs[0].api_url"
-      value = var.slack_webhook_url
-    }
-  ]
-}
+# Existing kube-prometheus-stack is managed outside this module.
+# Keep this module limited to resources that can coexist with that stack.
 
 # 2. 로그 및 알람 파이프라인
 resource "aws_cloudwatch_log_group" "eks_logs" {

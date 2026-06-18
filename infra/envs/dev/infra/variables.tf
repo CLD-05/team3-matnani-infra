@@ -226,17 +226,6 @@ variable "infra_repo" {
   description = "인프라 관리 레포지토리명 — tfvars에서 주입"
 }
 
-# monitoring
-variable "prometheus_storage_class" {
-  type        = string
-  description = "gp2"
-}
-
-variable "prometheus_storage_size" {
-  type        = string
-  description = "10Gi"
-}
-
 variable "slack_workspace_id" {
   type        = string
   description = "팀 공용 슬랙 워크스페이스 ID"

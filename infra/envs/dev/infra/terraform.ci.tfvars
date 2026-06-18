@@ -21,8 +21,6 @@ team_member_user_arns = {
     wonho    = "arn:aws:iam::495599735720:user/team3-kwh"
 }
 
-prometheus_storage_class = "gp2"
-prometheus_storage_size  = "10Gi"
 slack_workspace_id       = "T0B9G4MP3BL"
 slack_channel_id         = "C0B9KP6RDGU"
 alb_dns_name = "team3-matnani-dev-alb-1335037742.ap-northeast-2.elb.amazonaws.com"

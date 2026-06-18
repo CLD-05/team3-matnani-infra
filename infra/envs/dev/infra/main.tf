@@ -164,17 +164,6 @@ module "github_oidc" {
 }
 
 
-# TODO: EKS 클러스터 생성 후 활성화 (kubernetes provider 필요)
-data "aws_ssm_parameter" "grafana_password" {
-  name            = "/team3/matnani/dev/grafana-password"
-  with_decryption = true
-}
-
-data "aws_ssm_parameter" "slack_webhook" {
-  name            = "/team3/matnani/dev/monitoring/slack-webhook"
-  with_decryption = true
-}
-
 # 모니터링 모듈 호출
 module "monitoring" {
   source = "../../../modules/monitoring"
@@ -186,16 +175,12 @@ module "monitoring" {
   slack_workspace_id = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
 
-  prometheus_storage_class = var.prometheus_storage_class
-  prometheus_storage_size  = var.prometheus_storage_size
-  eks_cluster_name         = module.eks.cluster_name
-  rds_instance_id          = module.database.db_instance_id
-  alb_name                 = ""
+  eks_cluster_name        = module.eks.cluster_name
+  prometheus_release_name = "team3-matnani-kube-prometheus-stack"
+  rds_instance_id         = module.database.db_instance_id
+  alb_name                = ""
 
   nat_gateway_id = module.network.nat_gateway_ids
 
-  # SSM에서 꺼낸 값을 모듈로 전달
-  slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
-  grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
-  permissions_boundary   = var.permissions_boundary
+  permissions_boundary = var.permissions_boundary
 }

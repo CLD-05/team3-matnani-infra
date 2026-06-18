@@ -5,16 +5,14 @@ resource "kubernetes_manifest" "backend_service_monitor" {
   manifest = {
     apiVersion = "monitoring.coreos.com/v1"
     kind       = "ServiceMonitor"
-    metadata   = {
+    metadata = {
       name      = "team3-matnani-backend-sm"
       namespace = "monitoring"
-      labels    = { release = "team3-matnani-monitoring" }
+      labels    = { release = var.prometheus_release_name }
     }
     spec = {
-      selector = { matchLabels = { app = "team3-matnani-backend" } }
+      selector  = { matchLabels = { app = "team3-matnani-backend" } }
       endpoints = [{ port = "http", path = "/actuator/prometheus" }]
     }
   }
-
-  depends_on = [helm_release.monitoring]
 }
