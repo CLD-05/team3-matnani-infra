@@ -1,6 +1,6 @@
-node_desired = 2
-node_min     = 0
-node_max     = 4
+node_desired = 3
+node_min     = 2
+node_max     = 8
 
 db_instance_class   = "db.t4g.micro"
 create_read_replica = false
