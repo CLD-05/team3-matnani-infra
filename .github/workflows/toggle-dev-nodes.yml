@@ -1,63 +1,77 @@
-name: 🎛️ Dev Env - Toggle EKS Nodes & NAT
+name: Toggle Dev EKS Nodes
 
 on:
   workflow_dispatch:
     inputs:
       node_desired:
-        description: 'EKS 노드 개수 (0: 비용 0원 모드 / 2: 기본 운영 모드)'
+        description: "Desired EKS node count for dev"
         required: true
-        default: '0'
+        default: "0"
         type: choice
         options:
-          - '0'
-          - '2'
+          - "0"
+          - "2"
+          - "3"
+          - "4"
 
-        
 permissions:
   id-token: write
   contents: read
+
+concurrency:
+  group: dev-infra-terraform
+  cancel-in-progress: false
 
 env:
   AWS_REGION: ap-northeast-2
   ROLE_ARN: arn:aws:iam::495599735720:role/team3-matnani-dev-gha-role
   TF_VERSION: "1.15.0"
 
-
 jobs:
   apply-infrastructure:
+    name: Toggle dev node count
     runs-on: ubuntu-latest
-    
+
     defaults:
       run:
-        working-directory: ./infra/envs/dev/infra
+        working-directory: infra/envs/dev/infra
 
     steps:
-      - name: 1. 저장소 코드 불러오기
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 2. AWS 권한 인증 (OIDC)
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: 3. 테라폼 설치
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: 4. 테라폼 초기화 (Init)
+      - name: Terraform init
         run: terraform init
 
-      - name: 5. 🚀 테라폼 자동 적용 (Apply) - 0원 모드 시 2단계 분리 배포
+      - name: Apply selected node count
+        env:
+          NODE_DESIRED: ${{ github.event.inputs.node_desired }}
         run: |
-          if [ "${{ github.event.inputs.node_desired }}" == "0" ]; then
-            echo "📉 비용 0원 모드: 파드들의 안전한 종료를 위해 노드를 먼저 0으로 축소합니다 (NAT 유지)."
-            terraform apply -auto-approve -target="module.eks" -var="node_desired_size=0" -var-file="terraform.ci.tfvars"
-            
-            echo "🗑️ 노드 축소 완료. 이제 불필요해진 NAT GW를 삭제합니다."
-            terraform apply -auto-approve -var="node_desired_size=0" -var-file="terraform.ci.tfvars"
+          set -euo pipefail
+
+          COMMON_ARGS="-lock-timeout=5m -var-file=terraform.ci.tfvars -var=node_desired=${NODE_DESIRED}"
+
+          if [ "${NODE_DESIRED}" = "0" ]; then
+            echo "Scaling EKS nodes down to 0 before removing NAT resources."
+            terraform apply -auto-approve -target=module.eks ${COMMON_ARGS}
+
+            echo "Applying full dev infra with node_desired=0."
+            terraform apply -auto-approve ${COMMON_ARGS}
           else
-            echo "📈 운영 모드: NAT GW와 EKS 노드를 프로비저닝합니다."
-            terraform apply -auto-approve -var="node_desired_size=2" -var-file="terraform.ci.tfvars"
+            echo "Ensuring NAT resources exist before scaling EKS nodes to ${NODE_DESIRED}."
+            terraform apply -auto-approve -target=module.network ${COMMON_ARGS}
+
+            echo "Applying full dev infra with node_desired=${NODE_DESIRED}."
+            terraform apply -auto-approve ${COMMON_ARGS}
           fi
