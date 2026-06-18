@@ -10,6 +10,10 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: dev-infra-terraform-apply
+  cancel-in-progress: false
+
 env:
   AWS_REGION: ap-northeast-2
   ROLE_ARN: arn:aws:iam::495599735720:role/team3-matnani-dev-gha-role
@@ -38,8 +42,24 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Read current EKS node count
+        id: current_nodes
+        run: |
+          desired=$(aws eks describe-nodegroup \
+            --cluster-name team3-matnani-dev-eks \
+            --nodegroup-name team3-matnani-dev-eks-ng \
+            --query "nodegroup.scalingConfig.desiredSize" \
+            --output text)
+          echo "desired=${desired}" >> "$GITHUB_OUTPUT"
+          echo "현재 EKS 노드 수 ${desired}개를 유지합니다."
+
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var-file=terraform.ci.tfvars
+        run: |
+          terraform apply \
+            -auto-approve \
+            -lock-timeout=5m \
+            -var-file=terraform.ci.tfvars \
+            -var="node_desired=${{ steps.current_nodes.outputs.desired }}"
 
   apply-dev-platform-addons:
     name: Apply / dev-platform-addons
