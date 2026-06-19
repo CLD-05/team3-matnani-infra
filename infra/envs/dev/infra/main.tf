@@ -175,6 +175,10 @@ data "aws_ssm_parameter" "slack_webhook" {
   with_decryption = true
 }
 
+data "aws_lb_target_group" "matnani" {
+  name = "k8s-team3mat-matnania-d56bf765b5"
+}
+
 # 모니터링 모듈 호출
 module "monitoring" {
   source = "../../../modules/monitoring"
@@ -190,12 +194,26 @@ module "monitoring" {
   prometheus_storage_size  = var.prometheus_storage_size
   eks_cluster_name         = module.eks.cluster_name
   rds_instance_id          = module.database.db_instance_id
-  alb_name                 = ""
-
+  alb_dns_name             = var.alb_dns_name
+  alb_name                 = var.alb_name
+  target_group_name  = data.aws_lb_target_group.matnani.name
   nat_gateway_id = module.network.nat_gateway_ids
 
   # SSM에서 꺼낸 값을 모듈로 전달
   slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
   grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
   permissions_boundary   = var.permissions_boundary
+
+  rds_cpu_threshold                 = var.rds_cpu_threshold
+  rds_connections_threshold         = var.rds_connections_threshold
+  rds_read_latency_threshold        = var.rds_read_latency_threshold
+  rds_write_latency_threshold       = var.rds_write_latency_threshold
+  rds_free_storage_threshold_bytes  = var.rds_free_storage_threshold_bytes
+  eks_node_cpu_threshold            = var.eks_node_cpu_threshold
+  eks_node_memory_threshold         = var.eks_node_memory_threshold
+  alb_request_count_threshold       = var.alb_request_count_threshold
+  alb_http_4xx_threshold            = var.alb_http_4xx_threshold
+  alb_http_5xx_threshold            = var.alb_http_5xx_threshold
+  nat_gw_connection_count_threshold = var.nat_gw_connection_count_threshold
+  nat_gw_bytes_out_threshold        = var.nat_gw_bytes_out_threshold
 }

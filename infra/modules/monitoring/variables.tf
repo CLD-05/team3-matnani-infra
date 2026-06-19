@@ -45,10 +45,15 @@ variable "eks_cluster_name" {
   default     = ""
 }
 
+variable "alb_dns_name" {
+  description = "감시할 ALB의 이름 (CloudWatch 지표용)"
+  type        = string
+}
+
 variable "alb_name" {
   description = "감시할 ALB의 이름 (CloudWatch 지표용)"
   type        = string
-  default     = null
+  default     = "team3-matnani-dev-alb"
 }
 
 variable "nat_gateway_id" {
@@ -85,4 +90,74 @@ variable "permissions_boundary" {
   description = "IAM Role 생성에 필요한 Permissions Boundary ARN"
   type        = string
   default     = null
+}
+
+variable "target_group_name" {
+  description = "Target Group Name"
+  type        = string
+}
+
+
+# ---- RDS ----
+variable "rds_cpu_threshold" {
+  type    = number
+  default = 75
+}
+
+variable "rds_connections_threshold" {
+  type    = number
+  default = 80
+}
+
+variable "rds_read_latency_threshold" {
+  type    = number
+  default = 0.1 # 100ms -> CloudWatch 단위는 초(second)
+}
+
+variable "rds_write_latency_threshold" {
+  type    = number
+  default = 0.12 # 120ms
+}
+
+variable "rds_free_storage_threshold_bytes" {
+  type    = number
+  default = 32212254720 # 30GB
+}
+
+# ---- EKS ----
+variable "eks_node_cpu_threshold" {
+  type    = number
+  default = 70
+}
+
+variable "eks_node_memory_threshold" {
+  type    = number
+  default = 65
+}
+
+# ---- ALB ----
+variable "alb_request_count_threshold" {
+  type    = number
+  default = 70000
+}
+
+variable "alb_http_4xx_threshold" {
+  type    = number
+  default = 50
+}
+
+variable "alb_http_5xx_threshold" {
+  type    = number
+  default = 10
+}
+
+# ---- NAT Gateway ----
+variable "nat_gw_connection_count_threshold" {
+  type    = number
+  default = 50000
+}
+
+variable "nat_gw_bytes_out_threshold" {
+  type    = number
+  default = 10737418240 # 10GB
 }
