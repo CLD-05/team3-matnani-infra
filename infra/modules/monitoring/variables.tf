@@ -61,8 +61,25 @@ variable "permissions_boundary" {
   default     = null
 }
 
+/*
+# AWS Chatbot 권한 해결 후 사용할 변수
 variable "enable_chatbot" {
   description = "Whether to create AWS Chatbot IAM and Slack channel resources."
   type        = bool
   default     = false
 }
+
+# 기존 kube-prometheus-stack에서 Slack Webhook과 Grafana 비밀번호를
+# 직접 주입해야 할 경우 다시 활성화한다.
+variable "slack_webhook_url" {
+  description = "Slack Webhook URL loaded from SSM Parameter Store."
+  type        = string
+  default     = ""
+}
+
+variable "grafana_admin_password" {
+  description = "Grafana admin password loaded from SSM Parameter Store."
+  type        = string
+  sensitive   = true
+}
+*/

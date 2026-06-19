@@ -29,19 +29,17 @@ resource "aws_sns_topic" "matnani_alerts" {
   name = "team3-matnani-${var.env}-monitoring-alerts"
 }
 
+/*
+# AWS Chatbot은 GitHub Actions Role의 IAM 생성 권한을 확보한 뒤 활성화한다.
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
-  count = var.enable_chatbot ? 1 : 0
-
   configuration_name = "team3-matnani-slack-alerts"
-  iam_role_arn       = aws_iam_role.chatbot_role[0].arn
+  iam_role_arn       = aws_iam_role.chatbot_role.arn
   slack_team_id      = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
   sns_topic_arns     = [aws_sns_topic.matnani_alerts.arn]
 }
 
 resource "aws_iam_role" "chatbot_role" {
-  count = var.enable_chatbot ? 1 : 0
-
   name                 = "team3-matnani-${var.env}-chatbot-role"
   permissions_boundary = var.permissions_boundary
   assume_role_policy = jsonencode({
@@ -55,18 +53,15 @@ resource "aws_iam_role" "chatbot_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "chatbot_readonly" {
-  count = var.enable_chatbot ? 1 : 0
-
-  role       = aws_iam_role.chatbot_role[0].name
+  role       = aws_iam_role.chatbot_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
-  count = var.enable_chatbot ? 1 : 0
-
-  role       = aws_iam_role.chatbot_role[0].name
+  role       = aws_iam_role.chatbot_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess"
 }
+*/
 
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
   alarm_name          = "team3-matnani-${var.env}-rds-cpu-high"

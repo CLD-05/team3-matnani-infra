@@ -163,6 +163,19 @@ module "github_oidc" {
   app_repo                    = var.app_repo
 }
 
+/*
+# Slack Webhook과 Grafana 비밀번호는 기존 모니터링 스택에서 관리한다.
+# 모니터링 모듈에서 다시 주입해야 할 경우 아래 SSM 조회를 활성화한다.
+data "aws_ssm_parameter" "grafana_password" {
+  name            = "/team3/matnani/dev/grafana-password"
+  with_decryption = true
+}
+
+data "aws_ssm_parameter" "slack_webhook" {
+  name            = "/team3/matnani/dev/monitoring/slack-webhook"
+  with_decryption = true
+}
+*/
 
 # 모니터링 모듈 호출
 module "monitoring" {
@@ -181,6 +194,13 @@ module "monitoring" {
   alb_name                = ""
 
   nat_gateway_id = module.network.nat_gateway_ids
+
+  /*
+  # AWS Chatbot 및 기존 모니터링 스택의 비밀값 주입은 권한 해결 후 활성화한다.
+  slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
+  grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
+  enable_chatbot         = true
+  */
 
   permissions_boundary = var.permissions_boundary
 }
