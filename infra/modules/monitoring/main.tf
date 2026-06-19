@@ -2,6 +2,41 @@
 
 # 1. Prometheus & Grafana 배포
 # Prometheus, Grafana, and Alertmanager are managed by platform-addons.
+/*
+# 기존 infra monitoring 모듈의 별도 Helm 릴리스입니다.
+# 현재 동일 스택은 platform-addons의
+# team3-matnani-kube-prometheus-stack 릴리스가 관리하므로 비활성화합니다.
+resource "helm_release" "monitoring" {
+  name             = "team3-matnani-${var.env}-monitoring"
+  repository       = "https://prometheus-community.github.io/helm-charts"
+  chart            = "kube-prometheus-stack"
+  version          = "60.0.0"
+  namespace        = "monitoring"
+  create_namespace = true
+  wait             = true
+  timeout          = 600
+  atomic           = true
+
+  values = [
+    file("${path.module}/values.yaml")
+  ]
+
+  set = [
+    {
+      name  = "prometheus.prometheusSpec.externalLabels.environment"
+      value = var.env
+    },
+    {
+      name  = "grafana.adminPassword"
+      value = var.grafana_admin_password
+    },
+    {
+      name  = "alertmanager.config.receivers[0].slack_configs[0].api_url"
+      value = var.slack_webhook_url
+    }
+  ]
+}
+*/
 
 # 2. 로그 및 알람 파이프라인
 resource "aws_cloudwatch_log_group" "eks_logs" {
@@ -37,10 +72,35 @@ resource "aws_sns_topic" "matnani_alerts" {
 # grants the deployment role Chatbot configuration permissions.
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
   configuration_name = "team3-matnani-slack-alerts"
-  iam_role_arn       = var.chatbot_role_arn
+  iam_role_arn       = aws_iam_role.chatbot_role.arn
+  # 관리자에게 기존 Role ARN을 받는 경우: iam_role_arn = var.chatbot_role_arn
   slack_team_id      = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
   sns_topic_arns     = [aws_sns_topic.matnani_alerts.arn]
+}
+
+# 기존 Terraform 직접 생성 방식입니다.
+# 현재 Permissions Boundary에서 iam:CreateRole이 거부되어 비활성화합니다.
+resource "aws_iam_role" "chatbot_role" {
+  name = "team3-matnani-${var.env}-chatbot-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "chatbot.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "chatbot_readonly" {
+  role       = aws_iam_role.chatbot_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
+  role       = aws_iam_role.chatbot_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess"
 }
 */
 

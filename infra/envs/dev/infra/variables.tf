@@ -229,6 +229,20 @@ variable "infra_repo" {
 }
 
 /*
+# 기존 infra monitoring 모듈에서 사용하던 변수입니다.
+# 현재 kube-prometheus-stack은 platform-addons에서 관리하므로 비활성화합니다.
+variable "prometheus_storage_class" {
+  type        = string
+  description = "gp2"
+}
+
+variable "prometheus_storage_size" {
+  type        = string
+  description = "10Gi"
+}
+*/
+
+/*
 # AWS Chatbot variables are enabled after the IAM restrictions are resolved.
 variable "slack_workspace_id" {
   type        = string

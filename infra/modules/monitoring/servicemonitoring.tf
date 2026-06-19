@@ -16,4 +16,6 @@ resource "kubernetes_manifest" "backend_service_monitor" {
     }
   }
 
+  # 기존 별도 Helm 릴리스를 사용할 때의 의존성입니다.
+  # depends_on = [helm_release.monitoring]
 }
