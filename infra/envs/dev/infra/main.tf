@@ -165,6 +165,9 @@ module "github_oidc" {
 
 
 # TODO: EKS 클러스터 생성 후 활성화 (kubernetes provider 필요)
+/*
+# 기존 infra monitoring 모듈에서 직접 사용하던 SSM 조회 코드입니다.
+# 현재 Grafana/Alertmanager는 platform-addons와 ESO에서 관리하므로 비활성화합니다.
 data "aws_ssm_parameter" "grafana_password" {
   name            = "/team3/matnani/dev/grafana-password"
   with_decryption = true
@@ -174,6 +177,7 @@ data "aws_ssm_parameter" "slack_webhook" {
   name            = "/team3/matnani/dev/monitoring/slack-webhook"
   with_decryption = true
 }
+*/
 
 data "aws_lb_target_group" "matnani" {
   name = "k8s-team3mat-matnania-d56bf765b5"
@@ -187,22 +191,32 @@ module "monitoring" {
   project = var.project
   env     = var.env
 
+  /*
+  # AWS Chatbot is enabled after an administrator creates the service role
+  # and grants Chatbot configuration permissions.
   slack_workspace_id = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
+  chatbot_role_arn   = var.chatbot_role_arn
+  */
 
+  eks_cluster_name  = module.eks.cluster_name
+  rds_instance_id   = module.database.db_instance_id
+  alb_dns_name      = var.alb_dns_name
+  alb_name          = var.alb_name
+  target_group_name = data.aws_lb_target_group.matnani.name
+  nat_gateway_id    = module.network.nat_gateway_ids
+
+  /*
+  # 기존 infra monitoring 모듈의 Prometheus/Grafana 설정입니다.
+  # 현재 kube-prometheus-stack은 platform-addons에서 관리하므로 비활성화합니다.
   prometheus_storage_class = var.prometheus_storage_class
   prometheus_storage_size  = var.prometheus_storage_size
-  eks_cluster_name         = module.eks.cluster_name
-  rds_instance_id          = module.database.db_instance_id
-  alb_dns_name             = var.alb_dns_name
-  alb_name                 = var.alb_name
-  target_group_name  = data.aws_lb_target_group.matnani.name
-  nat_gateway_id = module.network.nat_gateway_ids
 
-  # SSM에서 꺼낸 값을 모듈로 전달
+  # 기존 SSM 조회 결과 전달값입니다.
   slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
   grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
   permissions_boundary   = var.permissions_boundary
+  */
 
   rds_cpu_threshold                 = var.rds_cpu_threshold
   rds_connections_threshold         = var.rds_connections_threshold

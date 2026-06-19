@@ -26,6 +26,8 @@ override.tf.json
 # Terraform CLI
 .terraformrc
 terraform.rc
+tfplan*
+*.tfplan
 
 # Secrets
 *.pem

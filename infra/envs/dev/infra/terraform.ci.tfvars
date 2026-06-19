@@ -13,16 +13,21 @@ app_repo   = "team3-matnani-app"
 infra_repo = "team3-matnani-infra"
 
 team_member_user_arns = {
-    sanghyuk = "arn:aws:iam::495599735720:user/team3-lsh"
-    yueun    = "arn:aws:iam::495599735720:user/team3-lye"
-    leeho    = "arn:aws:iam::495599735720:user/team3-lh"
-    mingyu   = "arn:aws:iam::495599735720:user/team3-cmg"
-    wonjun   = "arn:aws:iam::495599735720:user/team3-swj"
-    wonho    = "arn:aws:iam::495599735720:user/team3-kwh"
+  sanghyuk = "arn:aws:iam::495599735720:user/team3-lsh"
+  yueun    = "arn:aws:iam::495599735720:user/team3-lye"
+  leeho    = "arn:aws:iam::495599735720:user/team3-lh"
+  mingyu   = "arn:aws:iam::495599735720:user/team3-cmg"
+  wonjun   = "arn:aws:iam::495599735720:user/team3-swj"
+  wonho    = "arn:aws:iam::495599735720:user/team3-kwh"
 }
 
-prometheus_storage_class = "gp2"
-prometheus_storage_size  = "10Gi"
-slack_workspace_id       = "T0B9G4MP3BL"
-slack_channel_id         = "C0B9KP6RDGU"
+# AWS Chatbot 권한 확보 후 활성화
+# slack_workspace_id = "T0B9G4MP3BL"
+# slack_channel_id   = "C0B9KP6RDGU"
+
+# 기존 infra monitoring 모듈에서 사용하던 Prometheus 스토리지 설정입니다.
+# 현재 kube-prometheus-stack은 platform-addons에서 관리하므로 비활성화합니다.
+# prometheus_storage_class = "gp2"
+# prometheus_storage_size  = "10Gi"
+
 alb_dns_name = "team3-matnani-dev-alb-1335037742.ap-northeast-2.elb.amazonaws.com"

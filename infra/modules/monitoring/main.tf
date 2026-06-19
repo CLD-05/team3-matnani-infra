@@ -1,6 +1,11 @@
 # infra/modules/monitoring/main.tf
 
 # 1. Prometheus & Grafana 배포
+# Prometheus, Grafana, and Alertmanager are managed by platform-addons.
+/*
+# 기존 infra monitoring 모듈의 별도 Helm 릴리스입니다.
+# 현재 동일 스택은 platform-addons의
+# team3-matnani-kube-prometheus-stack 릴리스가 관리하므로 비활성화합니다.
 resource "helm_release" "monitoring" {
   name             = "team3-matnani-${var.env}-monitoring"
   repository       = "https://prometheus-community.github.io/helm-charts"
@@ -31,6 +36,7 @@ resource "helm_release" "monitoring" {
     }
   ]
 }
+*/
 
 # 2. 로그 및 알람 파이프라인
 resource "aws_cloudwatch_log_group" "eks_logs" {
@@ -61,14 +67,20 @@ resource "aws_sns_topic" "matnani_alerts" {
   name = "team3-matnani-${var.env}-monitoring-alerts"
 }
 
+/*
+# AWS Chatbot is enabled after an administrator creates the service role and
+# grants the deployment role Chatbot configuration permissions.
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
   configuration_name = "team3-matnani-slack-alerts"
   iam_role_arn       = aws_iam_role.chatbot_role.arn
+  # 관리자에게 기존 Role ARN을 받는 경우: iam_role_arn = var.chatbot_role_arn
   slack_team_id      = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
   sns_topic_arns     = [aws_sns_topic.matnani_alerts.arn]
 }
 
+# 기존 Terraform 직접 생성 방식입니다.
+# 현재 Permissions Boundary에서 iam:CreateRole이 거부되어 비활성화합니다.
 resource "aws_iam_role" "chatbot_role" {
   name = "team3-matnani-${var.env}-chatbot-role"
   assume_role_policy = jsonencode({
@@ -90,6 +102,7 @@ resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
   role       = aws_iam_role.chatbot_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess"
 }
+*/
 
 
 
@@ -100,7 +113,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
   alarm_name          = "team3-matnani-${var.env}-rds-cpu-high"
   alarm_description   = "RDS CPU utilization exceeded 80% for 2 minutes"
   comparison_operator = "GreaterThanThreshold"
-  threshold = var.rds_cpu_threshold
+  threshold           = var.rds_cpu_threshold
   metric_name         = "CPUUtilization"
   namespace           = "AWS/RDS"
   period              = "120"
@@ -115,7 +128,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_database_connections" {
   alarm_name          = "team3-matnani-${var.env}-rds-db-connections"
   metric_name         = "DatabaseConnections"
   namespace           = "AWS/RDS"
-  threshold = var.rds_connections_threshold
+  threshold           = var.rds_connections_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "60"
   evaluation_periods  = "1"
@@ -130,7 +143,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_read_latency" {
   alarm_name          = "team3-matnani-${var.env}-rds-read-latency"
   metric_name         = "ReadLatency"
   namespace           = "AWS/RDS"
-  threshold = var.rds_read_latency_threshold
+  threshold           = var.rds_read_latency_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "60"
   evaluation_periods  = "2"
@@ -233,8 +246,8 @@ resource "aws_cloudwatch_metric_alarm" "eks_node_cpu" {
   evaluation_periods  = "2"
   statistic           = "Average"
   dimensions          = { ClusterName = var.eks_cluster_name }
-  alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
-  treat_missing_data = "notBreaching"
+  alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
+  treat_missing_data  = "notBreaching"
 }
 
 # EKS 노드 메모리 사용률
@@ -248,8 +261,8 @@ resource "aws_cloudwatch_metric_alarm" "eks_node_memory" {
   evaluation_periods  = "2"
   statistic           = "Average"
   dimensions          = { ClusterName = var.eks_cluster_name }
-  alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
-  treat_missing_data = "notBreaching"
+  alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
+  treat_missing_data  = "notBreaching"
 }
 
 
@@ -267,8 +280,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_target_response_time" {
   evaluation_periods  = "2"
   statistic           = "Average"
   dimensions          = { LoadBalancer = var.alb_name }
-  alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
-  treat_missing_data = "notBreaching"
+  alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
+  treat_missing_data  = "notBreaching"
 }
 
 # ALB HTTP 5XX 에러
@@ -282,8 +295,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_http_5xx" {
   evaluation_periods  = "1"
   statistic           = "Sum"
   dimensions          = { LoadBalancer = var.alb_name }
-  alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
-  treat_missing_data = "notBreaching"
+  alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
+  treat_missing_data  = "notBreaching"
 }
 
 # ALB HTTP 4XX 에러
@@ -297,8 +310,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_http_4xx" {
   evaluation_periods  = "2"
   statistic           = "Sum"
   dimensions          = { LoadBalancer = var.alb_name }
-  alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
-  treat_missing_data = "notBreaching"
+  alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
+  treat_missing_data  = "notBreaching"
 }
 
 # ALB 언헬시 호스트
@@ -330,6 +343,6 @@ resource "aws_cloudwatch_metric_alarm" "alb_request_count" {
   evaluation_periods  = "2"
   statistic           = "Sum"
   dimensions          = { LoadBalancer = var.alb_name }
-  alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
-  treat_missing_data = "notBreaching"
+  alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
+  treat_missing_data  = "notBreaching"
 }

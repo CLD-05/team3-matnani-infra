@@ -21,7 +21,8 @@ variable "environment" {
   default     = "dev"
 }
 
-# Slack 연동을 위한 변수
+/*
+# AWS Chatbot variables are enabled after the IAM restrictions are resolved.
 variable "slack_workspace_id" {
   description = "Slack 워크스페이스 ID"
   type        = string
@@ -31,6 +32,12 @@ variable "slack_channel_id" {
   description = "알림을 받을 Slack 채널 ID"
   type        = string
 }
+
+variable "chatbot_role_arn" {
+  description = "ARN of an existing IAM role trusted by chatbot.amazonaws.com"
+  type        = string
+}
+*/
 
 # 통합 관제를 위한 리소스 식별자 변수
 variable "rds_instance_id" {
@@ -62,6 +69,9 @@ variable "nat_gateway_id" {
   default     = []
 }
 
+/*
+# 기존 infra monitoring Helm 릴리스에서 사용하던 변수입니다.
+# 현재 kube-prometheus-stack은 platform-addons에서 관리하므로 비활성화합니다.
 variable "prometheus_storage_class" {
   description = "프로메테우스 EBS 스토리지 클래스 (gp2, gp3 등)"
   type        = string
@@ -91,6 +101,7 @@ variable "permissions_boundary" {
   type        = string
   default     = null
 }
+*/
 
 variable "target_group_name" {
   description = "Target Group Name"

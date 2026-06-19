@@ -5,16 +5,17 @@ resource "kubernetes_manifest" "backend_service_monitor" {
   manifest = {
     apiVersion = "monitoring.coreos.com/v1"
     kind       = "ServiceMonitor"
-    metadata   = {
+    metadata = {
       name      = "team3-matnani-backend-sm"
       namespace = "monitoring"
-      labels    = { release = "team3-matnani-monitoring" }
+      labels    = { release = "team3-matnani-kube-prometheus-stack" }
     }
     spec = {
-      selector = { matchLabels = { app = "team3-matnani-backend" } }
+      selector  = { matchLabels = { app = "team3-matnani-backend" } }
       endpoints = [{ port = "http", path = "/actuator/prometheus" }]
     }
   }
 
-  depends_on = [helm_release.monitoring]
+  # 기존 별도 Helm 릴리스를 사용할 때의 의존성입니다.
+  # depends_on = [helm_release.monitoring]
 }
