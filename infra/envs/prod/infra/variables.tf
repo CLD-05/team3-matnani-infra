@@ -166,7 +166,7 @@ variable "node_instance_type" {
 
 variable "node_min" {
   type    = number
-  default = 3
+  default = 4
 }
 
 variable "node_max" {
@@ -176,7 +176,7 @@ variable "node_max" {
 
 variable "node_desired" {
   type    = number
-  default = 3
+  default = 4
 }
 
 # EKS 클러스터 필수 애드온 버전 관리

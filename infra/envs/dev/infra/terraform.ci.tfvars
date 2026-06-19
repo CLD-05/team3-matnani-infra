@@ -1,5 +1,5 @@
-node_desired = 4
-node_min     = 0
+node_desired = 3
+node_min     = 3
 node_max     = 4
 
 db_instance_class   = "db.t4g.micro"
