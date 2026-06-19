@@ -19,5 +19,5 @@ output "cloudwatch_log_group_name" {
 }
 
 output "prometheus_release_name" {
-  value = helm_release.monitoring.name
+  value = "team3-matnani-kube-prometheus-stack"
 }

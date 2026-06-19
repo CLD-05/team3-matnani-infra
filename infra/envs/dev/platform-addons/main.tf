@@ -125,7 +125,7 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
 resource "aws_iam_role" "eso" {
   name                 = "${var.team}-${var.project}-${var.env}-eso-role"
   permissions_boundary = var.permissions_boundary
-  
+
   lifecycle {
     ignore_changes = [
       assume_role_policy,
@@ -158,7 +158,7 @@ resource "aws_iam_role_policy" "eso_ssm" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath"]
-      Resource = "arn:aws:ssm:ap-northeast-2:*:parameter/matnani/dev/*"
+      Resource = "arn:aws:ssm:ap-northeast-2:${data.aws_caller_identity.current.account_id}:parameter/${var.team}/${var.project}/${var.env}/*"
     }]
   })
 }

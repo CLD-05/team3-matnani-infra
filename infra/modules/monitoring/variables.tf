@@ -21,7 +21,8 @@ variable "environment" {
   default     = "dev"
 }
 
-# Slack 연동을 위한 변수
+/*
+# AWS Chatbot variables are enabled after the IAM restrictions are resolved.
 variable "slack_workspace_id" {
   description = "Slack 워크스페이스 ID"
   type        = string
@@ -31,6 +32,12 @@ variable "slack_channel_id" {
   description = "알림을 받을 Slack 채널 ID"
   type        = string
 }
+
+variable "chatbot_role_arn" {
+  description = "ARN of an existing IAM role trusted by chatbot.amazonaws.com"
+  type        = string
+}
+*/
 
 # 통합 관제를 위한 리소스 식별자 변수
 variable "rds_instance_id" {
@@ -60,36 +67,6 @@ variable "nat_gateway_id" {
   description = "감시할 NAT Gateway의 ID"
   type        = list(string)
   default     = []
-}
-
-variable "prometheus_storage_class" {
-  description = "프로메테우스 EBS 스토리지 클래스 (gp2, gp3 등)"
-  type        = string
-  default     = "gp2"
-}
-
-variable "prometheus_storage_size" {
-  description = "프로메테우스 스토리지 용량 크기"
-  type        = string
-  default     = "10Gi"
-}
-
-variable "slack_webhook_url" {
-  description = "SSM Parameter Store에서 읽어온 슬랙 웹훅 URL"
-  type        = string
-  default     = ""
-}
-
-variable "grafana_admin_password" {
-  description = "SSM Parameter Store에서 읽어온 그라파나 관리자 패스워드"
-  type        = string
-  sensitive   = true
-}
-
-variable "permissions_boundary" {
-  description = "IAM Role 생성에 필요한 Permissions Boundary ARN"
-  type        = string
-  default     = null
 }
 
 variable "target_group_name" {

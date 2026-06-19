@@ -17,12 +17,17 @@ resource "kubernetes_namespace" "namespaces" {
 
   metadata {
     name = each.key
-    labels = {
-      "managed-by"  = "terraform"
-      "Team"        = "team3"
-      "project"     = "matnani"
-      "environment" = var.environment
-    }
+    labels = merge(
+      {
+        "managed-by"  = "terraform"
+        "Team"        = "team3"
+        "project"     = "matnani"
+        "environment" = var.environment
+      },
+      each.key == "monitoring" ? {
+        "argocd.argoproj.io/instance" = "team3-matnani-monitoring"
+      } : {}
+    )
   }
 }
 
@@ -100,6 +105,19 @@ resource "helm_release" "eso" {
   version    = "0.9.18"
   namespace  = "external-secrets"
 
+  set {
+    name  = "serviceAccount.create"
+    value = "true"
+  }
+  set {
+    name  = "serviceAccount.name"
+    value = "external-secrets-sa"
+  }
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = var.eso_role_arn
+  }
+
   depends_on = [kubernetes_namespace.namespaces]
   # 노드 0개 축소/복구 대비 안전장치
   wait    = true
@@ -132,13 +150,23 @@ resource "helm_release" "kube_prometheus_stack" {
   }
   set {
     name  = "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage"
-    value = "10Gi"  # dev: 10Gi / prod: 50Gi
+    value = "10Gi" # dev: 10Gi / prod: 50Gi
   }
 
   # dev: 노드 공간 부족으로 pre-upgrade hook 타임아웃 방지
   set {
     name  = "prometheusOperator.admissionWebhooks.enabled"
     value = "false"
+  }
+
+  set {
+    name  = "alertmanager.alertmanagerSpec.alertmanagerConfigSelector.matchLabels.alertmanagerConfig"
+    value = "team3-matnani"
+  }
+
+  set {
+    name  = "alertmanager.alertmanagerSpec.alertmanagerConfigMatcherStrategy.type"
+    value = "None"
   }
 }
 

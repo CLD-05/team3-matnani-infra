@@ -51,18 +51,18 @@ variable "replica_instance_class" {
   default     = null
 }
 variable "allocated_storage" {
-  type        = number
-  default     = 20
+  type    = number
+  default = 20
 }
 
 variable "max_allocated_storage" {
-  type        = number
-  default     = 50
+  type    = number
+  default = 50
 }
 
 variable "backup_retention_period" {
-  type        = number
-  default     = 1
+  type    = number
+  default = 1
 }
 
 variable "multi_az" {
@@ -228,17 +228,8 @@ variable "infra_repo" {
   description = "인프라 관리 레포지토리명 — tfvars에서 주입"
 }
 
-# monitoring
-variable "prometheus_storage_class" {
-  type        = string
-  description = "gp2"
-}
-
-variable "prometheus_storage_size" {
-  type        = string
-  description = "10Gi"
-}
-
+/*
+# AWS Chatbot variables are enabled after the IAM restrictions are resolved.
 variable "slack_workspace_id" {
   type        = string
   description = "팀 공용 슬랙 워크스페이스 ID"
@@ -248,6 +239,12 @@ variable "slack_channel_id" {
   type        = string
   description = "알림을 수신할 팀 공용 슬랙 채널 ID"
 }
+
+variable "chatbot_role_arn" {
+  description = "관리자가 생성한 AWS Chatbot IAM Role ARN"
+  type        = string
+}
+*/
 
 variable "alb_dns_name" {
   type        = string
@@ -287,7 +284,7 @@ variable "rds_free_storage_threshold_bytes" {
 
 variable "eks_node_cpu_threshold" {
   type    = number
-  default = 75
+  default = 70
 }
 
 variable "eks_node_memory_threshold" {

@@ -41,7 +41,7 @@ data "aws_ami" "ubuntu" {
 
 # IAM
 resource "aws_iam_role" "bastion" {
-  name = "${local.name}-role"
+  name                 = "${local.name}-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
@@ -71,9 +71,9 @@ resource "aws_iam_instance_profile" "bastion" {
 
 # Security Group
 resource "aws_security_group" "bastion" {
-  name   = "${local.name}-sg"
+  name        = "${local.name}-sg"
   description = "Bastion EC2 Security Group"
-  vpc_id = var.vpc_id
+  vpc_id      = var.vpc_id
 
   # 인바운드: 없음 (SSH 22번 닫음 — SSM은 아웃바운드만 필요)
   egress {
@@ -123,6 +123,9 @@ resource "aws_instance" "bastion" {
     Name = local.name
   })
   lifecycle {
-    ignore_changes = [ami]
+    ignore_changes = [
+      ami,
+      user_data,
+    ]
   }
 }
