@@ -184,7 +184,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_connection_count" {
   period              = "60"
   evaluation_periods  = "1"
   statistic           = "Maximum"
-  dimensions          = { NatGatewayId = var.nat_gateway_id }
+  dimensions          = { NatGatewayId = var.nat_gateway_id[0] }
   alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data  = "notBreaching"
 }
@@ -199,7 +199,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_error_port_allocation" {
   period              = "60"
   evaluation_periods  = "1"
   statistic           = "Sum"
-  dimensions          = { NatGatewayId = var.nat_gateway_id }
+  dimensions          = { NatGatewayId = var.nat_gateway_id[0] }
   alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data  = "notBreaching"
 }
@@ -214,7 +214,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_bytes_out_to_destination" {
   period              = "300"
   evaluation_periods  = "2"
   statistic           = "Sum"
-  dimensions          = { NatGatewayId = var.nat_gateway_id }
+  dimensions          = { NatGatewayId = var.nat_gateway_id[0] }
   alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data  = "notBreaching"
 }
@@ -232,12 +232,7 @@ resource "aws_cloudwatch_metric_alarm" "eks_node_cpu" {
   period              = "300"
   evaluation_periods  = "2"
   statistic           = "Average"
-  dimensions = [
-    {
-      name  = "ClusterName"
-      value = var.eks_cluster_name
-    }
-  ]
+  dimensions          = { ClusterName = var.eks_cluster_name }
   alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data = "notBreaching"
 }
@@ -252,12 +247,7 @@ resource "aws_cloudwatch_metric_alarm" "eks_node_memory" {
   period              = "300"
   evaluation_periods  = "2"
   statistic           = "Average"
-  dimensions = [
-    {
-      name  = "ClusterName"
-      value = var.eks_cluster_name
-    }
-  ]
+  dimensions          = { ClusterName = var.eks_cluster_name }
   alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data = "notBreaching"
 }
@@ -276,12 +266,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_target_response_time" {
   period              = "60"
   evaluation_periods  = "2"
   statistic           = "Average"
-  dimensions = [
-    {
-      name  = "LoadBalancer"
-      value = var.alb_name
-    }
-  ]
+  dimensions          = { LoadBalancer = var.alb_name }
   alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data = "notBreaching"
 }
@@ -296,12 +281,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_http_5xx" {
   period              = "60"
   evaluation_periods  = "1"
   statistic           = "Sum"
-  dimensions = [
-    {
-      name  = "LoadBalancer"
-      value = var.alb_name
-    }
-  ]
+  dimensions          = { LoadBalancer = var.alb_name }
   alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data = "notBreaching"
 }
@@ -316,12 +296,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_http_4xx" {
   period              = "60"
   evaluation_periods  = "2"
   statistic           = "Sum"
-  dimensions = [
-    {
-      name  = "LoadBalancer"
-      value = var.alb_name
-    }
-  ]
+  dimensions          = { LoadBalancer = var.alb_name }
   alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data = "notBreaching"
 }
@@ -336,16 +311,10 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy_hosts" {
   period              = "60"
   evaluation_periods  = "1"
   statistic           = "Average"
-  dimensions = [
-    {
-      name  = "LoadBalancer"
-      value = var.alb_name
-    },
-    {
-      name  = "TargetGroup"
-      value = var.target_group_name
-    }
-  ]
+  dimensions = {
+    LoadBalancer = var.alb_name
+    TargetGroup  = var.target_group_name
+  }
   alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data = "notBreaching"
 }
@@ -360,12 +329,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_request_count" {
   period              = "60"
   evaluation_periods  = "2"
   statistic           = "Sum"
-  dimensions = [
-    {
-      name  = "LoadBalancer"
-      value = var.alb_name
-    }
-  ]
+  dimensions          = { LoadBalancer = var.alb_name }
   alarm_actions      = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data = "notBreaching"
 }
