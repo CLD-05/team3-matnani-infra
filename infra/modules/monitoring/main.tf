@@ -30,15 +30,20 @@ resource "aws_sns_topic" "matnani_alerts" {
 }
 
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
+  count = var.enable_chatbot ? 1 : 0
+
   configuration_name = "team3-matnani-slack-alerts"
-  iam_role_arn       = aws_iam_role.chatbot_role.arn
+  iam_role_arn       = aws_iam_role.chatbot_role[0].arn
   slack_team_id      = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
   sns_topic_arns     = [aws_sns_topic.matnani_alerts.arn]
 }
 
 resource "aws_iam_role" "chatbot_role" {
-  name = "team3-matnani-${var.env}-chatbot-role"
+  count = var.enable_chatbot ? 1 : 0
+
+  name                 = "team3-matnani-${var.env}-chatbot-role"
+  permissions_boundary = var.permissions_boundary
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -50,12 +55,16 @@ resource "aws_iam_role" "chatbot_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "chatbot_readonly" {
-  role       = aws_iam_role.chatbot_role.name
+  count = var.enable_chatbot ? 1 : 0
+
+  role       = aws_iam_role.chatbot_role[0].name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
-  role       = aws_iam_role.chatbot_role.name
+  count = var.enable_chatbot ? 1 : 0
+
+  role       = aws_iam_role.chatbot_role[0].name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess"
 }
 

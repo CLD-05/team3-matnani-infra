@@ -60,3 +60,9 @@ variable "permissions_boundary" {
   type        = string
   default     = null
 }
+
+variable "enable_chatbot" {
+  description = "Whether to create AWS Chatbot IAM and Slack channel resources."
+  type        = bool
+  default     = false
+}
