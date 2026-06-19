@@ -17,12 +17,17 @@ resource "kubernetes_namespace" "namespaces" {
 
   metadata {
     name = each.key
-    labels = {
-      "managed-by"  = "terraform"
-      "Team"        = "team3"
-      "project"     = "matnani"
-      "environment" = var.environment
-    }
+    labels = merge(
+      {
+        "managed-by"  = "terraform"
+        "Team"        = "team3"
+        "project"     = "matnani"
+        "environment" = var.environment
+      },
+      each.key == "monitoring" ? {
+        "argocd.argoproj.io/instance" = "team3-matnani-monitoring"
+      } : {}
+    )
   }
 }
 
