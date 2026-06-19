@@ -45,10 +45,15 @@ variable "eks_cluster_name" {
   default     = ""
 }
 
+variable "alb_dns_name" {
+  description = "감시할 ALB의 이름 (CloudWatch 지표용)"
+  type        = string
+}
+
 variable "alb_name" {
   description = "감시할 ALB의 이름 (CloudWatch 지표용)"
   type        = string
-  default     = null
+  default     = "team3-matnani-dev-alb"
 }
 
 variable "nat_gateway_id" {
@@ -85,4 +90,9 @@ variable "permissions_boundary" {
   description = "IAM Role 생성에 필요한 Permissions Boundary ARN"
   type        = string
   default     = null
+}
+
+variable "target_group_name" {
+  description = "Target Group Name"
+  type        = string
 }

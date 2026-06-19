@@ -175,6 +175,10 @@ data "aws_ssm_parameter" "slack_webhook" {
   with_decryption = true
 }
 
+data "aws_lb_target_group" "matnani" {
+  name = "k8s-team3mat-matnania-d56bf765b5"
+}
+
 # 모니터링 모듈 호출
 module "monitoring" {
   source = "../../../modules/monitoring"
@@ -190,8 +194,9 @@ module "monitoring" {
   prometheus_storage_size  = var.prometheus_storage_size
   eks_cluster_name         = module.eks.cluster_name
   rds_instance_id          = module.database.db_instance_id
-  alb_name                 = ""
-
+  alb_dns_name             = var.alb_dns_name
+  alb_name                 = var.alb_name
+  target_group_name  = data.aws_lb_target_group.matnani.name
   nat_gateway_id = module.network.nat_gateway_ids
 
   # SSM에서 꺼낸 값을 모듈로 전달

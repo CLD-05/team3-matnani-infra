@@ -1,3 +1,5 @@
+# infra/envs/dev/infra/variables.tf
+
 # TF_VAR_db_username / TF_VAR_db_password 환경변수로 주입
 # prod에서는 AWS Secrets Manager 또는 SSM Parameter Store 사용 권장
 
@@ -250,4 +252,10 @@ variable "slack_channel_id" {
 variable "alb_dns_name" {
   type        = string
   description = "alb dns name"
+}
+
+variable "alb_name" {
+  type        = string
+  description = "alb dns name"
+  default     = "team3-matnani-dev-alb"
 }
