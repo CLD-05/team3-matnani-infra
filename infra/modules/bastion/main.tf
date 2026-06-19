@@ -123,6 +123,7 @@ resource "aws_instance" "bastion" {
     Name = local.name
   })
   lifecycle {
-    ignore_changes = [ami]
+    # Bastion bootstrap changes are applied through a dedicated maintenance task.
+    ignore_changes = [ami, user_data]
   }
 }
