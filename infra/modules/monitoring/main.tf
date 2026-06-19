@@ -98,8 +98,9 @@ resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
 # RDS CPU 사용률
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
   alarm_name          = "team3-matnani-${var.env}-rds-cpu-high"
+  alarm_description   = "RDS CPU utilization exceeded 80% for 2 minutes"
   comparison_operator = "GreaterThanThreshold"
-  threshold           = "80"
+  threshold = var.rds_cpu_threshold
   metric_name         = "CPUUtilization"
   namespace           = "AWS/RDS"
   period              = "120"
@@ -114,7 +115,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_database_connections" {
   alarm_name          = "team3-matnani-${var.env}-rds-db-connections"
   metric_name         = "DatabaseConnections"
   namespace           = "AWS/RDS"
-  threshold           = "80"
+  threshold = var.rds_connections_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "60"
   evaluation_periods  = "1"
@@ -129,7 +130,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_read_latency" {
   alarm_name          = "team3-matnani-${var.env}-rds-read-latency"
   metric_name         = "ReadLatency"
   namespace           = "AWS/RDS"
-  threshold           = "5"
+  threshold = var.rds_read_latency_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "60"
   evaluation_periods  = "2"
@@ -144,7 +145,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_write_latency" {
   alarm_name          = "team3-matnani-${var.env}-rds-write-latency"
   metric_name         = "WriteLatency"
   namespace           = "AWS/RDS"
-  threshold           = "5"
+  threshold           = var.rds_write_latency_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "60"
   evaluation_periods  = "2"
@@ -159,7 +160,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_storage_space" {
   alarm_name          = "team3-matnani-${var.env}-rds-free-storage"
   metric_name         = "FreeStorageSpace"
   namespace           = "AWS/RDS"
-  threshold           = "1073741824"
+  threshold           = var.rds_free_storage_threshold_bytes
   comparison_operator = "LessThanThreshold"
   period              = "300"
   evaluation_periods  = "1"
@@ -178,7 +179,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_connection_count" {
   alarm_name          = "team3-matnani-${var.env}-nat-gw-connection-count"
   metric_name         = "ConnectionCount"
   namespace           = "AWS/NatGateway"
-  threshold           = "50000"
+  threshold           = var.nat_gw_connection_count_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "60"
   evaluation_periods  = "1"
@@ -226,7 +227,7 @@ resource "aws_cloudwatch_metric_alarm" "eks_node_cpu" {
   alarm_name          = "team3-matnani-${var.env}-eks-node-cpu"
   metric_name         = "node_cpu_utilization"
   namespace           = "ContainerInsights"
-  threshold           = "80"
+  threshold           = var.eks_node_cpu_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "300"
   evaluation_periods  = "2"
@@ -246,7 +247,7 @@ resource "aws_cloudwatch_metric_alarm" "eks_node_memory" {
   alarm_name          = "team3-matnani-${var.env}-eks-node-memory"
   metric_name         = "node_memory_utilization"
   namespace           = "ContainerInsights"
-  threshold           = "80"
+  threshold           = var.eks_node_memory_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "300"
   evaluation_periods  = "2"
@@ -290,7 +291,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_http_5xx" {
   alarm_name          = "team3-matnani-${var.env}-alb-http-5xx"
   metric_name         = "HTTPCode_Target_5XX_Count"
   namespace           = "AWS/ApplicationELB"
-  threshold           = "100"
+  threshold           = var.alb_http_5xx_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "60"
   evaluation_periods  = "1"
@@ -310,7 +311,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_http_4xx" {
   alarm_name          = "team3-matnani-${var.env}-alb-http-4xx"
   metric_name         = "HTTPCode_Target_4XX_Count"
   namespace           = "AWS/ApplicationELB"
-  threshold           = "500"
+  threshold           = var.alb_http_4xx_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "60"
   evaluation_periods  = "2"
@@ -354,7 +355,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_request_count" {
   alarm_name          = "team3-matnani-${var.env}-alb-request-count"
   metric_name         = "RequestCount"
   namespace           = "AWS/ApplicationELB"
-  threshold           = "50000"
+  threshold           = var.alb_request_count_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "60"
   evaluation_periods  = "2"

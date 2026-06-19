@@ -259,3 +259,63 @@ variable "alb_name" {
   description = "alb dns name"
   default     = "team3-matnani-dev-alb"
 }
+
+variable "rds_cpu_threshold" {
+  type    = number
+  default = 70
+}
+
+variable "rds_connections_threshold" {
+  type    = number
+  default = 15
+}
+
+variable "rds_read_latency_threshold" {
+  type    = number
+  default = 0.15
+}
+
+variable "rds_write_latency_threshold" {
+  type    = number
+  default = 0.15
+}
+
+variable "rds_free_storage_threshold_bytes" {
+  type    = number
+  default = 5368709120
+}
+
+variable "eks_node_cpu_threshold" {
+  type    = number
+  default = 75
+}
+
+variable "eks_node_memory_threshold" {
+  type    = number
+  default = 70
+}
+
+variable "alb_request_count_threshold" {
+  type    = number
+  default = 15000
+}
+
+variable "alb_http_4xx_threshold" {
+  type    = number
+  default = 20
+}
+
+variable "alb_http_5xx_threshold" {
+  type    = number
+  default = 5
+}
+
+variable "nat_gw_connection_count_threshold" {
+  type    = number
+  default = 40000
+}
+
+variable "nat_gw_bytes_out_threshold" {
+  type    = number
+  default = 5368709120
+}

@@ -203,4 +203,17 @@ module "monitoring" {
   slack_webhook_url      = data.aws_ssm_parameter.slack_webhook.value
   grafana_admin_password = data.aws_ssm_parameter.grafana_password.value
   permissions_boundary   = var.permissions_boundary
+
+  rds_cpu_threshold                 = var.rds_cpu_threshold
+  rds_connections_threshold         = var.rds_connections_threshold
+  rds_read_latency_threshold        = var.rds_read_latency_threshold
+  rds_write_latency_threshold       = var.rds_write_latency_threshold
+  rds_free_storage_threshold_bytes  = var.rds_free_storage_threshold_bytes
+  eks_node_cpu_threshold            = var.eks_node_cpu_threshold
+  eks_node_memory_threshold         = var.eks_node_memory_threshold
+  alb_request_count_threshold       = var.alb_request_count_threshold
+  alb_http_4xx_threshold            = var.alb_http_4xx_threshold
+  alb_http_5xx_threshold            = var.alb_http_5xx_threshold
+  nat_gw_connection_count_threshold = var.nat_gw_connection_count_threshold
+  nat_gw_bytes_out_threshold        = var.nat_gw_bytes_out_threshold
 }
