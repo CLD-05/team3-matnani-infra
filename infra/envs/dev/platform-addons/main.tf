@@ -158,36 +158,16 @@ resource "aws_iam_role_policy" "eso_ssm" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath"]
-      Resource = "arn:aws:ssm:ap-northeast-2:*:parameter/matnani/dev/*"
+      Resource = "arn:aws:ssm:ap-northeast-2:${data.aws_caller_identity.current.account_id}:parameter/${var.team}/${var.project}/${var.env}/*"
     }]
   })
+
+  # 교육 계정의 GHA Role은 iam:PutRolePolicy가 제한됩니다.
+  # 기존 Role은 관리자 권한으로 한 번 교정하고 이후 CI에서는 변경하지 않습니다.
+  lifecycle {
+    ignore_changes = [policy]
+  }
 }
-#   # 정책을 변경하지 않습니다. 실제 SSM 경로 권한은 아래 관리형 정책으로 보완
-#   lifecycle {
-#     ignore_changes = [policy]
-#   }
-# }
-
-# resource "aws_iam_policy" "eso_ssm_parameter_read" {
-#   name        = "${var.team}-${var.project}-${var.env}-eso-ssm-parameter-read"
-#   description = "Allow External Secrets Operator to read Matnani dev parameters"
-
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [{
-#       Effect   = "Allow"
-#       Action   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath"]
-#       Resource = "arn:aws:ssm:ap-northeast-2:${data.aws_caller_identity.current.account_id}:parameter/${var.team}/${var.project}/${var.env}/*"
-#     }]
-#   })
-
-#   tags = local.common_tags
-# }
-
-# resource "aws_iam_role_policy_attachment" "eso_ssm_parameter_read" {
-#   role       = aws_iam_role.eso.name
-#   policy_arn = aws_iam_policy.eso_ssm_parameter_read.arn
-# }
 
 # ExternalDNS — Route53 레코드 자동 등록용
 # resource "aws_iam_role" "external_dns" {
@@ -267,9 +247,9 @@ module "addons" {
 
   vpc_id = local.vpc_id
 
-  alb_controller_role_arn      = aws_iam_role.alb_controller.arn
-  eso_role_arn                 = aws_iam_role.eso.arn
-  external_dns_role_arn        = ""
-  grafana_admin_password       = data.aws_ssm_parameter.grafana_password.value
-  grafana_cloudwatch_role_arn  = aws_iam_role.grafana_cloudwatch.arn
+  alb_controller_role_arn     = aws_iam_role.alb_controller.arn
+  eso_role_arn                = aws_iam_role.eso.arn
+  external_dns_role_arn       = ""
+  grafana_admin_password      = data.aws_ssm_parameter.grafana_password.value
+  grafana_cloudwatch_role_arn = aws_iam_role.grafana_cloudwatch.arn
 }

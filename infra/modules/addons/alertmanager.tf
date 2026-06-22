@@ -11,6 +11,14 @@ resource "kubernetes_manifest" "aws_parameter_store" {
         aws = {
           service = "ParameterStore"
           region  = "ap-northeast-2"
+          auth = {
+            jwt = {
+              serviceAccountRef = {
+                name      = "external-secrets-sa"
+                namespace = "external-secrets"
+              }
+            }
+          }
         }
       }
     }
