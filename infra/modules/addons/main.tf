@@ -138,6 +138,12 @@ resource "helm_release" "kube_prometheus_stack" {
   timeout    = 600
   atomic     = true
 
+  values = [
+    templatefile("${path.module}/alertmanager-values.yaml.tpl", {
+      webhook_url = var.slack_webhook_url
+    })
+  ]
+
   set {
     name  = "grafana.adminPassword"
     value = var.grafana_admin_password

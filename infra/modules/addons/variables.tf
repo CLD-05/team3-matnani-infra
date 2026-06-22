@@ -59,3 +59,9 @@ variable "grafana_cloudwatch_role_arn" {
     description = "Grafana CloudWatch 데이터소스용 IRSA Role ARN"
     type        = string
 }
+
+variable "slack_webhook_url" {
+    description = "AlertManager Slack Webhook URL"
+    type        = string
+    sensitive   = true
+}

@@ -33,6 +33,11 @@ data "aws_ssm_parameter" "grafana_password" {
   with_decryption = true
 }
 
+data "aws_ssm_parameter" "slack_webhook_url" {
+  name            = "/team3/matnani/dev/slack-webhook-url"
+  with_decryption = true
+}
+
 # infra/outputs.tf 대신 AWS에서 EKS 클러스터 정보를 직접 조회합니다!
 data "aws_eks_cluster" "cluster" {
   name = var.cluster_name
@@ -230,4 +235,5 @@ module "addons" {
   external_dns_role_arn        = ""
   grafana_admin_password       = data.aws_ssm_parameter.grafana_password.value
   grafana_cloudwatch_role_arn  = data.aws_iam_role.grafana_cloudwatch.arn
+  slack_webhook_url            = data.aws_ssm_parameter.slack_webhook_url.value
 }
