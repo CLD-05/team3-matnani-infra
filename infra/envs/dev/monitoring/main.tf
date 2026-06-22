@@ -20,11 +20,6 @@ data "aws_nat_gateways" "main" {
   }
 }
 
-data "aws_lb" "main" {
-  tags = {
-    Team = var.team
-  }
-}
 
 # ======== RDS Alarms ========
 
@@ -205,46 +200,5 @@ resource "aws_cloudwatch_metric_alarm" "eks_node_memory" {
   treat_missing_data  = "notBreaching"
 }
 
-# ======== ALB Alarms ========
-
-resource "aws_cloudwatch_metric_alarm" "alb_response_time" {
-  alarm_name          = "${var.team}-${var.project}-${var.env}-alb-response-time"
-  metric_name         = "TargetResponseTime"
-  namespace           = "AWS/ApplicationELB"
-  threshold           = 1
-  comparison_operator = "GreaterThanThreshold"
-  period              = "60"
-  evaluation_periods  = "2"
-  statistic           = "Average"
-  dimensions          = { LoadBalancer = data.aws_lb.main.arn_suffix }
-  alarm_actions       = [data.aws_sns_topic.alerts.arn]
-  treat_missing_data  = "notBreaching"
-}
-
-resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
-  alarm_name          = "${var.team}-${var.project}-${var.env}-alb-http-5xx"
-  metric_name         = "HTTPCode_Target_5XX_Count"
-  namespace           = "AWS/ApplicationELB"
-  threshold           = 10
-  comparison_operator = "GreaterThanThreshold"
-  period              = "60"
-  evaluation_periods  = "1"
-  statistic           = "Sum"
-  dimensions          = { LoadBalancer = data.aws_lb.main.arn_suffix }
-  alarm_actions       = [data.aws_sns_topic.alerts.arn]
-  treat_missing_data  = "notBreaching"
-}
-
-resource "aws_cloudwatch_metric_alarm" "alb_4xx" {
-  alarm_name          = "${var.team}-${var.project}-${var.env}-alb-http-4xx"
-  metric_name         = "HTTPCode_Target_4XX_Count"
-  namespace           = "AWS/ApplicationELB"
-  threshold           = 50
-  comparison_operator = "GreaterThanThreshold"
-  period              = "60"
-  evaluation_periods  = "2"
-  statistic           = "Sum"
-  dimensions          = { LoadBalancer = data.aws_lb.main.arn_suffix }
-  alarm_actions       = [data.aws_sns_topic.alerts.arn]
-  treat_missing_data  = "notBreaching"
-}
+# ALB 알람은 ALB ARN suffix 확인 후 추가 예정
+# aws elbv2 describe-load-balancers --profile team3-lsh 로 ARN suffix 확인
