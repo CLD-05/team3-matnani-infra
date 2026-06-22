@@ -18,6 +18,9 @@ env:
   AWS_REGION: ap-northeast-2
   ROLE_ARN: arn:aws:iam::495599735720:role/team3-matnani-dev-gha-role
   TF_VERSION: "1.15.0"
+  TF_VAR_slack_workspace_id: ${{ vars.SLACK_WORKSPACE_ID }}
+  TF_VAR_slack_channel_id: ${{ vars.SLACK_CHANNEL_ID }}
+  TF_VAR_chatbot_role_arn: ${{ vars.CHATBOT_ROLE_ARN }}
 
 jobs:
   apply-dev-infra:
@@ -38,6 +41,13 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Validate Chatbot variables
+        shell: bash
+        run: |
+          test -n "${TF_VAR_slack_workspace_id}" || { echo "SLACK_WORKSPACE_ID repository variable is required."; exit 1; }
+          test -n "${TF_VAR_slack_channel_id}" || { echo "SLACK_CHANNEL_ID repository variable is required."; exit 1; }
+          test -n "${TF_VAR_chatbot_role_arn}" || { echo "CHATBOT_ROLE_ARN repository variable is required."; exit 1; }
 
       - name: Terraform Init
         run: terraform init
