@@ -21,9 +21,10 @@ team_member_user_arns = {
   wonho    = "arn:aws:iam::495599735720:user/team3-kwh"
 }
 
-# AWS Chatbot 권한 확보 후 활성화
-# slack_workspace_id = "T0B9G4MP3BL"
-# slack_channel_id   = "C0B9KP6RDGU"
+# Amazon Q Developer in chat applications
+slack_workspace_id = "T0B9G4MP3BL"
+slack_channel_id   = "C0B9KP6RDGU"
+chatbot_role_arn   = "arn:aws:iam::495599735720:role/team3-matnani-dev-chatbot-role"
 
 # 기존 infra monitoring 모듈에서 사용하던 Prometheus 스토리지 설정입니다.
 # 현재 kube-prometheus-stack은 platform-addons에서 관리하므로 비활성화합니다.

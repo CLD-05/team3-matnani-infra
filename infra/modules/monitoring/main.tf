@@ -29,20 +29,19 @@ resource "aws_sns_topic" "matnani_alerts" {
   name = "team3-matnani-${var.env}-monitoring-alerts"
 }
 
-/*
-# AWS Chatbot is enabled after an administrator creates the service role and
-# grants the deployment role Chatbot configuration permissions.
+# Amazon Q Developer in chat applications가 SNS 알림을 Slack으로 전달합니다.
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
   configuration_name = "team3-matnani-slack-alerts"
-  iam_role_arn       = aws_iam_role.chatbot_role.arn
-  # 관리자에게 기존 Role ARN을 받는 경우: iam_role_arn = var.chatbot_role_arn
+  iam_role_arn       = var.chatbot_role_arn
   slack_team_id      = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
   sns_topic_arns     = [aws_sns_topic.matnani_alerts.arn]
 }
 
+/*
 # 기존 Terraform 직접 생성 방식입니다.
-# 현재 Permissions Boundary에서 iam:CreateRole이 거부되어 비활성화합니다.
+# Chatbot 전용 Role은 Permissions Boundary를 적용해 AWS CLI로 생성했으므로
+# Terraform에서 중복 생성하지 않고 chatbot_role_arn으로 전달합니다.
 resource "aws_iam_role" "chatbot_role" {
   name = "team3-matnani-${var.env}-chatbot-role"
   assume_role_policy = jsonencode({
