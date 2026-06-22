@@ -142,6 +142,26 @@ resource "helm_release" "kube_prometheus_stack" {
     name  = "grafana.adminPassword"
     value = var.grafana_admin_password
   }
+  set {
+    name  = "grafana.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = var.grafana_cloudwatch_role_arn
+  }
+  set {
+    name  = "grafana.additionalDataSources[0].name"
+    value = "CloudWatch"
+  }
+  set {
+    name  = "grafana.additionalDataSources[0].type"
+    value = "cloudwatch"
+  }
+  set {
+    name  = "grafana.additionalDataSources[0].jsonData.authType"
+    value = "default"
+  }
+  set {
+    name  = "grafana.additionalDataSources[0].jsonData.defaultRegion"
+    value = "ap-northeast-2"
+  }
 
   # EBS CSI로 PV 생성 — ebs-csi addon이 먼저 있어야 함
   set {
@@ -150,7 +170,7 @@ resource "helm_release" "kube_prometheus_stack" {
   }
   set {
     name  = "prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage"
-    value = "10Gi" # dev: 10Gi / prod: 50Gi
+    value = "10Gi"
   }
 
   # dev: 노드 공간 부족으로 pre-upgrade hook 타임아웃 방지
