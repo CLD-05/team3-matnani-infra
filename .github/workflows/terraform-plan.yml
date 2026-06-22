@@ -153,3 +153,58 @@ jobs:
       - name: Plan 실패 시 워크플로우 실패 처리
         if: steps.plan.outputs.exitcode == '1'
         run: exit 1
+
+  plan-dev-monitoring:
+    name: Plan / dev-monitoring
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/envs/dev/monitoring
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan -no-color -input=false 2>&1 | tee plan.txt
+          echo "exitcode=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: PR 코멘트 - dev/monitoring plan
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('infra/envs/dev/monitoring/plan.txt', 'utf8');
+            const truncated = plan.length > 60000 ? plan.slice(-60000) + '\n...(truncated)' : plan;
+            const body = `## 📋 Terraform Plan — \`dev/monitoring\`
+            <details><summary>결과 펼치기</summary>
+
+            \`\`\`hcl
+            ${truncated}
+            \`\`\`
+            </details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Plan 실패 시 워크플로우 실패 처리
+        if: steps.plan.outputs.exitcode == '1'
+        run: exit 1

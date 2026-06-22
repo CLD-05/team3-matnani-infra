@@ -168,3 +168,20 @@ variable "nat_gw_bytes_out_threshold" {
   type    = number
   default = 10737418240 # 10GB
 }
+
+# ---- ElastiCache (Redis) ----
+variable "redis_cluster_id" {
+  description = "감시할 ElastiCache 클러스터 ID"
+  type        = string
+  default     = ""
+}
+
+variable "redis_cpu_threshold" {
+  type    = number
+  default = 50
+}
+
+variable "redis_connections_threshold" {
+  type    = number
+  default = 10
+}
