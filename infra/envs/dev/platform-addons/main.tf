@@ -225,31 +225,9 @@ resource "aws_iam_role_policy" "eso_ssm" {
 # }
 
 
-# Grafana — CloudWatch 읽기용 IRSA Role
-resource "aws_iam_role" "grafana_cloudwatch" {
-  name                 = "${var.team}-${var.project}-${var.env}-grafana-cloudwatch-role"
-  permissions_boundary = var.permissions_boundary
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect    = "Allow"
-      Principal = { Federated = local.oidc_provider_arn }
-      Action    = "sts:AssumeRoleWithWebIdentity"
-      Condition = {
-        StringEquals = {
-          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com"
-          "${local.oidc_provider_host}:sub" = "system:serviceaccount:monitoring:${var.team}-${var.project}-kube-prometheus-stack-grafana"
-        }
-      }
-    }]
-  })
-  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-${var.env}-grafana-cloudwatch-role" })
-}
-
-resource "aws_iam_role_policy_attachment" "grafana_cloudwatch" {
-  role       = aws_iam_role.grafana_cloudwatch.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+# Grafana — CloudWatch 읽기용 IRSA Role (수동 생성, data 소스로 참조)
+data "aws_iam_role" "grafana_cloudwatch" {
+  name = "${var.team}-${var.project}-${var.env}-grafana-cloudwatch-role"
 }
 
 
@@ -271,5 +249,5 @@ module "addons" {
   eso_role_arn                 = aws_iam_role.eso.arn
   external_dns_role_arn        = ""
   grafana_admin_password       = data.aws_ssm_parameter.grafana_password.value
-  grafana_cloudwatch_role_arn  = aws_iam_role.grafana_cloudwatch.arn
+  grafana_cloudwatch_role_arn  = data.aws_iam_role.grafana_cloudwatch.arn
 }
