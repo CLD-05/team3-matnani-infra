@@ -21,8 +21,6 @@ variable "environment" {
   default     = "dev"
 }
 
-/*
-# AWS Chatbot variables are enabled after the IAM restrictions are resolved.
 variable "slack_workspace_id" {
   description = "Slack 워크스페이스 ID"
   type        = string
@@ -34,10 +32,9 @@ variable "slack_channel_id" {
 }
 
 variable "chatbot_role_arn" {
-  description = "ARN of an existing IAM role trusted by chatbot.amazonaws.com"
+  description = "Amazon Q Developer가 사용할 기존 IAM Role ARN"
   type        = string
 }
-*/
 
 # 통합 관제를 위한 리소스 식별자 변수
 variable "rds_instance_id" {
@@ -107,7 +104,6 @@ variable "target_group_name" {
   description = "Target Group Name"
   type        = string
 }
-
 
 # ---- RDS ----
 variable "rds_cpu_threshold" {
