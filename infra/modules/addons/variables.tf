@@ -54,3 +54,8 @@ variable "env" {
     description = "배포 환경 (dev/prod)"
     type    = string
 }
+
+variable "grafana_cloudwatch_role_arn" {
+    description = "Grafana CloudWatch 데이터소스용 IRSA Role ARN"
+    type        = string
+}
