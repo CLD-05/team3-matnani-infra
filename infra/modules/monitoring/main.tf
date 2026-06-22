@@ -194,6 +194,41 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_bytes_out_to_destination" {
 }
 
 
+# ======== ElastiCache (Redis) Alarms ========
+
+# Redis CPU 사용률
+resource "aws_cloudwatch_metric_alarm" "redis_cpu_high" {
+  alarm_name          = "team3-matnani-${var.env}-redis-cpu-high"
+  alarm_description   = "Redis CPU utilization exceeded ${var.redis_cpu_threshold}%"
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = var.redis_cpu_threshold
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ElastiCache"
+  period              = "120"
+  evaluation_periods  = "2"
+  statistic           = "Average"
+  dimensions          = { CacheClusterId = var.redis_cluster_id }
+  alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
+  treat_missing_data  = "notBreaching"
+}
+
+# Redis 현재 연결 수
+resource "aws_cloudwatch_metric_alarm" "redis_connections_high" {
+  alarm_name          = "team3-matnani-${var.env}-redis-connections-high"
+  alarm_description   = "Redis current connections exceeded ${var.redis_connections_threshold}"
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = var.redis_connections_threshold
+  metric_name         = "CurrConnections"
+  namespace           = "AWS/ElastiCache"
+  period              = "60"
+  evaluation_periods  = "2"
+  statistic           = "Average"
+  dimensions          = { CacheClusterId = var.redis_cluster_id }
+  alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
+  treat_missing_data  = "notBreaching"
+}
+
+
 # ======== EKS Alarms  =========
 
 # EKS 노드 CPU 사용률
