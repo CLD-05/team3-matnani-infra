@@ -237,7 +237,7 @@ module "addons" {
   cluster_endpoint       = local.cluster_endpoint
   cluster_ca_certificate = local.cluster_ca
 
-  vpc_id = local.vpc_id # vpc_id 전달
+  vpc_id                 = local.vpc_id # vpc_id 전달
 
   alb_controller_role_arn = aws_iam_role.alb_controller.arn
   eso_role_arn            = aws_iam_role.eso.arn

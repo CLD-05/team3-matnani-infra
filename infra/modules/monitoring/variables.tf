@@ -108,11 +108,6 @@ variable "target_group_name" {
   type        = string
 }
 
-variable "cloudwatch_log_group_name" {
-  description = "cloudwatch log group name"
-  type        = string
-}
-
 # ---- RDS ----
 variable "rds_cpu_threshold" {
   type    = number

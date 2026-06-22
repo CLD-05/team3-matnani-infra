@@ -54,7 +54,3 @@ variable "env" {
     description = "배포 환경 (dev/prod)"
     type    = string
 }
-variable "cloudwatch_log_group_name" {
-    description = "CloudWatch Log Group name for Fluent Bit"
-    type        = string
-}

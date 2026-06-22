@@ -226,26 +226,7 @@ resource "helm_release" "keda" {
   namespace  = "kube-system"
 
   depends_on = [kubernetes_namespace.namespaces]
-  wait       = true
-  timeout    = 300
-  atomic     = true
-}
-
-# fluent_bit
-resource "helm_release" "fluent_bit" {
-  name       = "team3-matnani-${var.env}-fluent-bit"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-for-fluent-bit"
-  namespace  = "kube-system"
-
-  set = [
-    {
-      name  = "cloudWatchLogs.region"
-      value = "ap-northeast-2"
-    },
-    {
-      name  = "cloudWatchLogs.logGroupName"
-      value = var.cloudwatch_log_group_name
-    }
-  ]
+  wait    = true
+  timeout = 300
+  atomic  = true
 }

@@ -6,6 +6,23 @@ resource "aws_cloudwatch_log_group" "eks_logs" {
   retention_in_days = 3
 }
 
+resource "helm_release" "fluent_bit" {
+  name       = "team3-matnani-${var.env}-fluent-bit"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-for-fluent-bit"
+  namespace  = "kube-system"
+
+  set = [
+    {
+      name  = "cloudWatchLogs.region"
+      value = "ap-northeast-2"
+    },
+    {
+      name  = "cloudWatchLogs.logGroupName"
+      value = aws_cloudwatch_log_group.eks_logs.name
+    }
+  ]
+}
 
 # SNS Topic (알람 수신)
 resource "aws_sns_topic" "matnani_alerts" {
