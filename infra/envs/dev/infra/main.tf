@@ -230,4 +230,6 @@ module "monitoring" {
   alb_http_5xx_threshold            = var.alb_http_5xx_threshold
   nat_gw_connection_count_threshold = var.nat_gw_connection_count_threshold
   nat_gw_bytes_out_threshold        = var.nat_gw_bytes_out_threshold
+  cloudwatch_log_group_name         = module.monitoring.cloudwatch_log_group_name
+
 }

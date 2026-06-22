@@ -1,66 +1,11 @@
 # infra/modules/monitoring/main.tf
 
-# 1. Prometheus & Grafana 배포
-# Prometheus, Grafana, and Alertmanager are managed by platform-addons.
-/*
-# 기존 infra monitoring 모듈의 별도 Helm 릴리스입니다.
-# 현재 동일 스택은 platform-addons의
-# team3-matnani-kube-prometheus-stack 릴리스가 관리하므로 비활성화합니다.
-resource "helm_release" "monitoring" {
-  name             = "team3-matnani-${var.env}-monitoring"
-  repository       = "https://prometheus-community.github.io/helm-charts"
-  chart            = "kube-prometheus-stack"
-  version          = "60.0.0"
-  namespace        = "monitoring"
-  create_namespace = true
-  wait             = true
-  timeout          = 600
-  atomic           = true
-
-  values = [
-    file("${path.module}/values.yaml")
-  ]
-
-  set = [
-    {
-      name  = "prometheus.prometheusSpec.externalLabels.environment"
-      value = var.env
-    },
-    {
-      name  = "grafana.adminPassword"
-      value = var.grafana_admin_password
-    },
-    {
-      name  = "alertmanager.config.receivers[0].slack_configs[0].api_url"
-      value = var.slack_webhook_url
-    }
-  ]
-}
-*/
-
-# 2. 로그 및 알람 파이프라인
+# 로그 및 알람 파이프라인
 resource "aws_cloudwatch_log_group" "eks_logs" {
   name              = "/aws/eks/team3-matnani-${var.env}/application"
   retention_in_days = 3
 }
 
-resource "helm_release" "fluent_bit" {
-  name       = "team3-matnani-${var.env}-fluent-bit"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-for-fluent-bit"
-  namespace  = "kube-system"
-
-  set = [
-    {
-      name  = "cloudWatchLogs.region"
-      value = "ap-northeast-2"
-    },
-    {
-      name  = "cloudWatchLogs.logGroupName"
-      value = aws_cloudwatch_log_group.eks_logs.name
-    }
-  ]
-}
 
 # SNS Topic (알람 수신)
 resource "aws_sns_topic" "matnani_alerts" {
