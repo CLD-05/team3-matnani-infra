@@ -108,7 +108,6 @@ variable "target_group_name" {
   type        = string
 }
 
-
 # ---- RDS ----
 variable "rds_cpu_threshold" {
   type    = number

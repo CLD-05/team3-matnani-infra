@@ -226,7 +226,7 @@ resource "helm_release" "keda" {
   namespace  = "kube-system"
 
   depends_on = [kubernetes_namespace.namespaces]
-  wait       = true
-  timeout    = 300
-  atomic     = true
+  wait    = true
+  timeout = 300
+  atomic  = true
 }
