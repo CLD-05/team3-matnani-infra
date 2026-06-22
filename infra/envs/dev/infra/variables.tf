@@ -242,8 +242,6 @@ variable "prometheus_storage_size" {
 }
 */
 
-/*
-# AWS Chatbot variables are enabled after the IAM restrictions are resolved.
 variable "slack_workspace_id" {
   type        = string
   description = "팀 공용 슬랙 워크스페이스 ID"
@@ -255,10 +253,9 @@ variable "slack_channel_id" {
 }
 
 variable "chatbot_role_arn" {
-  description = "관리자가 생성한 AWS Chatbot IAM Role ARN"
+  description = "Amazon Q Developer가 사용할 기존 IAM Role ARN"
   type        = string
 }
-*/
 
 variable "alb_dns_name" {
   type        = string

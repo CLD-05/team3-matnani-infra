@@ -191,13 +191,9 @@ module "monitoring" {
   project = var.project
   env     = var.env
 
-  /*
-  # AWS Chatbot is enabled after an administrator creates the service role
-  # and grants Chatbot configuration permissions.
   slack_workspace_id = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
   chatbot_role_arn   = var.chatbot_role_arn
-  */
 
   eks_cluster_name  = module.eks.cluster_name
   rds_instance_id   = module.database.db_instance_id
