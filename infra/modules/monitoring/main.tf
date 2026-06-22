@@ -198,6 +198,8 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_bytes_out_to_destination" {
 
 # Redis CPU 사용률
 resource "aws_cloudwatch_metric_alarm" "redis_cpu_high" {
+  count = var.redis_cluster_id != "" ? 1 : 0
+
   alarm_name          = "team3-matnani-${var.env}-redis-cpu-high"
   alarm_description   = "Redis CPU utilization exceeded ${var.redis_cpu_threshold}%"
   comparison_operator = "GreaterThanThreshold"
@@ -212,8 +214,9 @@ resource "aws_cloudwatch_metric_alarm" "redis_cpu_high" {
   treat_missing_data  = "notBreaching"
 }
 
-# Redis 현재 연결 수
 resource "aws_cloudwatch_metric_alarm" "redis_connections_high" {
+  count = var.redis_cluster_id != "" ? 1 : 0
+
   alarm_name          = "team3-matnani-${var.env}-redis-connections-high"
   alarm_description   = "Redis current connections exceeded ${var.redis_connections_threshold}"
   comparison_operator = "GreaterThanThreshold"
