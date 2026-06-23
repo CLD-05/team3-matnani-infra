@@ -1,16 +1,14 @@
 # modules/k6/main.tf
 #
 # 생성 리소스:
-#   - aws_iam_role                   : k6 EC2 IAM Role
-#   - aws_iam_role_policy_attachment : AmazonSSMManagedInstanceCore 연결
-#   - aws_iam_instance_profile       : EC2에 IAM Role 부착용
-#   - aws_security_group             : 인바운드 없음, 아웃바운드 전체 허용
-#   - aws_instance                   : k6 부하 테스트 EC2 (k6 설치 포함)
+#   - aws_security_group : 인바운드 없음, 아웃바운드 전체 허용
+#   - aws_instance       : k6 부하 테스트 EC2 (k6 설치 포함)
+#
+# IAM: bastion instance profile 재사용 (IAM Role 생성 권한 불필요)
 #
 # 접속 방법:
 #   aws ssm start-session --target {instance_id} --profile team3-{name}
-#
-# 테스트 완료 후 비용 절감을 위해 인스턴스를 중지하거나 destroy 권장
+
 
 locals {
   name = "${var.team}-${var.project}-${var.env}-k6"
@@ -37,33 +35,9 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-# IAM
-resource "aws_iam_role" "k6" {
-  name                 = "${local.name}-role"
-  permissions_boundary = var.permissions_boundary
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect    = "Allow"
-      Principal = { Service = "ec2.amazonaws.com" }
-      Action    = "sts:AssumeRole"
-    }]
-  })
-
-  tags = merge(local.common_tags, {
-    Name = "${local.name}-role"
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "k6_ssm" {
-  role       = aws_iam_role.k6.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-resource "aws_iam_instance_profile" "k6" {
-  name = "${local.name}-profile"
-  role = aws_iam_role.k6.name
+# bastion instance profile 참조
+data "aws_iam_instance_profile" "bastion" {
+  name = "${var.team}-${var.project}-${var.env}-bastion-profile"
 }
 
 # Security Group
@@ -95,7 +69,7 @@ resource "aws_instance" "k6" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   subnet_id              = var.public_subnet_id
-  iam_instance_profile   = aws_iam_instance_profile.k6.name
+  iam_instance_profile   = data.aws_iam_instance_profile.bastion.name
   vpc_security_group_ids = [aws_security_group.k6.id]
 
   # 키페어 없음 — SSM으로만 접속

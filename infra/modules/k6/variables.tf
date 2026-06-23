@@ -30,9 +30,3 @@ variable "instance_type" {
   type        = string
   default     = "t3.medium"
 }
-
-variable "permissions_boundary" {
-  description = "IAM Role 권한 경계 ARN"
-  type        = string
-  default     = "arn:aws:iam::495599735720:policy/TeamRuntimeBoundary"
-}
