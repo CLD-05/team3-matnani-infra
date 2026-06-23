@@ -1,0 +1,326 @@
+{
+  "__inputs": [],
+  "__elements": {},
+  "__requires": [
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0" },
+    { "type": "datasource", "id": "cloudwatch", "name": "CloudWatch", "version": "1.0.0" },
+    { "type": "panel", "id": "timeseries", "name": "Time series", "version": "" },
+    { "type": "panel", "id": "stat", "name": "Stat", "version": "" }
+  ],
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["team3", "matnani", "monitoring"],
+  "templating": {
+    "list": [
+      {
+        "current": { "value": "nat-0568efaa50e17deb1" },
+        "hide": 0,
+        "label": "NAT Gateway ID",
+        "name": "nat_gw_id",
+        "query": "nat-0568efaa50e17deb1",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": { "from": "now-3h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "team3-matnani 모니터링 대시보드",
+  "uid": "team3-matnani-overview",
+  "version": 1,
+  "panels": [
+    {
+      "type": "row",
+      "title": "EKS",
+      "id": 1,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "EKS 노드 수",
+      "id": 21,
+      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
+          "legendFormat": "Ready 노드",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Running 파드 수",
+      "id": 22,
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "count(kube_pod_status_phase{phase=\"Running\"})",
+          "legendFormat": "Running 파드",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "EKS Node CPU 사용률",
+      "id": 2,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } },
+        "overrides": []
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "100 - (avg by (node) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "EKS Node 메모리 사용률",
+      "id": 3,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } },
+        "overrides": []
+      },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100",
+          "legendFormat": "{{node}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "RDS",
+      "id": 4,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "RDS CPU 사용률",
+      "id": 5,
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 14 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "percent", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/RDS", "metricName": "CPUUtilization", "dimensions": { "DBInstanceIdentifier": "team3-matnani-dev-mysql" }, "statistic": "Average", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "RDS 연결 수",
+      "id": 6,
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 14 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/RDS", "metricName": "DatabaseConnections", "dimensions": { "DBInstanceIdentifier": "team3-matnani-dev-mysql" }, "statistic": "Average", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "RDS 남은 스토리지",
+      "id": 7,
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 14 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/RDS", "metricName": "FreeStorageSpace", "dimensions": { "DBInstanceIdentifier": "team3-matnani-dev-mysql" }, "statistic": "Average", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "RDS 읽기 지연시간",
+      "id": 8,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 22 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/RDS", "metricName": "ReadLatency", "dimensions": { "DBInstanceIdentifier": "team3-matnani-dev-mysql" }, "statistic": "Average", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "RDS 쓰기 지연시간",
+      "id": 9,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 22 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/RDS", "metricName": "WriteLatency", "dimensions": { "DBInstanceIdentifier": "team3-matnani-dev-mysql" }, "statistic": "Average", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "Redis (ElastiCache)",
+      "id": 10,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Redis CPU 사용률",
+      "id": 11,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 31 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "percent", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/ElastiCache", "metricName": "CPUUtilization", "dimensions": { "CacheClusterId": "team3-matnani-dev-redis-001" }, "statistic": "Average", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Redis 연결 수 (CurrConnections)",
+      "id": 12,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 31 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/ElastiCache", "metricName": "CurrConnections", "dimensions": { "CacheClusterId": "team3-matnani-dev-redis-001" }, "statistic": "Average", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "ALB",
+      "id": 13,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "ALB 요청 수",
+      "id": 14,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/ApplicationELB", "metricName": "RequestCount", "dimensions": { "LoadBalancer": "app/team3-matnani-dev-alb/022f655163e2b5d6" }, "statistic": "Sum", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "ALB 응답 시간",
+      "id": 15,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/ApplicationELB", "metricName": "TargetResponseTime", "dimensions": { "LoadBalancer": "app/team3-matnani-dev-alb/022f655163e2b5d6" }, "statistic": "Average", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "ALB HTTP 5XX 에러",
+      "id": 16,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 48 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/ApplicationELB", "metricName": "HTTPCode_Target_5XX_Count", "dimensions": { "LoadBalancer": "app/team3-matnani-dev-alb/022f655163e2b5d6" }, "statistic": "Sum", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "ALB HTTP 4XX 에러",
+      "id": 17,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 48 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/ApplicationELB", "metricName": "HTTPCode_Target_4XX_Count", "dimensions": { "LoadBalancer": "app/team3-matnani-dev-alb/022f655163e2b5d6" }, "statistic": "Sum", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "row",
+      "title": "NAT Gateway",
+      "id": 18,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 56 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "NAT GW 연결 수",
+      "id": 19,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 57 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/NatGateway", "metricName": "ConnectionCount", "dimensions": { "NatGatewayId": "$nat_gw_id" }, "statistic": "Maximum", "period": "", "matchExact": true, "refId": "A" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "NAT GW 바이트 출력",
+      "id": 20,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 57 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "palette-classic" }, "custom": { "lineWidth": 2, "fillOpacity": 10 } }, "overrides": [] },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list", "placement": "bottom" } },
+      "targets": [{ "id": "", "label": "", "logGroups": [], "expression": "", "sqlExpression": "", "queryMode": "Metrics", "metricQueryType": 0, "metricEditorMode": 0, "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" }, "region": "default", "namespace": "AWS/NatGateway", "metricName": "BytesOutToDestination", "dimensions": { "NatGatewayId": "$nat_gw_id" }, "statistic": "Sum", "period": "", "matchExact": true, "refId": "A" }]
+    }
+  ]
+}
