@@ -51,11 +51,10 @@ module "eks" {
 
 
 module "k6" {
-  source               = "../../../modules/k6"
-  permissions_boundary = var.permissions_boundary
-  env                  = var.env
-  team                 = var.team
-  project              = var.project
+  source  = "../../../modules/k6"
+  env     = var.env
+  team    = var.team
+  project = var.project
 
   vpc_id           = module.network.vpc_id
   public_subnet_id = module.network.public_subnet_ids[0]
