@@ -48,7 +48,7 @@
       "type": "stat",
       "title": "EKS 노드 수",
       "id": 21,
-      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 1 },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
@@ -86,7 +86,7 @@
       "type": "stat",
       "title": "Running 파드 수",
       "id": 22,
-      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 1 },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": {
         "defaults": {
@@ -116,6 +116,147 @@
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "count(kube_pod_status_phase{phase=\"Running\"})",
           "legendFormat": "Running 파드",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "신청 성공률",
+      "id": 23,
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 90 },
+              { "color": "green", "value": 99 }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center"
+      },
+      "targets": [
+        {
+          "id": "req_2xx",
+          "refId": "A",
+          "label": "2XX",
+          "logGroups": [],
+          "expression": "",
+          "sqlExpression": "",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+          "region": "default",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HTTPCode_Target_2XX_Count",
+          "dimensions": { "LoadBalancer": "app/team3-matnani-dev-alb/022f655163e2b5d6" },
+          "statistic": "Sum",
+          "period": "300",
+          "matchExact": true,
+          "hide": true
+        },
+        {
+          "id": "req_total",
+          "refId": "B",
+          "label": "전체",
+          "logGroups": [],
+          "expression": "",
+          "sqlExpression": "",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+          "region": "default",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "RequestCount",
+          "dimensions": { "LoadBalancer": "app/team3-matnani-dev-alb/022f655163e2b5d6" },
+          "statistic": "Sum",
+          "period": "300",
+          "matchExact": true,
+          "hide": true
+        },
+        {
+          "id": "success_rate",
+          "refId": "C",
+          "label": "성공률",
+          "logGroups": [],
+          "sqlExpression": "",
+          "queryMode": "Metrics",
+          "metricQueryType": 1,
+          "metricEditorMode": 2,
+          "expression": "req_2xx/req_total*100",
+          "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+          "region": "default",
+          "hide": false
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "ALB 평균 응답 시간",
+      "id": 24,
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 3,
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.5 },
+              { "color": "red", "value": 1.0 }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center"
+      },
+      "targets": [
+        {
+          "id": "",
+          "label": "",
+          "logGroups": [],
+          "expression": "",
+          "sqlExpression": "",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "datasource": { "type": "cloudwatch", "uid": "P034F075C744B399F" },
+          "region": "default",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "TargetResponseTime",
+          "dimensions": { "LoadBalancer": "app/team3-matnani-dev-alb/022f655163e2b5d6" },
+          "statistic": "Average",
+          "period": "",
+          "matchExact": true,
           "refId": "A"
         }
       ]
