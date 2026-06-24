@@ -232,7 +232,7 @@
                        "id":  23,
                        "gridPos":  {
                                        "h":  4,
-                                       "w":  6,
+                                       "w":  4,
                                        "x":  12,
                                        "y":  1
                                    },
@@ -363,13 +363,98 @@
                                    ]
                    },
                    {
+                       "fieldConfig":  {
+                                           "defaults":  {
+                                                            "color":  {
+                                                                          "mode":  "thresholds"
+                                                                      },
+                                                            "decimals":  0,
+                                                            "thresholds":  {
+                                                                               "steps":  [
+                                                                                             {
+                                                                                                 "value":  null,
+                                                                                                 "color":  "red"
+                                                                                             },
+                                                                                             {
+                                                                                                 "value":  1,
+                                                                                                 "color":  "green"
+                                                                                             }
+                                                                                         ],
+                                                                               "mode":  "absolute"
+                                                                           },
+                                                            "unit":  "short",
+                                                            "mappings":  [
+
+                                                                         ]
+                                                        },
+                                           "overrides":  [
+
+                                                         ]
+                                       },
+                       "id":  28,
+                       "gridPos":  {
+                                       "y":  1,
+                                       "w":  4,
+                                       "x":  16,
+                                       "h":  4
+                                   },
+                       "datasource":  {
+                                          "type":  "cloudwatch",
+                                          "uid":  "P034F075C744B399F"
+                                      },
+                       "title":  "예약 성공 개수",
+                       "targets":  [
+                                       {
+                                           "dimensions":  {
+                                                              "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                          },
+                                           "metricQueryType":  0,
+                                           "matchExact":  true,
+                                           "datasource":  {
+                                                              "type":  "cloudwatch",
+                                                              "uid":  "P034F075C744B399F"
+                                                          },
+                                           "namespace":  "AWS/ApplicationELB",
+                                           "refId":  "A",
+                                           "region":  "default",
+                                           "id":  "",
+                                           "period":  "300",
+                                           "metricEditorMode":  0,
+                                           "label":  "",
+                                           "metricName":  "HTTPCode_Target_2XX_Count",
+                                           "sqlExpression":  "",
+                                           "expression":  "",
+                                           "queryMode":  "Metrics",
+                                           "statistic":  "Sum",
+                                           "logGroups":  [
+
+                                                         ]
+                                       }
+                                   ],
+                       "type":  "stat",
+                       "options":  {
+                                       "textMode":  "auto",
+                                       "colorMode":  "background",
+                                       "graphMode":  "none",
+                                       "reduceOptions":  {
+                                                             "values":  false,
+                                                             "calcs":  [
+                                                                           "sum"
+                                                                       ],
+                                                             "fields":  ""
+                                                         },
+                                       "justifyMode":  "center",
+                                       "orientation":  "auto"
+                                   }
+                   },
+                   {
                        "type":  "stat",
                        "title":  "ALB 평균 응답 시간",
                        "id":  24,
                        "gridPos":  {
                                        "h":  4,
-                                       "w":  6,
-                                       "x":  18,
+                                       "w":  4,
+                                       "x":  20,
                                        "y":  1
                                    },
                        "datasource":  {
