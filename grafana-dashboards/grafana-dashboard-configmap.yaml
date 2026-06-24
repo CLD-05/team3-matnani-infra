@@ -1,0 +1,1626 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: team3-matnani-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/part-of: kube-prometheus-stack
+data:
+  team3-matnani-overview.json: |
+    {
+        "__inputs":  [
+    
+                     ],
+        "__elements":  {
+    
+                       },
+        "__requires":  [
+                           {
+                               "type":  "grafana",
+                               "id":  "grafana",
+                               "name":  "Grafana",
+                               "version":  "10.0.0"
+                           },
+                           {
+                               "type":  "datasource",
+                               "id":  "cloudwatch",
+                               "name":  "CloudWatch",
+                               "version":  "1.0.0"
+                           },
+                           {
+                               "type":  "panel",
+                               "id":  "timeseries",
+                               "name":  "Time series",
+                               "version":  ""
+                           },
+                           {
+                               "type":  "panel",
+                               "id":  "stat",
+                               "name":  "Stat",
+                               "version":  ""
+                           }
+                       ],
+        "annotations":  {
+                            "list":  [
+    
+                                     ]
+                        },
+        "editable":  true,
+        "fiscalYearStartMonth":  0,
+        "graphTooltip":  1,
+        "id":  30,
+        "links":  [
+    
+                  ],
+        "refresh":  "30s",
+        "schemaVersion":  38,
+        "tags":  [
+                     "team3",
+                     "matnani",
+                     "monitoring"
+                 ],
+        "templating":  {
+                           "list":  [
+                                        {
+                                            "current":  {
+                                                            "value":  "nat-0568efaa50e17deb1"
+                                                        },
+                                            "hide":  0,
+                                            "label":  "NAT Gateway ID",
+                                            "name":  "nat_gw_id",
+                                            "query":  "nat-0568efaa50e17deb1",
+                                            "skipUrlSync":  false,
+                                            "type":  "textbox"
+                                        }
+                                    ]
+                       },
+        "time":  {
+                     "from":  "now-3h",
+                     "to":  "now"
+                 },
+        "timepicker":  {
+    
+                       },
+        "timezone":  "browser",
+        "title":  "team3-matnani 모니터링 대시보드",
+        "uid":  "team3-matnani-overview",
+        "version":  6,
+        "panels":  [
+                       {
+                           "type":  "row",
+                           "title":  "EKS",
+                           "id":  1,
+                           "gridPos":  {
+                                           "h":  1,
+                                           "w":  24,
+                                           "x":  0,
+                                           "y":  0
+                                       },
+                           "collapsed":  false,
+                           "panels":  [
+    
+                                      ]
+                       },
+                       {
+                           "type":  "stat",
+                           "title":  "EKS 노드 수",
+                           "id":  21,
+                           "gridPos":  {
+                                           "h":  4,
+                                           "w":  6,
+                                           "x":  0,
+                                           "y":  1
+                                       },
+                           "datasource":  {
+                                              "type":  "prometheus",
+                                              "uid":  "prometheus"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "color":  {
+                                                                              "mode":  "thresholds"
+                                                                          },
+                                                                "thresholds":  {
+                                                                                   "mode":  "absolute",
+                                                                                   "steps":  [
+                                                                                                 {
+                                                                                                     "color":  "red",
+                                                                                                     "value":  null
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  "green",
+                                                                                                     "value":  1
+                                                                                                 }
+                                                                                             ]
+                                                                               },
+                                                                "unit":  "short",
+                                                                "mappings":  [
+    
+                                                                             ]
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "reduceOptions":  {
+                                                                 "calcs":  [
+                                                                               "lastNotNull"
+                                                                           ],
+                                                                 "fields":  "",
+                                                                 "values":  false
+                                                             },
+                                           "orientation":  "auto",
+                                           "textMode":  "auto",
+                                           "colorMode":  "background",
+                                           "graphMode":  "none",
+                                           "justifyMode":  "center"
+                                       },
+                           "targets":  [
+                                           {
+                                               "datasource":  {
+                                                                  "type":  "prometheus",
+                                                                  "uid":  "prometheus"
+                                                              },
+                                               "expr":  "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
+                                               "legendFormat":  "Ready 노드",
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "stat",
+                           "title":  "Running 파드 수",
+                           "id":  22,
+                           "gridPos":  {
+                                           "h":  4,
+                                           "w":  6,
+                                           "x":  6,
+                                           "y":  1
+                                       },
+                           "datasource":  {
+                                              "type":  "prometheus",
+                                              "uid":  "prometheus"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "color":  {
+                                                                              "mode":  "thresholds"
+                                                                          },
+                                                                "thresholds":  {
+                                                                                   "mode":  "absolute",
+                                                                                   "steps":  [
+                                                                                                 {
+                                                                                                     "color":  "red",
+                                                                                                     "value":  null
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  "green",
+                                                                                                     "value":  1
+                                                                                                 }
+                                                                                             ]
+                                                                               },
+                                                                "unit":  "short",
+                                                                "mappings":  [
+    
+                                                                             ]
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "reduceOptions":  {
+                                                                 "calcs":  [
+                                                                               "lastNotNull"
+                                                                           ],
+                                                                 "fields":  "",
+                                                                 "values":  false
+                                                             },
+                                           "orientation":  "auto",
+                                           "textMode":  "auto",
+                                           "colorMode":  "background",
+                                           "graphMode":  "none",
+                                           "justifyMode":  "center"
+                                       },
+                           "targets":  [
+                                           {
+                                               "datasource":  {
+                                                                  "type":  "prometheus",
+                                                                  "uid":  "prometheus"
+                                                              },
+                                               "expr":  "count(kube_pod_status_phase{phase=\"Running\"})",
+                                               "legendFormat":  "Running 파드",
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "stat",
+                           "title":  "신청 성공률",
+                           "id":  23,
+                           "gridPos":  {
+                                           "h":  4,
+                                           "w":  4,
+                                           "x":  12,
+                                           "y":  1
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "percent",
+                                                                "decimals":  1,
+                                                                "color":  {
+                                                                              "mode":  "thresholds"
+                                                                          },
+                                                                "thresholds":  {
+                                                                                   "mode":  "absolute",
+                                                                                   "steps":  [
+                                                                                                 {
+                                                                                                     "color":  "red",
+                                                                                                     "value":  null
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  "yellow",
+                                                                                                     "value":  90
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  "green",
+                                                                                                     "value":  99
+                                                                                                 }
+                                                                                             ]
+                                                                               },
+                                                                "mappings":  [
+    
+                                                                             ]
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "reduceOptions":  {
+                                                                 "calcs":  [
+                                                                               "lastNotNull"
+                                                                           ],
+                                                                 "fields":  "",
+                                                                 "values":  false
+                                                             },
+                                           "orientation":  "auto",
+                                           "textMode":  "auto",
+                                           "colorMode":  "background",
+                                           "graphMode":  "none",
+                                           "justifyMode":  "center"
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "req_2xx",
+                                               "refId":  "A",
+                                               "label":  "2XX",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/ApplicationELB",
+                                               "metricName":  "HTTPCode_Target_2XX_Count",
+                                               "dimensions":  {
+                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                              },
+                                               "statistic":  "Sum",
+                                               "period":  "300",
+                                               "matchExact":  true,
+                                               "hide":  true
+                                           },
+                                           {
+                                               "id":  "req_total",
+                                               "refId":  "B",
+                                               "label":  "전체",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/ApplicationELB",
+                                               "metricName":  "RequestCount",
+                                               "dimensions":  {
+                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                              },
+                                               "statistic":  "Sum",
+                                               "period":  "300",
+                                               "matchExact":  true,
+                                               "hide":  true
+                                           },
+                                           {
+                                               "id":  "success_rate",
+                                               "refId":  "C",
+                                               "label":  "성공률",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  1,
+                                               "expression":  "IF(req_total\u003e0, req_2xx/req_total*100, 0)",
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "hide":  false
+                                           }
+                                       ]
+                       },
+                       {
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "color":  {
+                                                                              "mode":  "thresholds"
+                                                                          },
+                                                                "decimals":  0,
+                                                                "thresholds":  {
+                                                                                   "steps":  [
+                                                                                                 {
+                                                                                                     "value":  null,
+                                                                                                     "color":  "red"
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "value":  1,
+                                                                                                     "color":  "green"
+                                                                                                 }
+                                                                                             ],
+                                                                                   "mode":  "absolute"
+                                                                               },
+                                                                "unit":  "short",
+                                                                "mappings":  [
+    
+                                                                             ]
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "id":  28,
+                           "gridPos":  {
+                                           "y":  1,
+                                           "w":  4,
+                                           "x":  16,
+                                           "h":  4
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "title":  "API 성공 요청 수",
+                           "targets":  [
+                                           {
+                                               "dimensions":  {
+                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                              },
+                                               "metricQueryType":  0,
+                                               "matchExact":  true,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "namespace":  "AWS/ApplicationELB",
+                                               "refId":  "A",
+                                               "region":  "default",
+                                               "id":  "",
+                                               "period":  "300",
+                                               "metricEditorMode":  0,
+                                               "label":  "",
+                                               "metricName":  "HTTPCode_Target_2XX_Count",
+                                               "sqlExpression":  "",
+                                               "expression":  "",
+                                               "queryMode":  "Metrics",
+                                               "statistic":  "Sum",
+                                               "logGroups":  [
+    
+                                                             ]
+                                           }
+                                       ],
+                           "type":  "stat",
+                           "options":  {
+                                           "textMode":  "auto",
+                                           "colorMode":  "background",
+                                           "graphMode":  "none",
+                                           "reduceOptions":  {
+                                                                 "values":  false,
+                                                                 "calcs":  [
+                                                                               "sum"
+                                                                           ],
+                                                                 "fields":  ""
+                                                             },
+                                           "justifyMode":  "center",
+                                           "orientation":  "auto"
+                                       }
+                       },
+                       {
+                           "type":  "stat",
+                           "title":  "ALB 평균 응답 시간",
+                           "id":  24,
+                           "gridPos":  {
+                                           "h":  4,
+                                           "w":  4,
+                                           "x":  20,
+                                           "y":  1
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "s",
+                                                                "decimals":  3,
+                                                                "color":  {
+                                                                              "mode":  "thresholds"
+                                                                          },
+                                                                "thresholds":  {
+                                                                                   "mode":  "absolute",
+                                                                                   "steps":  [
+                                                                                                 {
+                                                                                                     "color":  "green",
+                                                                                                     "value":  null
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  "yellow",
+                                                                                                     "value":  0.5
+                                                                                                 },
+                                                                                                 {
+                                                                                                     "color":  "red",
+                                                                                                     "value":  1.0
+                                                                                                 }
+                                                                                             ]
+                                                                               },
+                                                                "mappings":  [
+    
+                                                                             ]
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "reduceOptions":  {
+                                                                 "calcs":  [
+                                                                               "lastNotNull"
+                                                                           ],
+                                                                 "fields":  "",
+                                                                 "values":  false
+                                                             },
+                                           "orientation":  "auto",
+                                           "textMode":  "auto",
+                                           "colorMode":  "background",
+                                           "graphMode":  "none",
+                                           "justifyMode":  "center"
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/ApplicationELB",
+                                               "metricName":  "TargetResponseTime",
+                                               "dimensions":  {
+                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "EKS Node CPU 사용률",
+                           "id":  2,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  0,
+                                           "y":  5
+                                       },
+                           "datasource":  {
+                                              "type":  "prometheus",
+                                              "uid":  "prometheus"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "percent",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "datasource":  {
+                                                                  "type":  "prometheus",
+                                                                  "uid":  "prometheus"
+                                                              },
+                                               "expr":  "100 - (avg by (node) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+                                               "legendFormat":  "{{node}}",
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "EKS Node 메모리 사용률",
+                           "id":  3,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  12,
+                                           "y":  5
+                                       },
+                           "datasource":  {
+                                              "type":  "prometheus",
+                                              "uid":  "prometheus"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "percent",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "datasource":  {
+                                                                  "type":  "prometheus",
+                                                                  "uid":  "prometheus"
+                                                              },
+                                               "expr":  "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100",
+                                               "legendFormat":  "{{node}}",
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "row",
+                           "title":  "부하테스트 결과",
+                           "id":  25,
+                           "gridPos":  {
+                                           "h":  1,
+                                           "w":  24,
+                                           "x":  0,
+                                           "y":  13
+                                       },
+                           "collapsed":  false,
+                           "panels":  [
+    
+                                      ]
+                       },
+                       {
+                           "type":  "text",
+                           "title":  "동시성 결과",
+                           "id":  26,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  0,
+                                           "y":  14
+                                       },
+                           "options":  {
+                                           "mode":  "markdown",
+                                           "content":  "## 동시성 테스트 결과\n\n\u003e 데이터 소스 연동 예정\n\n**측정 항목**\n- 총 요청 수 / 성공 수 / 실패 수\n- 성공 예약 수 vs 재고 수 (초과 여부)\n- VUs (동시 가상 사용자 수)\n\n**연동 방법**\n- k6 → Prometheus Remote Write\n- 또는 k6 결과 JSON 파싱 후 수동 입력"
+                                       }
+                       },
+                       {
+                           "type":  "text",
+                           "title":  "마감된 상품 Top5",
+                           "id":  27,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  12,
+                                           "y":  14
+                                       },
+                           "options":  {
+                                           "mode":  "markdown",
+                                           "content":  "## 마감된 상품 Top5\n\n\u003e 데이터 소스 연동 예정\n\n**측정 항목**\n- 상품명 / 상품 ID\n- 예약 성공 건수\n- 마감 시각\n\n**연동 방법**\n- 앱 로그 → CloudWatch Logs Insights\n- 또는 DB 직접 쿼리 후 수동 입력"
+                                       }
+                       },
+                       {
+                           "type":  "row",
+                           "title":  "RDS",
+                           "id":  4,
+                           "gridPos":  {
+                                           "h":  1,
+                                           "w":  24,
+                                           "x":  0,
+                                           "y":  22
+                                       },
+                           "collapsed":  false,
+                           "panels":  [
+    
+                                      ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "RDS CPU 사용률",
+                           "id":  5,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  8,
+                                           "x":  0,
+                                           "y":  23
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "percent",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/RDS",
+                                               "metricName":  "CPUUtilization",
+                                               "dimensions":  {
+                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "RDS 연결 수",
+                           "id":  6,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  8,
+                                           "x":  8,
+                                           "y":  23
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "short",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/RDS",
+                                               "metricName":  "DatabaseConnections",
+                                               "dimensions":  {
+                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "RDS 남은 스토리지",
+                           "id":  7,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  8,
+                                           "x":  16,
+                                           "y":  23
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "bytes",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/RDS",
+                                               "metricName":  "FreeStorageSpace",
+                                               "dimensions":  {
+                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "RDS 읽기 지연시간",
+                           "id":  8,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  0,
+                                           "y":  31
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "s",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/RDS",
+                                               "metricName":  "ReadLatency",
+                                               "dimensions":  {
+                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "RDS 쓰기 지연시간",
+                           "id":  9,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  12,
+                                           "y":  31
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "s",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/RDS",
+                                               "metricName":  "WriteLatency",
+                                               "dimensions":  {
+                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "row",
+                           "title":  "Redis (ElastiCache)",
+                           "id":  10,
+                           "gridPos":  {
+                                           "h":  1,
+                                           "w":  24,
+                                           "x":  0,
+                                           "y":  39
+                                       },
+                           "collapsed":  false,
+                           "panels":  [
+    
+                                      ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "Redis CPU 사용률",
+                           "id":  11,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  0,
+                                           "y":  40
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "percent",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/ElastiCache",
+                                               "metricName":  "CPUUtilization",
+                                               "dimensions":  {
+                                                                  "CacheClusterId":  "team3-matnani-dev-redis-001"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "Redis 연결 수 (CurrConnections)",
+                           "id":  12,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  12,
+                                           "y":  40
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "short",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/ElastiCache",
+                                               "metricName":  "CurrConnections",
+                                               "dimensions":  {
+                                                                  "CacheClusterId":  "team3-matnani-dev-redis-001"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "row",
+                           "title":  "ALB",
+                           "id":  13,
+                           "gridPos":  {
+                                           "h":  1,
+                                           "w":  24,
+                                           "x":  0,
+                                           "y":  48
+                                       },
+                           "collapsed":  false,
+                           "panels":  [
+    
+                                      ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "ALB 요청 수",
+                           "id":  14,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  0,
+                                           "y":  49
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "short",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/ApplicationELB",
+                                               "metricName":  "RequestCount",
+                                               "dimensions":  {
+                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                              },
+                                               "statistic":  "Sum",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "ALB 응답 시간",
+                           "id":  15,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  12,
+                                           "y":  49
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "s",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/ApplicationELB",
+                                               "metricName":  "TargetResponseTime",
+                                               "dimensions":  {
+                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "ALB HTTP 5XX 에러",
+                           "id":  16,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  0,
+                                           "y":  57
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "short",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/ApplicationELB",
+                                               "metricName":  "HTTPCode_Target_5XX_Count",
+                                               "dimensions":  {
+                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                              },
+                                               "statistic":  "Sum",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "ALB HTTP 4XX 에러",
+                           "id":  17,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  12,
+                                           "y":  57
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "short",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/ApplicationELB",
+                                               "metricName":  "HTTPCode_Target_4XX_Count",
+                                               "dimensions":  {
+                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                              },
+                                               "statistic":  "Sum",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "row",
+                           "title":  "NAT Gateway",
+                           "id":  18,
+                           "gridPos":  {
+                                           "h":  1,
+                                           "w":  24,
+                                           "x":  0,
+                                           "y":  65
+                                       },
+                           "collapsed":  false,
+                           "panels":  [
+    
+                                      ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "NAT GW 연결 수",
+                           "id":  19,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  0,
+                                           "y":  66
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "short",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/NatGateway",
+                                               "metricName":  "ConnectionCount",
+                                               "dimensions":  {
+                                                                  "NatGatewayId":  "$nat_gw_id"
+                                                              },
+                                               "statistic":  "Maximum",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "NAT GW 바이트 출력",
+                           "id":  20,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  12,
+                                           "y":  66
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "bytes",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  [
+    
+                                                             ]
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [
+    
+                                                             ],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/NatGateway",
+                                               "metricName":  "BytesOutToDestination",
+                                               "dimensions":  {
+                                                                  "NatGatewayId":  "$nat_gw_id"
+                                                              },
+                                               "statistic":  "Sum",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       }
+                   ]
+    }
