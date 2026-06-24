@@ -402,7 +402,7 @@
                                           "type":  "cloudwatch",
                                           "uid":  "P034F075C744B399F"
                                       },
-                       "title":  "예약 성공 개수",
+                       "title":  "API 성공 요청 수",
                        "targets":  [
                                        {
                                            "dimensions":  {
