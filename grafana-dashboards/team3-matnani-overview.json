@@ -54,12 +54,12 @@
                        "list":  [
                                     {
                                         "current":  {
-                                                        "value":  "nat-0568efaa50e17deb1"
+                                                        "value":  ""
                                                     },
                                         "hide":  0,
                                         "label":  "NAT Gateway ID",
                                         "name":  "nat_gw_id",
-                                        "query":  "nat-0568efaa50e17deb1",
+                                        "query":  "",
                                         "skipUrlSync":  false,
                                         "type":  "textbox"
                                     }
