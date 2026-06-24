@@ -194,6 +194,12 @@ resource "helm_release" "kube_prometheus_stack" {
     name  = "alertmanager.alertmanagerSpec.alertmanagerConfigMatcherStrategy.type"
     value = "None"
   }
+
+  # k6 remote write 수신 활성화
+  set {
+    name  = "prometheus.prometheusSpec.enableRemoteWriteReceiver"
+    value = "true"
+  }
 }
 
 # ExternalDNS

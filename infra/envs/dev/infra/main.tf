@@ -61,6 +61,17 @@ module "k6" {
   instance_type    = "t3.medium"
 }
 
+# k6 EC2 → EKS 워커노드 30090 (Prometheus NodePort) 허용
+resource "aws_security_group_rule" "k6_to_prometheus" {
+  type                     = "ingress"
+  description              = "k6 EC2 to Prometheus NodePort"
+  from_port                = 30090
+  to_port                  = 30090
+  protocol                 = "tcp"
+  security_group_id        = module.eks.node_sg_id
+  source_security_group_id = module.k6.sg_id
+}
+
 
 module "bastion" {
   source               = "../../../modules/bastion"
