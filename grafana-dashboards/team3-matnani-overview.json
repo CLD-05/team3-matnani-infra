@@ -350,9 +350,9 @@
                                                          ],
                                            "sqlExpression":  "",
                                            "queryMode":  "Metrics",
-                                           "metricQueryType":  1,
-                                           "metricEditorMode":  2,
-                                           "expression":  "req_2xx/req_total*100",
+                                           "metricQueryType":  0,
+                                           "metricEditorMode":  1,
+                                           "expression":  "IF(req_total\u003e0, req_2xx/req_total*100, 0)",
                                            "datasource":  {
                                                               "type":  "cloudwatch",
                                                               "uid":  "P034F075C744B399F"
