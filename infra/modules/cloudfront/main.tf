@@ -46,6 +46,13 @@ resource "aws_cloudfront_distribution" "this" {
     origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
 
+  # 이미지 S3 버킷
+  origin {
+    domain_name              = aws_s3_bucket.image_bucket.bucket_regional_domain_name
+    origin_id                = "S3-${aws_s3_bucket.image_bucket.id}"
+    origin_access_control_id = aws_cloudfront_origin_access_control.image.id
+  }
+
   # ALB (백엔드)
   origin {
     domain_name = var.alb_dns_name
@@ -62,6 +69,27 @@ resource "aws_cloudfront_distribution" "this" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
+
+  # 이미지 라우팅 (/images/*)
+  ordered_cache_behavior {
+    path_pattern     = "/images/*"
+    target_origin_id = "S3-${aws_s3_bucket.image_bucket.id}"
+
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods  = ["GET", "HEAD"]
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 86400
+    max_ttl                = 31536000
+  }
 
   # 백엔드 API 라우팅 (/api/*)
   ordered_cache_behavior {
@@ -156,7 +184,7 @@ resource "aws_s3_bucket_policy" "frontend" {
 # 6. 유저 이미지 업로드용 S3 버킷 생성
 resource "aws_s3_bucket" "image_bucket" {
   bucket        = "team3-matnani-${var.env}-images"
-  force_destroy = true 
+  force_destroy = true
 
   tags = {
     Name = "team3-matnani-${var.env}-images"
@@ -164,17 +192,26 @@ resource "aws_s3_bucket" "image_bucket" {
   }
 }
 
-# 7. S3 퍼블릭 액세스 전면 개방 (누구나 이미지 볼 수 있게)
+# 7. S3 퍼블릭 액세스 전면 차단
 resource "aws_s3_bucket_public_access_block" "image_bucket_public_access" {
   bucket = aws_s3_bucket.image_bucket.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
-# 8. 버킷 정책 (퍼블릭 읽기 허용)
+# 8. 이미지 버킷용 OAC
+resource "aws_cloudfront_origin_access_control" "image" {
+  name                              = "team3-matnani-${var.env}-image-oac"
+  description                       = "OAC for Matnani Image Bucket"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+# 9. 버킷 정책 (CloudFront OAC 경유 읽기만 허용)
 resource "aws_s3_bucket_policy" "image_bucket_policy" {
   bucket = aws_s3_bucket.image_bucket.id
 
@@ -182,25 +219,33 @@ resource "aws_s3_bucket_policy" "image_bucket_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.image_bucket.arn}/*"
+        Sid    = "AllowCloudFrontServicePrincipalReadOnly"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.image_bucket.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.this.arn
+          }
+        }
       }
     ]
   })
-  
+
   depends_on = [aws_s3_bucket_public_access_block.image_bucket_public_access]
 }
 
-# 9. CORS 설정 (프론트엔드 에러 방지)
+# 10. CORS 설정 (프리사인드 URL 업로드용)
 resource "aws_s3_bucket_cors_configuration" "image_bucket_cors" {
   bucket = aws_s3_bucket.image_bucket.id
 
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET", "PUT", "POST", "DELETE"]
-    allowed_origins = ["*"] 
+    allowed_origins = ["*"]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }

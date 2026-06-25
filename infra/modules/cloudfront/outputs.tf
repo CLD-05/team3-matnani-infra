@@ -22,3 +22,13 @@ output "distribution_id" {
   description = "CloudFront 배포 ID (필요 시 캐시 무효화 등에 사용)"
   value       = aws_cloudfront_distribution.this.id
 }
+
+output "image_bucket_name" {
+  description = "이미지 업로드용 S3 버킷 이름"
+  value       = aws_s3_bucket.image_bucket.id
+}
+
+output "image_bucket_arn" {
+  description = "이미지 업로드용 S3 버킷 ARN"
+  value       = aws_s3_bucket.image_bucket.arn
+}
