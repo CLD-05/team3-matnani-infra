@@ -249,6 +249,47 @@ resource "helm_release" "metrics_server" {
   atomic     = true
 }
 
+# Cluster Autoscaler
+resource "helm_release" "cluster_autoscaler" {
+  name       = "team3-matnani-cluster-autoscaler"
+  repository = "https://kubernetes.github.io/autoscaler"
+  chart      = "cluster-autoscaler"
+  version    = "9.37.0"
+  namespace  = "kube-system"
+
+  set {
+    name  = "autoDiscovery.clusterName"
+    value = var.cluster_name
+  }
+  set {
+    name  = "awsRegion"
+    value = "ap-northeast-2"
+  }
+  set {
+    name  = "rbac.serviceAccount.create"
+    value = "true"
+  }
+  set {
+    name  = "rbac.serviceAccount.name"
+    value = "cluster-autoscaler"
+  }
+  # 스케일 다운 시 10분 대기 (기본값 10m)
+  set {
+    name  = "extraArgs.scale-down-delay-after-add"
+    value = "10m"
+  }
+  # 불필요한 노드 감지 후 10분 뒤 제거
+  set {
+    name  = "extraArgs.scale-down-unneeded-time"
+    value = "10m"
+  }
+
+  depends_on = [kubernetes_namespace.namespaces]
+  wait    = true
+  timeout = 300
+  atomic  = true
+}
+
 # KEDA
 resource "helm_release" "keda" {
   name       = "team3-matnani-keda"
