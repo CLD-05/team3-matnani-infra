@@ -85,6 +85,11 @@ resource "aws_cloudfront_distribution" "this" {
       }
     }
 
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.image_path_rewrite.arn
+    }
+
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 86400
@@ -202,7 +207,21 @@ resource "aws_s3_bucket_public_access_block" "image_bucket_public_access" {
   restrict_public_buckets = true
 }
 
-# 8. 이미지 버킷용 OAC
+# 8. /images/* 경로에서 /images 프리픽스를 제거해 S3 루트 키로 매핑하는 CloudFront Function
+resource "aws_cloudfront_function" "image_path_rewrite" {
+  name    = "team3-matnani-${var.env}-image-path-rewrite"
+  runtime = "cloudfront-js-2.0"
+  publish = true
+  code    = <<-EOT
+    function handler(event) {
+      var request = event.request;
+      request.uri = request.uri.replace(/^\/images\//, '/');
+      return request;
+    }
+  EOT
+}
+
+# 이미지 버킷용 OAC
 resource "aws_cloudfront_origin_access_control" "image" {
   name                              = "team3-matnani-${var.env}-image-oac"
   description                       = "OAC for Matnani Image Bucket"
