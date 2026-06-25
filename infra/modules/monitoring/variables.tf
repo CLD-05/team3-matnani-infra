@@ -186,12 +186,6 @@ variable "redis_connections_threshold" {
   default = 10
 }
 
-variable "permissions_boundary" {
-  description = "IAM Role 생성에 필요한 Permissions Boundary ARN"
-  type        = string
-  default     = "arn:aws:iam::495599735720:policy/TeamRuntimeBoundary"
-}
-
 variable "slack_webhook_url" {
   description = "Slack Incoming Webhook URL — Lambda AIOps 알림 전송용"
   type        = string
