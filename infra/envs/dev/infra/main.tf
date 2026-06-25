@@ -187,20 +187,10 @@ module "github_oidc" {
 }
 
 
-# TODO: EKS 클러스터 생성 후 활성화 (kubernetes provider 필요)
-/*
-# 기존 infra monitoring 모듈에서 직접 사용하던 SSM 조회 코드입니다.
-# 현재 Grafana/Alertmanager는 platform-addons와 ESO에서 관리하므로 비활성화합니다.
-data "aws_ssm_parameter" "grafana_password" {
-  name            = "/team3/matnani/dev/grafana-password"
-  with_decryption = true
-}
-
 data "aws_ssm_parameter" "slack_webhook" {
   name            = "/team3/matnani/dev/monitoring/slack-webhook"
   with_decryption = true
 }
-*/
 
 data "aws_lb_target_group" "matnani" {
   name = "k8s-team3mat-matnania-d56bf765b5"
@@ -217,6 +207,7 @@ module "monitoring" {
   slack_workspace_id = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
   chatbot_role_arn   = var.chatbot_role_arn
+  slack_webhook_url  = data.aws_ssm_parameter.slack_webhook.value
 
   eks_cluster_name  = module.eks.cluster_name
   rds_instance_id   = module.database.db_instance_id

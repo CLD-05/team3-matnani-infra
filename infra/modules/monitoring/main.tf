@@ -29,6 +29,81 @@ resource "aws_sns_topic" "matnani_alerts" {
   name = "team3-matnani-${var.env}-monitoring-alerts"
 }
 
+# ======== AIOps — Bedrock Claude 장애 자동 분석 ========
+
+data "aws_caller_identity" "current" {}
+
+data "archive_file" "aiops_lambda" {
+  type        = "zip"
+  source_file = "${path.module}/lambda/alarm_analyzer.py"
+  output_path = "${path.module}/lambda/alarm_analyzer.zip"
+}
+
+resource "aws_iam_role" "aiops_lambda" {
+  name                 = "team3-matnani-${var.env}-aiops-lambda-role"
+  permissions_boundary = var.permissions_boundary
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "lambda.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "aiops_lambda" {
+  name = "team3-matnani-${var.env}-aiops-lambda-policy"
+  role = aws_iam_role.aiops_lambda.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "arn:aws:logs:ap-northeast-2:${data.aws_caller_identity.current.account_id}:*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["bedrock:InvokeModel"]
+        Resource = "arn:aws:bedrock:ap-northeast-2::foundation-model/anthropic.claude-3-5-haiku-20241022-v1:0"
+      }
+    ]
+  })
+}
+
+resource "aws_lambda_function" "aiops" {
+  function_name    = "team3-matnani-${var.env}-aiops-alarm-analyzer"
+  role             = aws_iam_role.aiops_lambda.arn
+  filename         = data.archive_file.aiops_lambda.output_path
+  source_code_hash = data.archive_file.aiops_lambda.output_base64sha256
+  handler          = "alarm_analyzer.lambda_handler"
+  runtime          = "python3.12"
+  timeout          = 30
+
+  environment {
+    variables = {
+      SLACK_WEBHOOK_URL = var.slack_webhook_url
+    }
+  }
+}
+
+resource "aws_lambda_permission" "aiops_sns" {
+  statement_id  = "AllowSNSInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.aiops.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = aws_sns_topic.matnani_alerts.arn
+}
+
+resource "aws_sns_topic_subscription" "aiops_lambda" {
+  topic_arn = aws_sns_topic.matnani_alerts.arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.aiops.arn
+}
+
 # Amazon Q Developer in chat applications가 SNS 알림을 Slack으로 전달합니다.
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
   configuration_name = "team3-matnani-slack-alerts"
