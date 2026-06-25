@@ -91,6 +91,34 @@ resource "aws_iam_role_policy_attachment" "node_ecr" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
+# Cluster Autoscaler — ASG 조회/조정 권한
+resource "aws_iam_role_policy" "cluster_autoscaler" {
+  name = "${local.cluster_name}-ca-policy"
+  role = aws_iam_role.node.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribeAutoScalingInstances",
+        "autoscaling:DescribeLaunchConfigurations",
+        "autoscaling:DescribeScalingActivities",
+        "autoscaling:DescribeTags",
+        "autoscaling:SetDesiredCapacity",
+        "autoscaling:TerminateInstanceInAutoScalingGroup",
+        "ec2:DescribeImages",
+        "ec2:DescribeInstanceTypes",
+        "ec2:DescribeLaunchTemplateVersions",
+        "ec2:GetInstanceTypesFromInstanceRequirements",
+        "eks:DescribeNodegroup"
+      ]
+      Resource = "*"
+    }]
+  })
+}
+
 
 
 # Security Group — Node
@@ -163,12 +191,14 @@ resource "aws_eks_node_group" "this" {
 
   scaling_config {
     desired_size = var.node_desired_size
-    min_size     = 0
+    min_size     = var.node_min_size
     max_size     = var.node_max_size
   }
 
   tags = merge(local.common_tags, {
-    Name = "${local.cluster_name}-ng"
+    Name                                                 = "${local.cluster_name}-ng"
+    "k8s.io/cluster-autoscaler/enabled"                  = "true"
+    "k8s.io/cluster-autoscaler/${local.cluster_name}"    = "owned"
   })
 
   depends_on = [
