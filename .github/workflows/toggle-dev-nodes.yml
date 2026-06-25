@@ -63,12 +63,21 @@ jobs:
         run: |
           set -euo pipefail
 
+          if [ "${NODE_DESIRED}" = "0" ]; then
+            NODE_MIN=0
+          elif [ "${NODE_DESIRED}" = "2" ]; then
+            NODE_MIN=2
+          else
+            NODE_MIN=3
+          fi
+
           TF_ARGS=(
             -auto-approve
             -input=false
             -lock-timeout=5m
             -var-file=terraform.ci.tfvars
             "-var=node_desired=${NODE_DESIRED}"
+            "-var=node_min=${NODE_MIN}"
           )
 
           if [ "${NODE_DESIRED}" = "0" ]; then
@@ -81,6 +90,6 @@ jobs:
             echo "EKS 노드 생성 전에 NAT Gateway를 준비합니다."
             terraform apply -target=module.network "${TF_ARGS[@]}"
 
-            echo "EKS 노드를 ${NODE_DESIRED}개로 조정합니다."
+            echo "EKS 노드를 ${NODE_DESIRED}개로 조정합니다. node_min=${NODE_MIN}"
             terraform apply -target=module.eks "${TF_ARGS[@]}"
           fi

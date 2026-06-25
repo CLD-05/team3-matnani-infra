@@ -28,6 +28,7 @@ override.tf.json
 terraform.rc
 tfplan*
 *.tfplan
+infra/modules/monitoring/lambda/*.zip
 
 # Secrets
 *.pem

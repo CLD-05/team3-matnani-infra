@@ -60,7 +60,15 @@ jobs:
             --nodegroup-name team3-matnani-dev-eks-ng \
             --query "nodegroup.scalingConfig.desiredSize" \
             --output text)
+          if [ "${desired}" = "0" ]; then
+            min=0
+          elif [ "${desired}" = "2" ]; then
+            min=2
+          else
+            min=3
+          fi
           echo "desired=${desired}" >> "$GITHUB_OUTPUT"
+          echo "min=${min}" >> "$GITHUB_OUTPUT"
           echo "현재 EKS 노드 수 ${desired}개를 유지합니다."
 
       - name: Terraform Apply
@@ -70,7 +78,8 @@ jobs:
             -input=false \
             -lock-timeout=5m \
             -var-file=terraform.ci.tfvars \
-            -var="node_desired=${{ steps.current_nodes.outputs.desired }}"
+            -var="node_desired=${{ steps.current_nodes.outputs.desired }}" \
+            -var="node_min=${{ steps.current_nodes.outputs.min }}"
 
   apply-dev-platform-addons:
     name: Apply / dev-platform-addons

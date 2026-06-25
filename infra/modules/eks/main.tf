@@ -86,37 +86,16 @@ resource "aws_iam_role_policy_attachment" "node_cni" {
 }
 
 resource "aws_iam_role_policy_attachment" "node_ecr" {
-  role       = aws_iam_role.node.name
+  role = aws_iam_role.node.name
   # ECR에서 컨테이너 이미지 pull 전용 읽기 권한
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-# Cluster Autoscaler — ASG 조회/조정 권한
-resource "aws_iam_role_policy" "cluster_autoscaler" {
-  name = "${local.cluster_name}-ca-policy"
-  role = aws_iam_role.node.name
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "autoscaling:DescribeAutoScalingGroups",
-        "autoscaling:DescribeAutoScalingInstances",
-        "autoscaling:DescribeLaunchConfigurations",
-        "autoscaling:DescribeScalingActivities",
-        "autoscaling:DescribeTags",
-        "autoscaling:SetDesiredCapacity",
-        "autoscaling:TerminateInstanceInAutoScalingGroup",
-        "ec2:DescribeImages",
-        "ec2:DescribeInstanceTypes",
-        "ec2:DescribeLaunchTemplateVersions",
-        "ec2:GetInstanceTypesFromInstanceRequirements",
-        "eks:DescribeNodegroup"
-      ]
-      Resource = "*"
-    }]
-  })
+# Cluster Autoscaler ASG 조회/조정 권한
+# CI 역할은 iam:PutRolePolicy 권한이 없어 관리형 정책 attachment 방식으로 부여
+resource "aws_iam_role_policy_attachment" "cluster_autoscaler" {
+  role       = aws_iam_role.node.name
+  policy_arn = "arn:aws:iam::aws:policy/AutoScalingFullAccess"
 }
 
 
@@ -196,9 +175,9 @@ resource "aws_eks_node_group" "this" {
   }
 
   tags = merge(local.common_tags, {
-    Name                                                 = "${local.cluster_name}-ng"
-    "k8s.io/cluster-autoscaler/enabled"                  = "true"
-    "k8s.io/cluster-autoscaler/${local.cluster_name}"    = "owned"
+    Name                                              = "${local.cluster_name}-ng"
+    "k8s.io/cluster-autoscaler/enabled"               = "true"
+    "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
   })
 
   depends_on = [
