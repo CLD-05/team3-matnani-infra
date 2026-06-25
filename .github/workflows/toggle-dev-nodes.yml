@@ -82,7 +82,7 @@ jobs:
 
           if [ "${NODE_DESIRED}" = "0" ]; then
             echo "EKS 노드를 먼저 0개로 축소합니다."
-            terraform apply -target=module.eks "${TF_ARGS[@]}"
+            terraform apply -target=module.eks.aws_eks_node_group.this "${TF_ARGS[@]}"
 
             echo "노드 축소 후 NAT Gateway를 정리합니다."
             terraform apply -target=module.network "${TF_ARGS[@]}"
@@ -91,5 +91,5 @@ jobs:
             terraform apply -target=module.network "${TF_ARGS[@]}"
 
             echo "EKS 노드를 ${NODE_DESIRED}개로 조정합니다. node_min=${NODE_MIN}"
-            terraform apply -target=module.eks "${TF_ARGS[@]}"
+            terraform apply -target=module.eks.aws_eks_node_group.this "${TF_ARGS[@]}"
           fi
