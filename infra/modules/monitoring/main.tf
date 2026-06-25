@@ -29,6 +29,54 @@ resource "aws_sns_topic" "matnani_alerts" {
   name = "team3-matnani-${var.env}-monitoring-alerts"
 }
 
+data "aws_caller_identity" "current" {}
+
+# DevOps Guru가 SNS에 발행할 수 있도록 토픽 정책 설정
+resource "aws_sns_topic_policy" "devopsguru" {
+  arn = aws_sns_topic.matnani_alerts.arn
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowAccountAccess"
+        Effect    = "Allow"
+        Principal = { AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root" }
+        Action    = "SNS:*"
+        Resource  = aws_sns_topic.matnani_alerts.arn
+      },
+      {
+        Sid       = "AllowDevOpsGuru"
+        Effect    = "Allow"
+        Principal = { Service = "devops-guru.amazonaws.com" }
+        Action    = "SNS:Publish"
+        Resource  = aws_sns_topic.matnani_alerts.arn
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
+      }
+    ]
+  })
+}
+
+# DevOps Guru — Project=matnani 태그 리소스 전체 ML 이상 감지
+resource "aws_devopsguru_resource_collection" "this" {
+  type = "AWS_TAGS"
+
+  tags {
+    app_boundary_key = "Project"
+    tag_values       = ["matnani"]
+  }
+}
+
+# 이상 감지 알림 → SNS → Slack
+resource "aws_devopsguru_notification_channel" "this" {
+  sns {
+    topic_arn = aws_sns_topic.matnani_alerts.arn
+  }
+}
+
 # Amazon Q Developer in chat applications가 SNS 알림을 Slack으로 전달합니다.
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
   configuration_name = "team3-matnani-slack-alerts"
