@@ -61,19 +61,7 @@ data:
                      "monitoring"
                  ],
         "templating":  {
-                           "list":  [
-                                        {
-                                            "current":  {
-                                                            "value":  ""
-                                                        },
-                                            "hide":  0,
-                                            "label":  "NAT Gateway ID",
-                                            "name":  "nat_gw_id",
-                                            "query":  "",
-                                            "skipUrlSync":  false,
-                                            "type":  "textbox"
-                                        }
-                                    ]
+                           "list":  []
                        },
         "time":  {
                      "from":  "now-3h",
@@ -1585,9 +1573,7 @@ data:
                                                "region":  "default",
                                                "namespace":  "AWS/NatGateway",
                                                "metricName":  "ConnectionCount",
-                                               "dimensions":  {
-                                                                  "NatGatewayId":  "$nat_gw_id"
-                                                              },
+                                               "dimensions":  {},
                                                "statistic":  "Maximum",
                                                "period":  "",
                                                "matchExact":  true,
@@ -1652,9 +1638,7 @@ data:
                                                "region":  "default",
                                                "namespace":  "AWS/NatGateway",
                                                "metricName":  "BytesOutToDestination",
-                                               "dimensions":  {
-                                                                  "NatGatewayId":  "$nat_gw_id"
-                                                              },
+                                               "dimensions":  {},
                                                "statistic":  "Sum",
                                                "period":  "",
                                                "matchExact":  true,
