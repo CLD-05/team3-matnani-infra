@@ -273,6 +273,13 @@ resource "helm_release" "cluster_autoscaler" {
     name  = "rbac.serviceAccount.name"
     value = "cluster-autoscaler"
   }
+  dynamic "set" {
+    for_each = var.cluster_autoscaler_role_arn == null ? [] : [var.cluster_autoscaler_role_arn]
+    content {
+      name  = "rbac.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = set.value
+    }
+  }
   # 스케일 다운 시 10분 대기 (기본값 10m)
   set {
     name  = "extraArgs.scale-down-delay-after-add"
@@ -285,9 +292,9 @@ resource "helm_release" "cluster_autoscaler" {
   }
 
   depends_on = [kubernetes_namespace.namespaces]
-  wait    = true
-  timeout = 300
-  atomic  = true
+  wait       = true
+  timeout    = 300
+  atomic     = true
 }
 
 # KEDA
@@ -299,7 +306,7 @@ resource "helm_release" "keda" {
   namespace  = "kube-system"
 
   depends_on = [kubernetes_namespace.namespaces]
-  wait    = true
-  timeout = 300
-  atomic  = true
+  wait       = true
+  timeout    = 300
+  atomic     = true
 }

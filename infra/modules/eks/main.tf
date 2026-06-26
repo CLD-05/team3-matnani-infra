@@ -91,15 +91,6 @@ resource "aws_iam_role_policy_attachment" "node_ecr" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-# Cluster Autoscaler ASG 조회/조정 권한
-# CI 역할은 iam:PutRolePolicy 권한이 없어 관리형 정책 attachment 방식으로 부여
-resource "aws_iam_role_policy_attachment" "cluster_autoscaler" {
-  role       = aws_iam_role.node.name
-  policy_arn = "arn:aws:iam::aws:policy/AutoScalingFullAccess"
-}
-
-
-
 # Security Group — Node
 resource "aws_security_group" "node" {
   name        = "${local.cluster_name}-node-sg"
