@@ -35,8 +35,10 @@ def analyze_alarm(sns_message):
 다음 형식으로 간결하게 분석해주세요:
 1. 상황 요약 (1-2문장)
 2. 예상 원인
-3. 즉시 조치 방법
-4. 재발 방지 방안"""
+3. 즉시 조치 방법 (재시작/롤백/스케일링/인프라 변경은 운영자 승인 후 수행)
+4. 재발 방지 방안
+
+주의: 실제 자동 복구를 수행했다고 표현하지 말고, 조치는 운영자 승인 후 가능한 제안으로 작성해주세요."""
 
     bedrock = boto3.client("bedrock-runtime", region_name=REGION)
     response = bedrock.invoke_model(
@@ -59,6 +61,28 @@ def analyze_alarm(sns_message):
             {
                 "type": "section",
                 "text": {"type": "mrkdwn", "text": f"*원인:* {reason[:300]}"}
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": (
+                        f"*상태:* {new_state}\n"
+                        f"*메트릭:* `{trigger.get('Namespace', '')} / {trigger.get('MetricName', '')}`\n"
+                        f"*임계값:* `{trigger.get('ComparisonOperator', '')} {trigger.get('Threshold', '')}`"
+                    )
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": (
+                        "*조치 정책*\n"
+                        "- 이 Lambda는 자동 복구를 실행하지 않습니다.\n"
+                        "- 재시작, 롤백, 스케일링, 인프라 변경은 운영자 승인 후 수행해야 합니다."
+                    )
+                }
             },
             {"type": "divider"},
             {
