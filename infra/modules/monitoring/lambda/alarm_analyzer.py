@@ -1,134 +1,67 @@
 import json
-import os
-import urllib.request
-
 import boto3
+import urllib.request
+import os
 
-BEDROCK_MODEL_ID = os.environ.get(
-    "BEDROCK_MODEL_ID",
-    "anthropic.claude-3-haiku-20240307-v1:0",
-)
-REGION = os.environ.get("AWS_REGION", "ap-northeast-2")
-
-bedrock = boto3.client("bedrock-runtime", region_name=REGION)
+BEDROCK_MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0"
+REGION = "ap-northeast-2"
 
 
 def lambda_handler(event, context):
     for record in event.get("Records", []):
-        message = record.get("Sns", {}).get("Message", "{}")
-        try:
-            sns_message = json.loads(message)
-        except json.JSONDecodeError:
-            sns_message = {"raw_message": message}
+        sns_message = json.loads(record["Sns"]["Message"])
         analyze_alarm(sns_message)
-
-    return {"statusCode": 200}
 
 
 def analyze_alarm(sns_message):
-    alarm_name = sns_message.get("AlarmName", "unknown-alarm")
+    alarm_name = sns_message.get("AlarmName", "")
     alarm_description = sns_message.get("AlarmDescription", "")
     new_state = sns_message.get("NewStateValue", "")
     reason = sns_message.get("NewStateReason", "")
-    trigger = sns_message.get("Trigger", {}) or {}
+    trigger = sns_message.get("Trigger", {})
 
     if new_state != "ALARM":
         return
 
-    analysis = invoke_claude(
-        alarm_name=alarm_name,
-        alarm_description=alarm_description,
-        reason=reason,
-        trigger=trigger,
+    prompt = f"""당신은 AWS 인프라 전문가입니다. 아래 CloudWatch 알람 정보를 분석하고 한국어로 답변해주세요.
+
+알람명: {alarm_name}
+설명: {alarm_description}
+상태: {new_state}
+발생 원인: {reason}
+메트릭: {trigger.get("MetricName", "")} / {trigger.get("Namespace", "")}
+임계값: {trigger.get("Threshold", "")}
+
+다음 형식으로 간결하게 분석해주세요:
+1. 상황 요약 (1-2문장)
+2. 예상 원인
+3. 즉시 조치 방법 (재시작/롤백/스케일링/인프라 변경은 운영자 승인 후 수행)
+4. 재발 방지 방안
+
+주의: 실제 자동 복구를 수행했다고 표현하지 말고, 조치는 운영자 승인 후 가능한 제안으로 작성해주세요."""
+
+    bedrock = boto3.client("bedrock-runtime", region_name=REGION)
+    response = bedrock.invoke_model(
+        modelId=BEDROCK_MODEL_ID,
+        body=json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 800,
+            "messages": [{"role": "user", "content": prompt}]
+        })
     )
-    send_slack_message(
-        alarm_name=alarm_name,
-        alarm_description=alarm_description,
-        reason=reason,
-        trigger=trigger,
-        analysis=analysis,
-    )
+    analysis = json.loads(response["body"].read())["content"][0]["text"]
 
-
-def invoke_claude(alarm_name, alarm_description, reason, trigger):
-    prompt = f"""
-You are an SRE assistant for the team3 matnani service.
-Analyze this AWS CloudWatch alarm and write a concise Korean incident diagnosis.
-Do not claim that any remediation was executed.
-Recommend actions only as operator-approved suggestions.
-
-Alarm name: {alarm_name}
-Description: {alarm_description}
-Reason: {reason}
-Metric: {trigger.get("MetricName", "")} / {trigger.get("Namespace", "")}
-Threshold: {trigger.get("ComparisonOperator", "")} {trigger.get("Threshold", "")}
-
-Please answer in Korean using this format:
-1. 상황 요약
-2. 가능성 높은 원인 후보
-3. 지금 확인할 항목
-4. 운영자 승인 후 가능한 조치
-"""
-
-    try:
-        response = bedrock.invoke_model(
-            modelId=BEDROCK_MODEL_ID,
-            body=json.dumps({
-                "anthropic_version": "bedrock-2023-05-31",
-                "max_tokens": 900,
-                "messages": [{"role": "user", "content": prompt}],
-            }),
-        )
-        return json.loads(response["body"].read())["content"][0]["text"]
-    except Exception as exc:
-        return (
-            "Claude analysis failed. Check the alarm details manually.\n"
-            f"Error: {exc}"
-        )
-
-
-def send_slack_message(alarm_name, alarm_description, reason, trigger, analysis):
     slack_webhook = os.environ["SLACK_WEBHOOK_URL"]
-    metric_name = trigger.get("MetricName", "")
-    namespace = trigger.get("Namespace", "")
-    threshold = trigger.get("Threshold", "")
-    comparison = trigger.get("ComparisonOperator", "")
-
     slack_message = {
         "blocks": [
             {
                 "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": f"AIOps 분석: {alarm_name}"[:150],
-                },
+                "text": {"type": "plain_text", "text": f"🔴 AI 장애 분석: {alarm_name}"}
             },
             {
                 "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": (
-                        f"*상태:* ALARM\n"
-                        f"*메트릭:* `{namespace} / {metric_name}`\n"
-                        f"*임계값:* `{comparison} {threshold}`"
-                    ),
-                },
+                "text": {"type": "mrkdwn", "text": f"*원인:* {reason[:300]}"}
             },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*설명*\n{alarm_description or '-'}",
-                },
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*발생 원인*\n{reason[:800] or '-'}",
-                },
-            },
-            {"type": "divider"},
             {
                 "type": "section",
                 "text": {
@@ -137,23 +70,20 @@ def send_slack_message(alarm_name, alarm_description, reason, trigger, analysis)
                         "*조치 정책*\n"
                         "- 이 Lambda는 자동 복구를 실행하지 않습니다.\n"
                         "- 재시작, 롤백, 스케일링, 인프라 변경은 운영자 승인 후 수행해야 합니다."
-                    ),
-                },
+                    )
+                }
             },
             {"type": "divider"},
             {
                 "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*Claude 진단*\n{analysis[:2500]}",
-                },
-            },
+                "text": {"type": "mrkdwn", "text": f"*🤖 Claude 분석*\n{analysis}"}
+            }
         ]
     }
 
     req = urllib.request.Request(
         slack_webhook,
         data=json.dumps(slack_message).encode(),
-        headers={"Content-Type": "application/json"},
+        headers={"Content-Type": "application/json"}
     )
-    urllib.request.urlopen(req, timeout=10)
+    urllib.request.urlopen(req)
