@@ -2,12 +2,12 @@ locals {
   alert_namespace           = "matnani"
   pod_cpu_threshold         = var.environment == "prod" ? 80 : 75
   pod_memory_threshold      = var.environment == "prod" ? 85 : 80
-  node_cpu_threshold        = var.environment == "prod" ? 80 : 75
-  node_memory_threshold     = var.environment == "prod" ? 80 : 75
+  node_cpu_threshold        = 70
+  node_memory_threshold     = var.environment == "prod" ? 80 : 70
   backend_5xx_rate          = var.environment == "prod" ? 0.03 : 0.05
   backend_response_seconds  = var.environment == "prod" ? 0.8 : 1
   redis_cpu_threshold       = var.environment == "prod" ? 70 : 50
-  redis_connections_threshold = var.environment == "prod" ? 50 : 10
+  redis_connections_threshold = var.environment == "prod" ? 80 : 70
 }
 
 resource "kubernetes_manifest" "matnani_prometheus_rules" {

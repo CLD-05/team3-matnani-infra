@@ -108,7 +108,7 @@ variable "target_group_name" {
 # ---- RDS ----
 variable "rds_cpu_threshold" {
   type    = number
-  default = 75
+  default = 70
 }
 
 variable "rds_connections_threshold" {
@@ -139,7 +139,7 @@ variable "eks_node_cpu_threshold" {
 
 variable "eks_node_memory_threshold" {
   type    = number
-  default = 65
+  default = 80
 }
 
 # ---- ALB ----
@@ -178,12 +178,12 @@ variable "redis_cluster_id" {
 
 variable "redis_cpu_threshold" {
   type    = number
-  default = 50
+  default = 70
 }
 
 variable "redis_connections_threshold" {
   type    = number
-  default = 10
+  default = 80
 }
 
 variable "slack_webhook_url" {

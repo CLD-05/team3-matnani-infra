@@ -229,7 +229,7 @@ module "monitoring" {
   */
 
   redis_cluster_id             = "${module.elasticache.redis_replication_group_id}-001"
-  redis_connections_threshold  = 30
+  redis_connections_threshold  = 70
 
   rds_cpu_threshold                 = var.rds_cpu_threshold
   rds_connections_threshold         = var.rds_connections_threshold
