@@ -171,6 +171,11 @@ resource "aws_fis_experiment_template" "redis_failover" {
       value = "PT1M"
     }
 
+    parameter {
+      key   = "availabilityZoneIdentifier"
+      value = "ap-northeast-2a"
+    }
+
     target {
       key   = "ReplicationGroups"
       value = "redis-replication-group"
