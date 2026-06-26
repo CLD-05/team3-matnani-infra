@@ -275,7 +275,7 @@ variable "rds_cpu_threshold" {
 
 variable "rds_connections_threshold" {
   type    = number
-  default = 15
+  default = 70
 }
 
 variable "rds_read_latency_threshold" {
@@ -290,7 +290,7 @@ variable "rds_write_latency_threshold" {
 
 variable "rds_free_storage_threshold_bytes" {
   type    = number
-  default = 5368709120
+  default = 21474836480 # 20GB
 }
 
 variable "eks_node_cpu_threshold" {
