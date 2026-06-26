@@ -14,7 +14,7 @@
 # ─────────────────────────────────────────
 resource "aws_fis_experiment_template" "eks_node_terminate" {
   description = "[카오스] EKS 워커 노드 50% 강제 종료 → CA 자동 복구 확인"
-  role_arn    = aws_iam_role.fis.arn
+  role_arn    = data.aws_iam_role.fis.arn
 
   stop_condition {
     source = "none"
@@ -55,7 +55,7 @@ resource "aws_fis_experiment_template" "eks_node_terminate" {
 # ─────────────────────────────────────────
 resource "aws_fis_experiment_template" "rds_failover" {
   description = "[카오스] RDS Multi-AZ 장애 조치 → 스탠바이 승격 및 재연결 확인"
-  role_arn    = aws_iam_role.fis.arn
+  role_arn    = data.aws_iam_role.fis.arn
 
   stop_condition {
     source = "none"
@@ -97,7 +97,7 @@ resource "aws_fis_experiment_template" "rds_failover" {
 # ─────────────────────────────────────────
 resource "aws_fis_experiment_template" "cpu_stress" {
   description = "[카오스] EKS 노드 CPU 100% 60초 부하 → HPA/CA 반응 및 알람 확인"
-  role_arn    = aws_iam_role.fis.arn
+  role_arn    = data.aws_iam_role.fis.arn
 
   stop_condition {
     source = "none"
@@ -156,7 +156,7 @@ resource "aws_fis_experiment_template" "cpu_stress" {
 # ─────────────────────────────────────────
 resource "aws_fis_experiment_template" "redis_failover" {
   description = "[카오스] Redis primary AZ 장애 → 자동 failover 및 애플리케이션 재연결 확인"
-  role_arn    = aws_iam_role.fis.arn
+  role_arn    = data.aws_iam_role.fis.arn
 
   stop_condition {
     source = "none"
@@ -199,7 +199,7 @@ resource "aws_fis_experiment_template" "redis_failover" {
 # ─────────────────────────────────────────
 resource "aws_fis_experiment_template" "pod_delete" {
   description = "[카오스] matnani 네임스페이스 POD 전체 삭제 → Deployment 자동 재시작 확인"
-  role_arn    = aws_iam_role.fis.arn
+  role_arn    = data.aws_iam_role.fis.arn
 
   stop_condition {
     source = "none"
