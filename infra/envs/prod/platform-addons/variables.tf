@@ -30,8 +30,3 @@ variable "route53_zone_id" {
   type        = string
 }
 
-variable "grafana_admin_password" {
-  description = "SSM /matnani/prod/grafana-password 값"
-  type        = string
-  sensitive   = true
-}

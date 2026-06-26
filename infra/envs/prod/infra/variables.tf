@@ -243,19 +243,110 @@ variable "infra_repo" {
   type = string
 }
 
-# monitoring
-variable "prometheus_storage_class" {
-  type        = string
-  description = "gp2"
-}
-
 variable "log_retention_days" {
   description = "CloudWatch 로그 보존 기간 (dev: 3 / prod: 30)"
   type        = number
   default     = 30
 }
 
-variable "prometheus_storage_size" {
+variable "slack_workspace_id" {
   type        = string
-  description = "10Gi"
+  description = "팀 공용 슬랙 워크스페이스 ID"
+}
+
+variable "slack_channel_id" {
+  type        = string
+  description = "알림을 수신할 팀 공용 슬랙 채널 ID"
+}
+
+variable "chatbot_role_arn" {
+  description = "Amazon Q Developer가 사용할 기존 IAM Role ARN"
+  type        = string
+}
+
+variable "alb_dns_name" {
+  type        = string
+  description = "ALB DNS 이름"
+  default     = ""
+}
+
+variable "alb_name" {
+  type        = string
+  description = "ALB 이름"
+  default     = "team3-matnani-prod-alb"
+}
+
+# ALB 배포 후 자동 생성되는 target group 이름 (kubectl get ingress 또는 콘솔에서 확인)
+variable "alb_target_group_name" {
+  type        = string
+  description = "ALB Target Group 이름 — Ingress 배포 후 확인하여 입력"
+  default     = ""
+}
+
+# ElastiCache 배포 후 확인: aws elasticache describe-replication-groups
+variable "redis_cluster_id" {
+  type        = string
+  description = "ElastiCache 클러스터 ID — elasticache apply 후 확인하여 입력"
+  default     = ""
+}
+
+# ---- 모니터링 임계값 (prod 기준) ----
+variable "rds_cpu_threshold" {
+  type    = number
+  default = 70
+}
+
+variable "rds_connections_threshold" {
+  type    = number
+  default = 80
+}
+
+variable "rds_read_latency_threshold" {
+  type    = number
+  default = 0.1 # 100ms
+}
+
+variable "rds_write_latency_threshold" {
+  type    = number
+  default = 0.12 # 120ms
+}
+
+variable "rds_free_storage_threshold_bytes" {
+  type    = number
+  default = 32212254720 # 30GB
+}
+
+variable "eks_node_cpu_threshold" {
+  type    = number
+  default = 70
+}
+
+variable "eks_node_memory_threshold" {
+  type    = number
+  default = 80
+}
+
+variable "alb_request_count_threshold" {
+  type    = number
+  default = 70000
+}
+
+variable "alb_http_4xx_threshold" {
+  type    = number
+  default = 50
+}
+
+variable "alb_http_5xx_threshold" {
+  type    = number
+  default = 10
+}
+
+variable "nat_gw_connection_count_threshold" {
+  type    = number
+  default = 50000
+}
+
+variable "nat_gw_bytes_out_threshold" {
+  type    = number
+  default = 10737418240 # 10GB
 }
