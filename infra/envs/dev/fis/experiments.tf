@@ -78,7 +78,7 @@ resource "aws_fis_experiment_template" "rds_failover" {
 
   target {
     name           = "rds-instance"
-    resource_type  = "aws:rds:db-instances"
+    resource_type  = "aws:rds:db"
     selection_mode = "ALL"
     resource_arns  = [data.aws_db_instance.main.db_instance_arn]
   }
@@ -181,7 +181,11 @@ resource "aws_fis_experiment_template" "redis_failover" {
     name           = "redis-replication-group"
     resource_type  = "aws:elasticache:replicationgroup"
     selection_mode = "ALL"
-    resource_arns  = [data.aws_elasticache_replication_group.main.arn]
+
+    resource_tag {
+      key   = "Name"
+      value = "${local.prefix}-redis"
+    }
   }
 
   tags = {
