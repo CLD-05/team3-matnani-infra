@@ -13,7 +13,7 @@ module "network" {
   private_subnet_cidrs = var.private_cidrs
   db_subnet_cidrs      = var.isolated_cidrs
 
-  # prod: AZ별 NAT GW (가용성 확보)
+  # prod: AZ별 NAT GW
   single_nat_gateway = false
 }
 
@@ -41,7 +41,7 @@ module "eks" {
   kube_proxy_version         = var.kube_proxy_version
   ebs_csi_version            = var.ebs_csi_version
   pod_identity_agent_version = var.pod_identity_agent_version
-
+  ebs_csi_role_arn           = "arn:aws:iam::495599735720:role/team3-matnani-prod-ebs-csi-role"
   team_member_user_arns = var.team_member_user_arns
   gha_role_arn          = module.github_oidc.gha_prod_role_arn
 }
@@ -84,6 +84,7 @@ module "database" {
   vpc_id         = module.network.vpc_id
   db_subnet_ids  = module.network.db_subnet_ids
   eks_node_sg_id = module.eks.node_sg_id
+  eks_cluster_sg_id = module.eks.cluster_sg_id
   # prod: bastion → RDS 디버깅 허용
   bastion_sg_id  = module.bastion.security_group_id
 
@@ -112,7 +113,7 @@ module "elasticache" {
   vpc_id         = module.network.vpc_id
   subnet_ids     = module.network.db_subnet_ids
   eks_node_sg_id = module.eks.node_sg_id
-
+  eks_cluster_sg_id = module.eks.cluster_sg_id
   # prod: 멀티 노드, 장애조치 활성
   num_cache_clusters         = var.redis_num_nodes
   automatic_failover_enabled = var.redis_num_nodes > 1
@@ -134,11 +135,11 @@ module "ecr" {
 }
 
 module "cloudfront" {
-  source = "../../../modules/cloudfront"
-
-  team    = var.team
-  project = var.project
-  env     = var.env
+  source       = "../../../modules/cloudfront"
+  env          = var.env
+  team         = var.team
+  project      = var.project
+  alb_dns_name = var.alb_dns_name
 }
 
 module "github_oidc" {
@@ -147,44 +148,65 @@ module "github_oidc" {
   env     = var.env
   team    = var.team
   project = var.project
-
   github_org           = var.github_org
   app_repo             = var.app_repo
   infra_repo           = var.infra_repo
   ecr_repository_arns  = values(module.ecr.repository_arns)
   permissions_boundary = var.permissions_boundary
-
   frontend_bucket_arn         = module.cloudfront.frontend_bucket_arn
   cloudfront_distribution_arn = module.cloudfront.distribution_arn
 }
 
-# SSM에서 민감값 읽기 — prod 경로
-/*data "aws_ssm_parameter" "grafana_password" {
-  name            = "/team3/matnani/prod/grafana-password"
+# monitoring 모듈은 아래 리소스가 먼저 존재해야 적용 가능:
+#   1. EKS 클러스터 (kubernetes_manifest provider 연결)
+#   2. team3-matnani-prod-aiops-lambda-role (수동 생성 필요)
+#   3. ALB target group (Ingress 배포 후 자동 생성 → 이름 확인 후 var.alb_target_group_name 에 입력)
+#   4. ElastiCache (redis_cluster_id 확인 후 var.redis_cluster_id 에 입력)
+# 위 리소스 생성 완료 후 주석 해제하여 적용
+
+/*
+data "aws_ssm_parameter" "slack_webhook" {
+  name            = "/team3/matnani/prod/monitoring/slack-webhook"
   with_decryption = true
 }
 
-data "aws_ssm_parameter" "slack_workspace_id" {
-  name            = "/team3/matnani/prod/slack-workspace-id"
-  with_decryption = true
+data "aws_lb_target_group" "matnani" {
+  name = var.alb_target_group_name
 }
 
-data "aws_ssm_parameter" "slack_channel_id" {
-  name            = "/team3/matnani/prod/slack-channel-id"
-  with_decryption = true
-}*/
-
-/*module "monitoring" {
+module "monitoring" {
   source = "../../../modules/monitoring"
 
-  team        = var.team
-  project     = var.project
-  environment = var.env
+  team    = var.team
+  project = var.project
+  env     = var.env
 
-  # prod: 30일 보존
-  log_retention_days   = var.log_retention_days
-  slack_workspace_id   = data.aws_ssm_parameter.slack_workspace_id.value
-  slack_channel_id     = data.aws_ssm_parameter.slack_channel_id.value
-  rds_instance_id       = module.database.db_instance_id
-  permissions_boundary = var.permissions_boundary
-}*/
+  slack_workspace_id = var.slack_workspace_id
+  slack_channel_id   = var.slack_channel_id
+  chatbot_role_arn   = var.chatbot_role_arn
+  slack_webhook_url  = data.aws_ssm_parameter.slack_webhook.value
+
+  eks_cluster_name  = module.eks.cluster_name
+  rds_instance_id   = module.database.db_instance_id
+  alb_dns_name      = var.alb_dns_name
+  alb_name          = var.alb_name
+  target_group_name = data.aws_lb_target_group.matnani.name
+  nat_gateway_id    = module.network.nat_gateway_ids
+
+  redis_cluster_id            = var.redis_cluster_id
+  redis_connections_threshold = 80
+
+  rds_cpu_threshold                 = var.rds_cpu_threshold
+  rds_connections_threshold         = var.rds_connections_threshold
+  rds_read_latency_threshold        = var.rds_read_latency_threshold
+  rds_write_latency_threshold       = var.rds_write_latency_threshold
+  rds_free_storage_threshold_bytes  = var.rds_free_storage_threshold_bytes
+  eks_node_cpu_threshold            = var.eks_node_cpu_threshold
+  eks_node_memory_threshold         = var.eks_node_memory_threshold
+  alb_request_count_threshold       = var.alb_request_count_threshold
+  alb_http_4xx_threshold            = var.alb_http_4xx_threshold
+  alb_http_5xx_threshold            = var.alb_http_5xx_threshold
+  nat_gw_connection_count_threshold = var.nat_gw_connection_count_threshold
+  nat_gw_bytes_out_threshold        = var.nat_gw_bytes_out_threshold
+}
+*/

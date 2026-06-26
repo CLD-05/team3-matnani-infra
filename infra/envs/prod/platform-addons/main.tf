@@ -27,6 +27,24 @@
 # 현재 AWS 계정 정보 가져오기
 data "aws_caller_identity" "current" {}
 
+data "aws_ssm_parameter" "grafana_password" {
+  name            = "/team3/matnani/prod/grafana-password"
+  with_decryption = true
+}
+
+data "aws_ssm_parameter" "slack_webhook_url" {
+  name            = "/team3/matnani/prod/slack-webhook-url"
+  with_decryption = true
+}
+
+data "aws_iam_role" "grafana_cloudwatch" {
+  name = "${var.team}-${var.project}-${var.env}-grafana-cloudwatch-role"
+}
+
+data "aws_iam_role" "cluster_autoscaler" {
+  name = "${var.team}-${var.project}-${var.env}-cluster-autoscaler-role"
+}
+
 # 클러스터 뼈대 정보 직접 조회
 data "aws_eks_cluster" "cluster" {
   name = var.cluster_name
@@ -118,6 +136,10 @@ resource "aws_iam_role" "eso" {
   name                 = "${var.team}-${var.project}-${var.env}-eso-role"
   permissions_boundary = var.permissions_boundary
 
+  lifecycle {
+    ignore_changes = [assume_role_policy]
+  }
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -150,8 +172,12 @@ resource "aws_iam_role_policy" "eso_ssm" {
       Resource = "arn:aws:ssm:ap-northeast-2:*:parameter/matnani/prod/*"
     }]
   })
-}
 
+  lifecycle {
+    ignore_changes = [policy]
+  }
+}
+/*
 # 4. ExternalDNS
 resource "aws_iam_role" "external_dns" {
   name                 = "${var.team}-${var.project}-${var.env}-external-dns-role"
@@ -185,24 +211,27 @@ resource "aws_iam_role_policy" "external_dns_route53" {
       { Effect = "Allow", Action = ["route53:ListHostedZones", "route53:ListResourceRecordSets"], Resource = "*" }
     ]
   })
-}
+}*/
 
 
 # 3. modules/addons 호출
-
 module "addons" {
   source = "../../../modules/addons"
 
-  team                    = var.team
-  project                 = var.project
-  environment             = var.env
-  cluster_name            = local.cluster_name
-  cluster_endpoint        = local.cluster_endpoint
-  cluster_ca_certificate  = local.cluster_ca
-  vpc_id                  = local.vpc_id
+  team                   = var.team
+  project                = var.project
+  env                    = var.env
+  environment            = var.env
+  cluster_name           = local.cluster_name
+  cluster_endpoint       = local.cluster_endpoint
+  cluster_ca_certificate = local.cluster_ca
+  vpc_id                 = local.vpc_id
 
-  alb_controller_role_arn = aws_iam_role.alb_controller.arn
-  eso_role_arn            = aws_iam_role.eso.arn
-  external_dns_role_arn   = aws_iam_role.external_dns.arn
-  grafana_admin_password  = var.grafana_admin_password
+  alb_controller_role_arn     = aws_iam_role.alb_controller.arn
+  eso_role_arn                = aws_iam_role.eso.arn
+  external_dns_role_arn       = aws_iam_role.external_dns.arn
+  grafana_admin_password      = data.aws_ssm_parameter.grafana_password.value
+  grafana_cloudwatch_role_arn = data.aws_iam_role.grafana_cloudwatch.arn
+  cluster_autoscaler_role_arn = data.aws_iam_role.cluster_autoscaler.arn
+  slack_webhook_url           = data.aws_ssm_parameter.slack_webhook_url.value
 }
