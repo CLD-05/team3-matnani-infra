@@ -67,6 +67,17 @@ def analyze_alarm(sns_message):
                 "text": {
                     "type": "mrkdwn",
                     "text": (
+                        f"*상태:* {new_state}\n"
+                        f"*메트릭:* `{trigger.get('Namespace', '')} / {trigger.get('MetricName', '')}`\n"
+                        f"*임계값:* `{trigger.get('ComparisonOperator', '')} {trigger.get('Threshold', '')}`"
+                    )
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": (
                         "*조치 정책*\n"
                         "- 이 Lambda는 자동 복구를 실행하지 않습니다.\n"
                         "- 재시작, 롤백, 스케일링, 인프라 변경은 운영자 승인 후 수행해야 합니다."
