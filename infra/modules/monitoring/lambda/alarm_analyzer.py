@@ -64,10 +64,10 @@ Metric: {trigger.get("MetricName", "")} / {trigger.get("Namespace", "")}
 Threshold: {trigger.get("ComparisonOperator", "")} {trigger.get("Threshold", "")}
 
 Please answer in Korean using this format:
-1. Situation summary
-2. Likely causes
-3. Checks to perform now
-4. Operator-approved actions
+1. 상황 요약
+2. 가능성 높은 원인 후보
+3. 지금 확인할 항목
+4. 운영자 승인 후 가능한 조치
 """
 
     try:
@@ -100,7 +100,7 @@ def send_slack_message(alarm_name, alarm_description, reason, trigger, analysis)
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f"AIOps analysis: {alarm_name}"[:150],
+                    "text": f"AIOps 분석: {alarm_name}"[:150],
                 },
             },
             {
@@ -108,9 +108,9 @@ def send_slack_message(alarm_name, alarm_description, reason, trigger, analysis)
                 "text": {
                     "type": "mrkdwn",
                     "text": (
-                        f"*State:* ALARM\n"
-                        f"*Metric:* `{namespace} / {metric_name}`\n"
-                        f"*Threshold:* `{comparison} {threshold}`"
+                        f"*상태:* ALARM\n"
+                        f"*메트릭:* `{namespace} / {metric_name}`\n"
+                        f"*임계값:* `{comparison} {threshold}`"
                     ),
                 },
             },
@@ -118,14 +118,14 @@ def send_slack_message(alarm_name, alarm_description, reason, trigger, analysis)
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*Description*\n{alarm_description or '-'}",
+                    "text": f"*설명*\n{alarm_description or '-'}",
                 },
             },
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*Reason*\n{reason[:800] or '-'}",
+                    "text": f"*발생 원인*\n{reason[:800] or '-'}",
                 },
             },
             {"type": "divider"},
@@ -134,9 +134,9 @@ def send_slack_message(alarm_name, alarm_description, reason, trigger, analysis)
                 "text": {
                     "type": "mrkdwn",
                     "text": (
-                        "*Action policy*\n"
-                        "- This Lambda does not run automatic recovery.\n"
-                        "- Any restart, rollback, scaling, or infrastructure change requires operator approval."
+                        "*조치 정책*\n"
+                        "- 이 Lambda는 자동 복구를 실행하지 않습니다.\n"
+                        "- 재시작, 롤백, 스케일링, 인프라 변경은 운영자 승인 후 수행해야 합니다."
                     ),
                 },
             },
@@ -145,7 +145,7 @@ def send_slack_message(alarm_name, alarm_description, reason, trigger, analysis)
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*Claude diagnosis*\n{analysis[:2500]}",
+                    "text": f"*Claude 진단*\n{analysis[:2500]}",
                 },
             },
         ]
