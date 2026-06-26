@@ -1,7 +1,8 @@
 # infra/envs/dev/fis/iam.tf
 
 resource "aws_iam_role" "fis" {
-  name = "${local.prefix}-fis-role"
+  name                 = "${local.prefix}-fis-role"
+  permissions_boundary = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/TeamRuntimeBoundary"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
