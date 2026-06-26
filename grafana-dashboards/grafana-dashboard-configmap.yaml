@@ -1645,6 +1645,207 @@ data:
                                                "refId":  "A"
                                            }
                                        ]
+                       },
+                       {
+                           "type":  "row",
+                           "title":  "AIOps",
+                           "id":  31,
+                           "gridPos":  {
+                                           "h":  1,
+                                           "w":  24,
+                                           "x":  0,
+                                           "y":  74
+                                       },
+                           "collapsed":  false,
+                           "panels":  []
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "AIOps Lambda 실행 횟수",
+                           "id":  32,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  0,
+                                           "y":  75
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  []
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/Lambda",
+                                               "metricName":  "Invocations",
+                                               "dimensions":  {
+                                                                  "FunctionName":  "team3-matnani-dev-aiops-alarm-analyzer"
+                                                              },
+                                               "statistic":  "Sum",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "AIOps Lambda 에러 수",
+                           "id":  33,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  12,
+                                           "x":  12,
+                                           "y":  75
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "color":  {
+                                                                              "fixedColor":  "red",
+                                                                              "mode":  "fixed"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  []
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "",
+                                               "logGroups":  [],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/Lambda",
+                                               "metricName":  "Errors",
+                                               "dimensions":  {
+                                                                  "FunctionName":  "team3-matnani-dev-aiops-alarm-analyzer"
+                                                              },
+                                               "statistic":  "Sum",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
+                       },
+                       {
+                           "type":  "timeseries",
+                           "title":  "AIOps Lambda 실행 시간 (ms)",
+                           "id":  34,
+                           "gridPos":  {
+                                           "h":  8,
+                                           "w":  24,
+                                           "x":  0,
+                                           "y":  83
+                                       },
+                           "datasource":  {
+                                              "type":  "cloudwatch",
+                                              "uid":  "P034F075C744B399F"
+                                          },
+                           "fieldConfig":  {
+                                               "defaults":  {
+                                                                "unit":  "ms",
+                                                                "color":  {
+                                                                              "mode":  "palette-classic"
+                                                                          },
+                                                                "custom":  {
+                                                                               "lineWidth":  2,
+                                                                               "fillOpacity":  10
+                                                                           }
+                                                            },
+                                               "overrides":  []
+                                           },
+                           "options":  {
+                                           "tooltip":  {
+                                                           "mode":  "multi"
+                                                       },
+                                           "legend":  {
+                                                          "displayMode":  "list",
+                                                          "placement":  "bottom"
+                                                      }
+                                       },
+                           "targets":  [
+                                           {
+                                               "id":  "",
+                                               "label":  "평균",
+                                               "logGroups":  [],
+                                               "expression":  "",
+                                               "sqlExpression":  "",
+                                               "queryMode":  "Metrics",
+                                               "metricQueryType":  0,
+                                               "metricEditorMode":  0,
+                                               "datasource":  {
+                                                                  "type":  "cloudwatch",
+                                                                  "uid":  "P034F075C744B399F"
+                                                              },
+                                               "region":  "default",
+                                               "namespace":  "AWS/Lambda",
+                                               "metricName":  "Duration",
+                                               "dimensions":  {
+                                                                  "FunctionName":  "team3-matnani-dev-aiops-alarm-analyzer"
+                                                              },
+                                               "statistic":  "Average",
+                                               "period":  "",
+                                               "matchExact":  true,
+                                               "refId":  "A"
+                                           }
+                                       ]
                        }
                    ]
     }
