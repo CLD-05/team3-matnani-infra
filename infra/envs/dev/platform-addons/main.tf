@@ -215,6 +215,10 @@ data "aws_iam_role" "grafana_cloudwatch" {
   name = "${var.team}-${var.project}-${var.env}-grafana-cloudwatch-role"
 }
 
+data "aws_iam_role" "cluster_autoscaler" {
+  name = "${var.team}-${var.project}-${var.env}-cluster-autoscaler-role"
+}
+
 
 # 3. modules/addons 호출
 
@@ -230,10 +234,11 @@ module "addons" {
 
   vpc_id = local.vpc_id
 
-  alb_controller_role_arn      = aws_iam_role.alb_controller.arn
-  eso_role_arn                 = aws_iam_role.eso.arn
-  external_dns_role_arn        = ""
-  grafana_admin_password       = data.aws_ssm_parameter.grafana_password.value
-  grafana_cloudwatch_role_arn  = data.aws_iam_role.grafana_cloudwatch.arn
-  slack_webhook_url            = data.aws_ssm_parameter.slack_webhook_url.value
+  alb_controller_role_arn     = aws_iam_role.alb_controller.arn
+  eso_role_arn                = aws_iam_role.eso.arn
+  external_dns_role_arn       = ""
+  grafana_admin_password      = data.aws_ssm_parameter.grafana_password.value
+  grafana_cloudwatch_role_arn = data.aws_iam_role.grafana_cloudwatch.arn
+  cluster_autoscaler_role_arn = data.aws_iam_role.cluster_autoscaler.arn
+  slack_webhook_url           = data.aws_ssm_parameter.slack_webhook_url.value
 }
