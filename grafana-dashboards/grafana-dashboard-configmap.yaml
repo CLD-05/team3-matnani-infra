@@ -716,8 +716,24 @@ data:
                                                                           },
                                                                 "custom":  {
                                                                                "lineWidth":  2,
-                                                                               "fillOpacity":  10
-                                                                           }
+                                                                               "fillOpacity":  10,
+                                                                               "thresholdsStyle":  {
+                                                                                                       "mode":  "line"
+                                                                                                   }
+                                                                           },
+                                                                "thresholds":  {
+                                                                    "mode":  "absolute",
+                                                                    "steps":  [
+                                                                                   {
+                                                                                       "color":  "green",
+                                                                                       "value":  null
+                                                                                   },
+                                                                                   {
+                                                                                       "color":  "red",
+                                                                                       "value":  75
+                                                                                   }
+                                                                              ]
+                                                                }
                                                             },
                                                "overrides":  [
     
@@ -783,8 +799,24 @@ data:
                                                                           },
                                                                 "custom":  {
                                                                                "lineWidth":  2,
-                                                                               "fillOpacity":  10
-                                                                           }
+                                                                               "fillOpacity":  10,
+                                                                               "thresholdsStyle":  {
+                                                                                                       "mode":  "line"
+                                                                                                   }
+                                                                           },
+                                                                "thresholds":  {
+                                                                    "mode":  "absolute",
+                                                                    "steps":  [
+                                                                                   {
+                                                                                       "color":  "green",
+                                                                                       "value":  null
+                                                                                   },
+                                                                                   {
+                                                                                       "color":  "red",
+                                                                                       "value":  70
+                                                                                   }
+                                                                              ]
+                                                                }
                                                             },
                                                "overrides":  [
     
@@ -850,8 +882,24 @@ data:
                                                                           },
                                                                 "custom":  {
                                                                                "lineWidth":  2,
-                                                                               "fillOpacity":  10
-                                                                           }
+                                                                               "fillOpacity":  10,
+                                                                               "thresholdsStyle":  {
+                                                                                                       "mode":  "line"
+                                                                                                   }
+                                                                           },
+                                                                "thresholds":  {
+                                                                    "mode":  "absolute",
+                                                                    "steps":  [
+                                                                                   {
+                                                                                       "color":  "green",
+                                                                                       "value":  null
+                                                                                   },
+                                                                                   {
+                                                                                       "color":  "red",
+                                                                                       "value":  21474836480
+                                                                                   }
+                                                                              ]
+                                                                }
                                                             },
                                                "overrides":  [
     
@@ -917,8 +965,24 @@ data:
                                                                           },
                                                                 "custom":  {
                                                                                "lineWidth":  2,
-                                                                               "fillOpacity":  10
-                                                                           }
+                                                                               "fillOpacity":  10,
+                                                                               "thresholdsStyle":  {
+                                                                                                       "mode":  "line"
+                                                                                                   }
+                                                                           },
+                                                                "thresholds":  {
+                                                                    "mode":  "absolute",
+                                                                    "steps":  [
+                                                                                   {
+                                                                                       "color":  "green",
+                                                                                       "value":  null
+                                                                                   },
+                                                                                   {
+                                                                                       "color":  "red",
+                                                                                       "value":  0.1
+                                                                                   }
+                                                                              ]
+                                                                }
                                                             },
                                                "overrides":  [
     
@@ -984,8 +1048,24 @@ data:
                                                                           },
                                                                 "custom":  {
                                                                                "lineWidth":  2,
-                                                                               "fillOpacity":  10
-                                                                           }
+                                                                               "fillOpacity":  10,
+                                                                               "thresholdsStyle":  {
+                                                                                                       "mode":  "line"
+                                                                                                   }
+                                                                           },
+                                                                "thresholds":  {
+                                                                    "mode":  "absolute",
+                                                                    "steps":  [
+                                                                                   {
+                                                                                       "color":  "green",
+                                                                                       "value":  null
+                                                                                   },
+                                                                                   {
+                                                                                       "color":  "red",
+                                                                                       "value":  0.12
+                                                                                   }
+                                                                              ]
+                                                                }
                                                             },
                                                "overrides":  [
     
@@ -1167,11 +1247,11 @@ data:
                                                                                                  },
                                                                                                  {
                                                                                                      "color":  "yellow",
-                                                                                                     "value":  10
+                                                                                                     "value":  50
                                                                                                  },
                                                                                                  {
                                                                                                      "color":  "red",
-                                                                                                     "value":  50
+                                                                                                     "value":  70
                                                                                                  }
                                                                                              ]
                                                                                }
@@ -1322,8 +1402,24 @@ data:
                                                                           },
                                                                 "custom":  {
                                                                                "lineWidth":  2,
-                                                                               "fillOpacity":  10
-                                                                           }
+                                                                               "fillOpacity":  10,
+                                                                               "thresholdsStyle":  {
+                                                                                                       "mode":  "line"
+                                                                                                   }
+                                                                           },
+                                                                "thresholds":  {
+                                                                    "mode":  "absolute",
+                                                                    "steps":  [
+                                                                                   {
+                                                                                       "color":  "green",
+                                                                                       "value":  null
+                                                                                   },
+                                                                                   {
+                                                                                       "color":  "red",
+                                                                                       "value":  1
+                                                                                   }
+                                                                              ]
+                                                                }
                                                             },
                                                "overrides":  [
     
@@ -1389,8 +1485,24 @@ data:
                                                                           },
                                                                 "custom":  {
                                                                                "lineWidth":  2,
-                                                                               "fillOpacity":  10
-                                                                           }
+                                                                               "fillOpacity":  10,
+                                                                               "thresholdsStyle":  {
+                                                                                                       "mode":  "line"
+                                                                                                   }
+                                                                           },
+                                                                "thresholds":  {
+                                                                    "mode":  "absolute",
+                                                                    "steps":  [
+                                                                                   {
+                                                                                       "color":  "green",
+                                                                                       "value":  null
+                                                                                   },
+                                                                                   {
+                                                                                       "color":  "red",
+                                                                                       "value":  10
+                                                                                   }
+                                                                              ]
+                                                                }
                                                             },
                                                "overrides":  [
     
@@ -1456,8 +1568,24 @@ data:
                                                                           },
                                                                 "custom":  {
                                                                                "lineWidth":  2,
-                                                                               "fillOpacity":  10
-                                                                           }
+                                                                               "fillOpacity":  10,
+                                                                               "thresholdsStyle":  {
+                                                                                                       "mode":  "line"
+                                                                                                   }
+                                                                           },
+                                                                "thresholds":  {
+                                                                    "mode":  "absolute",
+                                                                    "steps":  [
+                                                                                   {
+                                                                                       "color":  "green",
+                                                                                       "value":  null
+                                                                                   },
+                                                                                   {
+                                                                                       "color":  "red",
+                                                                                       "value":  50
+                                                                                   }
+                                                                              ]
+                                                                }
                                                             },
                                                "overrides":  [
     
