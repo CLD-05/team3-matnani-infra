@@ -157,22 +157,22 @@ module "github_oidc" {
   cloudfront_distribution_arn = module.cloudfront.distribution_arn
 }
 
-# monitoring 모듈은 아래 리소스가 먼저 존재해야 적용 가능:
-#   1. EKS 클러스터 (kubernetes_manifest provider 연결)
-#   2. team3-matnani-prod-aiops-lambda-role (수동 생성 필요)
-#   3. ALB target group (Ingress 배포 후 자동 생성 → 이름 확인 후 var.alb_target_group_name 에 입력)
-#   4. ElastiCache (redis_cluster_id 확인 후 var.redis_cluster_id 에 입력)
-# 위 리소스 생성 완료 후 주석 해제하여 적용
+# Prod 모니터링 1단계:
+# CloudWatch 알람 → SNS → Amazon Q Developer → Slack 파이프라인을 활성화합니다.
+# AIOps와 ALB 알람, EKS 내부 리소스는 각 선행 리소스가 준비된 뒤 별도로 활성화합니다.
 
-/*
+/* AIOps 활성화 시 주석을 해제하고 module.monitoring에 값을 전달합니다.
 data "aws_ssm_parameter" "slack_webhook" {
   name            = "/team3/matnani/prod/monitoring/slack-webhook"
   with_decryption = true
 }
+*/
 
+/* ALB Ingress 배포 후 ALB 알람을 활성화할 때 사용합니다.
 data "aws_lb_target_group" "matnani" {
   name = var.alb_target_group_name
 }
+*/
 
 module "monitoring" {
   source = "../../../modules/monitoring"
@@ -184,16 +184,19 @@ module "monitoring" {
   slack_workspace_id = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
   chatbot_role_arn   = var.chatbot_role_arn
-  slack_webhook_url  = data.aws_ssm_parameter.slack_webhook.value
+
+  enable_cluster_resources = false
+  enable_aiops             = false
+  enable_alb_alarms        = false
+  log_retention_days       = var.log_retention_days
 
   eks_cluster_name  = module.eks.cluster_name
   rds_instance_id   = module.database.db_instance_id
   alb_dns_name      = var.alb_dns_name
   alb_name          = var.alb_name
-  target_group_name = data.aws_lb_target_group.matnani.name
   nat_gateway_id    = module.network.nat_gateway_ids
 
-  redis_cluster_id            = var.redis_cluster_id
+  redis_cluster_id            = "${module.elasticache.redis_replication_group_id}-001"
   redis_connections_threshold = 80
 
   rds_cpu_threshold                 = var.rds_cpu_threshold
@@ -209,4 +212,3 @@ module "monitoring" {
   nat_gw_connection_count_threshold = var.nat_gw_connection_count_threshold
   nat_gw_bytes_out_threshold        = var.nat_gw_bytes_out_threshold
 }
-*/

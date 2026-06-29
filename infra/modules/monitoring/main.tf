@@ -3,10 +3,12 @@
 # 로그 및 알람 파이프라인
 resource "aws_cloudwatch_log_group" "eks_logs" {
   name              = "/aws/eks/team3-matnani-${var.env}/application"
-  retention_in_days = 3
+  retention_in_days = var.log_retention_days
 }
 
 resource "helm_release" "fluent_bit" {
+  count = var.enable_cluster_resources ? 1 : 0
+
   name       = "team3-matnani-${var.env}-fluent-bit"
   repository = "https://aws.github.io/eks-charts"
   chart      = "aws-for-fluent-bit"
@@ -32,6 +34,8 @@ resource "aws_sns_topic" "matnani_alerts" {
 # ======== AIOps — Bedrock Claude 장애 자동 분석 ========
 
 data "archive_file" "aiops_lambda" {
+  count = var.enable_aiops ? 1 : 0
+
   type        = "zip"
   source_file = "${path.module}/lambda/alarm_analyzer.py"
   output_path = "${path.module}/lambda/alarm_analyzer.zip"
@@ -39,14 +43,18 @@ data "archive_file" "aiops_lambda" {
 
 # IAM Role은 Permissions Boundary 제약으로 AWS CLI로 사전 생성
 data "aws_iam_role" "aiops_lambda" {
+  count = var.enable_aiops ? 1 : 0
+
   name = "team3-matnani-${var.env}-aiops-lambda-role"
 }
 
 resource "aws_lambda_function" "aiops" {
+  count = var.enable_aiops ? 1 : 0
+
   function_name    = "team3-matnani-${var.env}-aiops-alarm-analyzer"
-  role             = data.aws_iam_role.aiops_lambda.arn
-  filename         = data.archive_file.aiops_lambda.output_path
-  source_code_hash = data.archive_file.aiops_lambda.output_base64sha256
+  role             = data.aws_iam_role.aiops_lambda[0].arn
+  filename         = data.archive_file.aiops_lambda[0].output_path
+  source_code_hash = data.archive_file.aiops_lambda[0].output_base64sha256
   handler          = "alarm_analyzer.lambda_handler"
   runtime          = "python3.12"
   timeout          = 30
@@ -59,22 +67,26 @@ resource "aws_lambda_function" "aiops" {
 }
 
 resource "aws_lambda_permission" "aiops_sns" {
+  count = var.enable_aiops ? 1 : 0
+
   statement_id  = "AllowSNSInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.aiops.function_name
+  function_name = aws_lambda_function.aiops[0].function_name
   principal     = "sns.amazonaws.com"
   source_arn    = aws_sns_topic.matnani_alerts.arn
 }
 
 resource "aws_sns_topic_subscription" "aiops_lambda" {
+  count = var.enable_aiops ? 1 : 0
+
   topic_arn = aws_sns_topic.matnani_alerts.arn
   protocol  = "lambda"
-  endpoint  = aws_lambda_function.aiops.arn
+  endpoint  = aws_lambda_function.aiops[0].arn
 }
 
 # Amazon Q Developer in chat applications가 SNS 알림을 Slack으로 전달합니다.
 resource "aws_chatbot_slack_channel_configuration" "matnani_slack" {
-  configuration_name = "team3-matnani-slack-alerts"
+  configuration_name = var.env == "dev" ? "${var.team}-${var.project}-slack-alerts" : "${var.team}-${var.project}-${var.env}-slack-alerts"
   iam_role_arn       = var.chatbot_role_arn
   slack_team_id      = var.slack_workspace_id
   slack_channel_id   = var.slack_channel_id
@@ -115,7 +127,7 @@ resource "aws_iam_role_policy_attachment" "chatbot_sns_access" {
 # RDS CPU 사용률
 resource "aws_cloudwatch_metric_alarm" "rds_cpu_high" {
   alarm_name          = "team3-matnani-${var.env}-rds-cpu-high"
-  alarm_description   = "RDS CPU utilization exceeded 80% for 2 minutes"
+  alarm_description   = "RDS CPU utilization exceeded ${var.rds_cpu_threshold}% for 4 minutes"
   comparison_operator = "GreaterThanThreshold"
   threshold           = var.rds_cpu_threshold
   metric_name         = "CPUUtilization"
@@ -226,7 +238,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_bytes_out_to_destination" {
   alarm_name          = "team3-matnani-${var.env}-nat-gw-bytes-out"
   metric_name         = "BytesOutToDestination"
   namespace           = "AWS/NatGateway"
-  threshold           = "10737418240"
+  threshold           = var.nat_gw_bytes_out_threshold
   comparison_operator = "GreaterThanThreshold"
   period              = "300"
   evaluation_periods  = "2"
@@ -313,6 +325,8 @@ resource "aws_cloudwatch_metric_alarm" "eks_node_memory" {
 
 # ALB 타겟 응답시간 (성능)
 resource "aws_cloudwatch_metric_alarm" "alb_target_response_time" {
+  count = var.enable_alb_alarms ? 1 : 0
+
   alarm_name          = "team3-matnani-${var.env}-alb-response-time"
   metric_name         = "TargetResponseTime"
   namespace           = "AWS/ApplicationELB"
@@ -328,6 +342,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_target_response_time" {
 
 # ALB HTTP 5XX 에러
 resource "aws_cloudwatch_metric_alarm" "alb_http_5xx" {
+  count = var.enable_alb_alarms ? 1 : 0
+
   alarm_name          = "team3-matnani-${var.env}-alb-http-5xx"
   metric_name         = "HTTPCode_Target_5XX_Count"
   namespace           = "AWS/ApplicationELB"
@@ -343,6 +359,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_http_5xx" {
 
 # ALB HTTP 4XX 에러
 resource "aws_cloudwatch_metric_alarm" "alb_http_4xx" {
+  count = var.enable_alb_alarms ? 1 : 0
+
   alarm_name          = "team3-matnani-${var.env}-alb-http-4xx"
   metric_name         = "HTTPCode_Target_4XX_Count"
   namespace           = "AWS/ApplicationELB"
@@ -358,6 +376,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_http_4xx" {
 
 # ALB 언헬시 호스트
 resource "aws_cloudwatch_metric_alarm" "alb_unhealthy_hosts" {
+  count = var.enable_alb_alarms ? 1 : 0
+
   alarm_name          = "team3-matnani-${var.env}-alb-unhealthy-hosts"
   metric_name         = "UnHealthyHostCount"
   namespace           = "AWS/ApplicationELB"
@@ -376,6 +396,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy_hosts" {
 
 # ALB 요청 수 (부하 지표)
 resource "aws_cloudwatch_metric_alarm" "alb_request_count" {
+  count = var.enable_alb_alarms ? 1 : 0
+
   alarm_name          = "team3-matnani-${var.env}-alb-request-count"
   metric_name         = "RequestCount"
   namespace           = "AWS/ApplicationELB"

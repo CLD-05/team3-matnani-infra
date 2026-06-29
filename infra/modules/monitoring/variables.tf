@@ -36,6 +36,30 @@ variable "chatbot_role_arn" {
   type        = string
 }
 
+variable "enable_cluster_resources" {
+  description = "Fluent Bit과 ServiceMonitor 등 EKS 내부 리소스 생성 여부"
+  type        = bool
+  default     = true
+}
+
+variable "enable_aiops" {
+  description = "SNS 알림을 분석하는 AIOps Lambda 생성 여부"
+  type        = bool
+  default     = true
+}
+
+variable "enable_alb_alarms" {
+  description = "ALB와 Target Group이 준비된 뒤 ALB 알람을 생성할지 여부"
+  type        = bool
+  default     = true
+}
+
+variable "log_retention_days" {
+  description = "CloudWatch EKS 애플리케이션 로그 보존 기간"
+  type        = number
+  default     = 3
+}
+
 # 통합 관제를 위한 리소스 식별자 변수
 variable "rds_instance_id" {
   description = "감시할 RDS 인스턴스 ID"
@@ -103,6 +127,7 @@ variable "permissions_boundary" {
 variable "target_group_name" {
   description = "Target Group Name"
   type        = string
+  default     = ""
 }
 
 # ---- RDS ----
@@ -190,4 +215,5 @@ variable "slack_webhook_url" {
   description = "Slack Incoming Webhook URL — Lambda AIOps 알림 전송용"
   type        = string
   sensitive   = true
+  default     = ""
 }
