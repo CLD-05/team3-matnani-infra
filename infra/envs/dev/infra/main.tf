@@ -28,6 +28,7 @@ module "eks" {
 
   vpc_id             = module.network.vpc_id
   private_subnet_ids = module.network.private_subnet_ids
+  network_ready      = module.network.public_internet_route_id
 
   # dev: 퍼블릭 API 접근 허용
   endpoint_public_access = true
@@ -228,8 +229,8 @@ module "monitoring" {
   permissions_boundary   = var.permissions_boundary
   */
 
-  redis_cluster_id             = "${module.elasticache.redis_replication_group_id}-001"
-  redis_connections_threshold  = 70
+  redis_cluster_id            = "${module.elasticache.redis_replication_group_id}-001"
+  redis_connections_threshold = 70
 
   rds_cpu_threshold                 = var.rds_cpu_threshold
   rds_connections_threshold         = var.rds_connections_threshold

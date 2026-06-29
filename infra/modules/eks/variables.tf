@@ -34,6 +34,11 @@ variable "private_subnet_ids" {
   type        = list(string)
 }
 
+variable "network_ready" {
+  description = "EKS 노드 생성 전에 준비되어야 하는 public internet route ID"
+  type        = string
+}
+
 
 
 # EKS 클러스터 설정

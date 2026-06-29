@@ -50,3 +50,9 @@ variable "cloudfront_distribution_arn" {
   description = "CloudFront 캐시 무효화 대상 배포 ARN — cloudfront 모듈 output 참조"
   type        = string
 }
+
+variable "manage_infra_roles" {
+  description = "공용 Dev/Prod Terraform 실행 Role을 이 state에서 관리할지 여부"
+  type        = bool
+  default     = true
+}

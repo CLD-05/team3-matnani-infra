@@ -106,6 +106,13 @@ resource "aws_route_table" "public" {
   })
 }
 
+# Public subnet과 NAT Gateway가 인터넷에 연결되도록 IGW 기본 경로를 추가합니다.
+resource "aws_route" "public_igw_access" {
+  route_table_id         = aws_route_table.public[0].id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.this.id
+}
+
 resource "aws_route" "private_nat_access" {
   count                  = var.enable_nat ? length(var.azs) : 0
   route_table_id         = aws_route_table.private[count.index].id
