@@ -173,7 +173,7 @@ resource "aws_fis_experiment_template" "redis_failover" {
 
     parameter {
       key   = "availabilityZoneIdentifier"
-      value = "ap-northeast-2a"
+      value = "apne2-az1"
     }
 
     target {
