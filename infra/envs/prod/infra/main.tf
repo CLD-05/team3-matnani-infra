@@ -41,7 +41,7 @@ module "eks" {
   kube_proxy_version         = var.kube_proxy_version
   ebs_csi_version            = var.ebs_csi_version
   pod_identity_agent_version = var.pod_identity_agent_version
-  ebs_csi_role_arn           = "arn:aws:iam::495599735720:role/team3-matnani-prod-ebs-csi-role"
+  # ebs_csi_role_arn = "arn:aws:iam::495599735720:role/team3-matnani-prod-ebs-csi-role"  # platform-addons 적용 후 주석 해제
   team_member_user_arns = var.team_member_user_arns
   gha_role_arn          = module.github_oidc.gha_prod_role_arn
 }

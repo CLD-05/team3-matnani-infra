@@ -1,3 +1,4 @@
+# infra/envs/prod/infra/variables.tf
 # TF_VAR_db_username / TF_VAR_db_password 환경변수로 주입
 # prod에서는 AWS Secrets Manager 또는 SSM Parameter Store 사용 권장
 
@@ -40,13 +41,13 @@ variable "db_instance_class" {
 variable "create_read_replica" {
   description = "Read Replica 생성 여부"
   type        = bool
-  default     = true  # ReadReplica=true 로 설정
+  default     = true
 }
 
 variable "replica_instance_class" {
   description = "Read Replica 인스턴스 타입"
   type        = string
-  default     = "db.t3.large"
+  default     = "db.m6i.large"
 }
 
 variable "allocated_storage" {
@@ -113,8 +114,8 @@ variable "redis_transit_encryption" {
 
 variable "redis_apply_immediately" {
   type        = bool
-  description = "설정 변경 사항 즉시 반영 여부 (prod 환경은 정기 점검 시 반영 권장)"
-  default     = false
+  description = "설정 변경 사항 즉시 반영 여부"
+  default     = true
 }
 
 variable "redis_automatic_failover_enabled" {
@@ -158,7 +159,6 @@ variable "isolated_cidrs" {
 
 
 # EKS
-
 variable "node_instance_type" {
   type    = list(string)
   default = ["m6i.large"]
@@ -179,42 +179,42 @@ variable "node_desired" {
   default = 4
 }
 
+
 # EKS 클러스터 필수 애드온 버전 관리
 variable "vpc_cni_version" {
   type    = string
-  default = "v1.19.3-eksbuild.1"
+  default = "v1.22.1-eksbuild.2"
 }
 
 variable "coredns_version" {
   type    = string
-  default = "v1.11.4-eksbuild.2"
+  default = "v1.14.3-eksbuild.2"
 }
 
 variable "kube_proxy_version" {
   type    = string
-  default = "v1.32.3-eksbuild.2"
+  default = "v1.35.3-eksbuild.11"
 }
 
 variable "ebs_csi_version" {
   type    = string
-  default = "v1.41.0-eksbuild.1"
+  default = "v1.61.1-eksbuild.1"
 }
 
 variable "pod_identity_agent_version" {
   type    = string
-  default = "v1.3.4-eksbuild.1"
+  default = "v1.3.10-eksbuild.3"
 }
 
 variable "endpoint_public_access" {
-  description = "prod: false (퍼블릭 API 접근 차단)"
+  description = "초기 구축 시 true, 노드 합류 확인 후 false로 변경"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "team_member_user_arns" {
   description = "EKS Access Entry 팀원 IAM 유저 ARN 맵"
   type        = map(string)
-  default     = {}
 }
 
 # Bastion
@@ -228,11 +228,6 @@ variable "github_org" {
   description = "GitHub 조직명 또는 사용자명"
 }
 
-variable "github_repo" {
-  type        = string
-  description = "GitHub 레포지토리명"
-}
-
 variable "app_repo" {
   type        = string
   description = "앱 소스 레포지토리명"
@@ -241,6 +236,7 @@ variable "app_repo" {
 
 variable "infra_repo" {
   type = string
+  description = "인프라 관리 레포지토리명"
 }
 
 variable "log_retention_days" {
@@ -266,13 +262,12 @@ variable "chatbot_role_arn" {
 
 variable "alb_dns_name" {
   type        = string
-  description = "ALB DNS 이름"
-  default     = ""
+  description = "ALB DNS name"
 }
 
 variable "alb_name" {
   type        = string
-  description = "ALB 이름"
+  description = "ALB dns name"
   default     = "team3-matnani-prod-alb"
 }
 

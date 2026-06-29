@@ -53,16 +53,19 @@ resource "aws_cloudfront_distribution" "this" {
     origin_access_control_id = aws_cloudfront_origin_access_control.image.id
   }
 
-  # ALB (백엔드)
-  origin {
-    domain_name = var.alb_dns_name
-    origin_id   = "ALB-Backend"
+  # ALB (백엔드) — alb_dns_name이 설정된 경우에만 생성
+  dynamic "origin" {
+    for_each = var.alb_dns_name != "" ? [1] : []
+    content {
+      domain_name = var.alb_dns_name
+      origin_id   = "ALB-Backend"
 
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "http-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
+      custom_origin_config {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "http-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
     }
   }
 
@@ -96,18 +99,21 @@ resource "aws_cloudfront_distribution" "this" {
     max_ttl                = 31536000
   }
 
-  # 백엔드 API 라우팅 (/api/*)
-  ordered_cache_behavior {
-    path_pattern     = "/api/*"
-    target_origin_id = "ALB-Backend"
+  # 백엔드 API 라우팅 (/api/*) — ALB가 있을 때만 생성
+  dynamic "ordered_cache_behavior" {
+    for_each = var.alb_dns_name != "" ? [1] : []
+    content {
+      path_pattern     = "/api/*"
+      target_origin_id = "ALB-Backend"
 
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods   = ["GET", "HEAD"]
+      allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+      cached_methods  = ["GET", "HEAD"]
 
-    cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
-    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer.id
+      cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
+      origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer.id
 
-    viewer_protocol_policy = "redirect-to-https"
+      viewer_protocol_policy = "redirect-to-https"
+    }
   }
 
   # S3 프론트엔드 라우팅
