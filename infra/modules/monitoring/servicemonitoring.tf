@@ -2,6 +2,8 @@
 
 # 백엔드 앱용 ServiceMonitor
 resource "kubernetes_manifest" "backend_service_monitor" {
+  count = var.enable_cluster_resources ? 1 : 0
+
   manifest = {
     apiVersion = "monitoring.coreos.com/v1"
     kind       = "ServiceMonitor"
