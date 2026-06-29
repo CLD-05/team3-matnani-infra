@@ -17,7 +17,18 @@ resource "aws_fis_experiment_template" "eks_node_terminate" {
   role_arn    = data.aws_iam_role.fis.arn
 
   stop_condition {
-    source = "none"
+    source = "aws:cloudwatch:alarm"
+    value  = aws_cloudwatch_metric_alarm.fis_eks_node_count.arn
+  }
+
+  stop_condition {
+    source = "aws:cloudwatch:alarm"
+    value  = aws_cloudwatch_metric_alarm.fis_alb_5xx.arn
+  }
+
+  stop_condition {
+    source = "aws:cloudwatch:alarm"
+    value  = aws_cloudwatch_metric_alarm.fis_alb_p95_latency.arn
   }
 
   action {
@@ -58,7 +69,13 @@ resource "aws_fis_experiment_template" "rds_failover" {
   role_arn    = data.aws_iam_role.fis.arn
 
   stop_condition {
-    source = "none"
+    source = "aws:cloudwatch:alarm"
+    value  = aws_cloudwatch_metric_alarm.fis_alb_5xx.arn
+  }
+
+  stop_condition {
+    source = "aws:cloudwatch:alarm"
+    value  = aws_cloudwatch_metric_alarm.fis_alb_p95_latency.arn
   }
 
   action {
@@ -100,7 +117,13 @@ resource "aws_fis_experiment_template" "cpu_stress" {
   role_arn    = data.aws_iam_role.fis.arn
 
   stop_condition {
-    source = "none"
+    source = "aws:cloudwatch:alarm"
+    value  = aws_cloudwatch_metric_alarm.fis_alb_5xx.arn
+  }
+
+  stop_condition {
+    source = "aws:cloudwatch:alarm"
+    value  = aws_cloudwatch_metric_alarm.fis_alb_p95_latency.arn
   }
 
   action {
@@ -141,6 +164,11 @@ resource "aws_fis_experiment_template" "cpu_stress" {
       key   = "eks:cluster-name"
       value = data.terraform_remote_state.infra.outputs.cluster_name
     }
+
+    resource_tag {
+      key   = "Team"
+      value = var.team
+    }
   }
 
   tags = {
@@ -161,7 +189,13 @@ resource "aws_fis_experiment_template" "pod_delete" {
   role_arn    = data.aws_iam_role.fis.arn
 
   stop_condition {
-    source = "none"
+    source = "aws:cloudwatch:alarm"
+    value  = aws_cloudwatch_metric_alarm.fis_alb_5xx.arn
+  }
+
+  stop_condition {
+    source = "aws:cloudwatch:alarm"
+    value  = aws_cloudwatch_metric_alarm.fis_alb_p95_latency.arn
   }
 
   action {
