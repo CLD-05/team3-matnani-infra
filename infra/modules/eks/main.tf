@@ -180,6 +180,13 @@ resource "aws_eks_node_group" "this" {
     "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
   })
 
+  lifecycle {
+    precondition {
+      condition     = var.network_ready != ""
+      error_message = "Public subnet Internet Gateway route must exist before creating EKS nodes."
+    }
+  }
+
   depends_on = [
     aws_iam_role_policy_attachment.node_worker,
     aws_iam_role_policy_attachment.node_cni,
@@ -231,7 +238,7 @@ resource "aws_eks_addon" "ebs_csi" {
   cluster_name                = aws_eks_cluster.this.name
   addon_name                  = "aws-ebs-csi-driver"
   addon_version               = var.ebs_csi_version
-  service_account_role_arn    = var.ebs_csi_role_arn
+  service_account_role_arn = var.ebs_csi_role_arn != "" ? var.ebs_csi_role_arn : null
   resolve_conflicts_on_update = "OVERWRITE"
 
   tags = local.common_tags
