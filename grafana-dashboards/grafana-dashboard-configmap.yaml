@@ -636,8 +636,6 @@ data:
                        },
                        {
                            "type":  "row",
-                       {
-                           "type":  "row",
                            "title":  "RDS",
                            "id":  4,
                            "gridPos":  {
