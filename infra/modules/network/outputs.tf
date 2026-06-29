@@ -28,3 +28,8 @@ output "nat_gateway_ids" {
   value       = aws_nat_gateway.this[*].id
 }
 
+output "public_internet_route_id" {
+  description = "Public subnet Internet Gateway route ID"
+  value       = aws_route.public_igw_access.id
+}
+

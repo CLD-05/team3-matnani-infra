@@ -207,9 +207,9 @@ variable "pod_identity_agent_version" {
 }
 
 variable "endpoint_public_access" {
-  description = "초기 구축 시 true, 노드 합류 확인 후 false로 변경"
+  description = "EKS API public endpoint 활성화 여부 — 초기 구축 시에만 true"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "team_member_user_arns" {
@@ -263,6 +263,7 @@ variable "chatbot_role_arn" {
 variable "alb_dns_name" {
   type        = string
   description = "ALB DNS name"
+  default     = ""
 }
 
 variable "alb_name" {

@@ -54,6 +54,12 @@ variable "enable_alb_alarms" {
   default     = true
 }
 
+variable "enable_eks_alarms" {
+  description = "Container Insights 지표 기반 EKS 노드 알람 생성 여부"
+  type        = bool
+  default     = true
+}
+
 variable "log_retention_days" {
   description = "CloudWatch EKS 애플리케이션 로그 보존 기간"
   type        = number

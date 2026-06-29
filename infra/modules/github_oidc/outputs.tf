@@ -23,10 +23,10 @@ output "gha_ci_role_arn" {
 
 output "gha_dev_role_arn" {
   description = "GitHub Actions dev infra Role ARN — dev workflow에서 참조"
-  value       = aws_iam_role.gha_dev.arn
+  value       = var.manage_infra_roles ? aws_iam_role.gha_dev[0].arn : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.team}-${var.project}-dev-gha-role"
 }
 
 output "gha_prod_role_arn" {
   description = "GitHub Actions prod infra Role ARN — prod workflow에서 참조"
-  value       = aws_iam_role.gha_prod.arn
+  value       = var.manage_infra_roles ? aws_iam_role.gha_prod[0].arn : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.team}-${var.project}-prod-gha-role"
 }

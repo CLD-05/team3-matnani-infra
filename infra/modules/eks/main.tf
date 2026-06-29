@@ -171,6 +171,13 @@ resource "aws_eks_node_group" "this" {
     "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
   })
 
+  lifecycle {
+    precondition {
+      condition     = var.network_ready != ""
+      error_message = "Public subnet Internet Gateway route must exist before creating EKS nodes."
+    }
+  }
+
   depends_on = [
     aws_iam_role_policy_attachment.node_worker,
     aws_iam_role_policy_attachment.node_cni,

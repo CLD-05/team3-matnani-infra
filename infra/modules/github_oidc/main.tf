@@ -25,6 +25,8 @@ data "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
 }
 
+data "aws_caller_identity" "current" {}
+
 # CI Role (app repo)
 # 역할: Docker build → ECR push → S3 sync → CloudFront
 resource "aws_iam_role" "gha_ci" {
@@ -34,7 +36,7 @@ resource "aws_iam_role" "gha_ci" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect    = "Allow"
+      Effect = "Allow"
       Principal = {
         Federated = data.aws_iam_openid_connect_provider.github.arn
       }
@@ -127,13 +129,15 @@ resource "aws_iam_role_policy" "gha_ci_frontend" {
 # dev Role (infra repo)
 # 역할: dev 환경 terraform apply 자동 실행
 resource "aws_iam_role" "gha_dev" {
+  count = var.manage_infra_roles ? 1 : 0
+
   name                 = "${var.team}-${var.project}-dev-gha-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect    = "Allow"
+      Effect = "Allow"
       Principal = {
         Federated = data.aws_iam_openid_connect_provider.github.arn
       }
@@ -152,6 +156,10 @@ resource "aws_iam_role" "gha_dev" {
   tags = merge(local.common_tags, {
     Name = "${var.team}-${var.project}-dev-gha-role"
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 /*
@@ -159,20 +167,22 @@ resource "aws_iam_role" "gha_dev" {
 AWS 콘솔에서 team3-matnani-prod-gha-role에 AdministratorAccess 수동 attach
  */
 /*resource "aws_iam_role_policy_attachment" "gha_dev" {
-  role       = aws_iam_role.gha_dev.name
+  role       = aws_iam_role.gha_dev[0].name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }*/
 
 # prod Role (infra repo)
 # 역할: prod 환경 terraform apply — GitHub Environment 수동 승인 후에만 실행
 resource "aws_iam_role" "gha_prod" {
+  count = var.manage_infra_roles ? 1 : 0
+
   name                 = "${var.team}-${var.project}-prod-gha-role"
   permissions_boundary = var.permissions_boundary
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect    = "Allow"
+      Effect = "Allow"
       Principal = {
         Federated = data.aws_iam_openid_connect_provider.github.arn
       }
@@ -189,6 +199,10 @@ resource "aws_iam_role" "gha_prod" {
   tags = merge(local.common_tags, {
     Name = "${var.team}-${var.project}-prod-gha-role"
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 /*
@@ -196,6 +210,6 @@ resource "aws_iam_role" "gha_prod" {
 AWS 콘솔에서 team3-matnani-prod-gha-role에 AdministratorAccess 수동 attach
  */
 /*resource "aws_iam_role_policy_attachment" "gha_prod" {
-  role       = aws_iam_role.gha_prod.name
+  role       = aws_iam_role.gha_prod[0].name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }*/

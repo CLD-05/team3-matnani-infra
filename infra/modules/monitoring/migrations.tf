@@ -48,3 +48,28 @@ moved {
   from = aws_cloudwatch_metric_alarm.alb_request_count
   to   = aws_cloudwatch_metric_alarm.alb_request_count[0]
 }
+
+moved {
+  from = aws_cloudwatch_metric_alarm.eks_node_cpu
+  to   = aws_cloudwatch_metric_alarm.eks_node_cpu[0]
+}
+
+moved {
+  from = aws_cloudwatch_metric_alarm.eks_node_memory
+  to   = aws_cloudwatch_metric_alarm.eks_node_memory[0]
+}
+
+moved {
+  from = aws_cloudwatch_metric_alarm.nat_gw_connection_count
+  to   = aws_cloudwatch_metric_alarm.nat_gw_connection_count["0"]
+}
+
+moved {
+  from = aws_cloudwatch_metric_alarm.nat_gw_error_port_allocation
+  to   = aws_cloudwatch_metric_alarm.nat_gw_error_port_allocation["0"]
+}
+
+moved {
+  from = aws_cloudwatch_metric_alarm.nat_gw_bytes_out_to_destination
+  to   = aws_cloudwatch_metric_alarm.nat_gw_bytes_out_to_destination["0"]
+}

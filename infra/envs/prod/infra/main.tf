@@ -27,9 +27,10 @@ module "eks" {
 
   vpc_id             = module.network.vpc_id
   private_subnet_ids = module.network.private_subnet_ids
+  network_ready      = module.network.public_internet_route_id
 
-  # prod: 퍼블릭 API 접근 차단
-  endpoint_public_access = false
+  # 기본값은 비공개이며, 초기 구축 시에만 tfvars로 명시적으로 활성화합니다.
+  endpoint_public_access = var.endpoint_public_access
 
   node_instance_types = var.node_instance_type
   node_desired_size   = var.node_desired
@@ -81,12 +82,12 @@ module "database" {
   db_username = data.aws_ssm_parameter.db_username.value
   db_password = data.aws_ssm_parameter.db_password.value
 
-  vpc_id         = module.network.vpc_id
-  db_subnet_ids  = module.network.db_subnet_ids
-  eks_node_sg_id = module.eks.node_sg_id
+  vpc_id            = module.network.vpc_id
+  db_subnet_ids     = module.network.db_subnet_ids
+  eks_node_sg_id    = module.eks.node_sg_id
   eks_cluster_sg_id = module.eks.cluster_sg_id
   # prod: bastion → RDS 디버깅 허용
-  bastion_sg_id  = module.bastion.security_group_id
+  bastion_sg_id = module.bastion.security_group_id
 
   instance_class          = var.db_instance_class
   allocated_storage       = var.allocated_storage
@@ -110,9 +111,9 @@ module "elasticache" {
   redis_version = var.redis_version
   node_type     = var.redis_node_type
 
-  vpc_id         = module.network.vpc_id
-  subnet_ids     = module.network.db_subnet_ids
-  eks_node_sg_id = module.eks.node_sg_id
+  vpc_id            = module.network.vpc_id
+  subnet_ids        = module.network.db_subnet_ids
+  eks_node_sg_id    = module.eks.node_sg_id
   eks_cluster_sg_id = module.eks.cluster_sg_id
   # prod: 멀티 노드, 장애조치 활성
   num_cache_clusters         = var.redis_num_nodes
@@ -145,16 +146,17 @@ module "cloudfront" {
 module "github_oidc" {
   source = "../../../modules/github_oidc"
 
-  env     = var.env
-  team    = var.team
-  project = var.project
-  github_org           = var.github_org
-  app_repo             = var.app_repo
-  infra_repo           = var.infra_repo
-  ecr_repository_arns  = values(module.ecr.repository_arns)
-  permissions_boundary = var.permissions_boundary
+  env                         = var.env
+  team                        = var.team
+  project                     = var.project
+  github_org                  = var.github_org
+  app_repo                    = var.app_repo
+  infra_repo                  = var.infra_repo
+  ecr_repository_arns         = values(module.ecr.repository_arns)
+  permissions_boundary        = var.permissions_boundary
   frontend_bucket_arn         = module.cloudfront.frontend_bucket_arn
   cloudfront_distribution_arn = module.cloudfront.distribution_arn
+  manage_infra_roles          = false
 }
 
 # Prod 모니터링 1단계:
@@ -188,13 +190,14 @@ module "monitoring" {
   enable_cluster_resources = false
   enable_aiops             = false
   enable_alb_alarms        = false
+  enable_eks_alarms        = false
   log_retention_days       = var.log_retention_days
 
-  eks_cluster_name  = module.eks.cluster_name
-  rds_instance_id   = module.database.db_instance_id
-  alb_dns_name      = var.alb_dns_name
-  alb_name          = var.alb_name
-  nat_gateway_id    = module.network.nat_gateway_ids
+  eks_cluster_name = module.eks.cluster_name
+  rds_instance_id  = module.database.db_instance_id
+  alb_dns_name     = var.alb_dns_name
+  alb_name         = var.alb_name
+  nat_gateway_id   = module.network.nat_gateway_ids
 
   redis_cluster_id            = "${module.elasticache.redis_replication_group_id}-001"
   redis_connections_threshold = 80

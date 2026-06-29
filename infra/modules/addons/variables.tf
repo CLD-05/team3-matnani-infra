@@ -25,6 +25,12 @@ variable "external_dns_role_arn" {
   type        = string
 }
 
+variable "enable_external_dns" {
+  description = "ExternalDNS Helm 릴리스 설치 여부"
+  type        = bool
+  default     = true
+}
+
 variable "grafana_admin_password" {
   description = "Grafana 관리자 비밀번호 — SSM에서 주입"
   type        = string

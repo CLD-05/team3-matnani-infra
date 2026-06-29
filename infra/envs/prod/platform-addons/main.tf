@@ -33,7 +33,7 @@ data "aws_ssm_parameter" "grafana_password" {
 }
 
 data "aws_ssm_parameter" "slack_webhook_url" {
-  name            = "/team3/matnani/prod/slack-webhook-url"
+  name            = "/team3/matnani/prod/monitoring/slack-webhook"
   with_decryption = true
 }
 
@@ -43,11 +43,6 @@ data "aws_iam_role" "grafana_cloudwatch" {
 
 data "aws_iam_role" "cluster_autoscaler" {
   name = "${var.team}-${var.project}-${var.env}-cluster-autoscaler-role"
-}
-
-# 클러스터 뼈대 정보 직접 조회
-data "aws_eks_cluster" "cluster" {
-  name = var.cluster_name
 }
 
 locals {
@@ -169,7 +164,7 @@ resource "aws_iam_role_policy" "eso_ssm" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["ssm:GetParameter", "ssm:GetParameters", "ssm:GetParametersByPath"]
-      Resource = "arn:aws:ssm:ap-northeast-2:*:parameter/matnani/prod/*"
+      Resource = "arn:aws:ssm:ap-northeast-2:*:parameter/team3/matnani/prod/*"
     }]
   })
 
@@ -229,7 +224,8 @@ module "addons" {
 
   alb_controller_role_arn     = aws_iam_role.alb_controller.arn
   eso_role_arn                = aws_iam_role.eso.arn
-  external_dns_role_arn       = aws_iam_role.external_dns.arn
+  external_dns_role_arn       = ""
+  enable_external_dns         = false
   grafana_admin_password      = data.aws_ssm_parameter.grafana_password.value
   grafana_cloudwatch_role_arn = data.aws_iam_role.grafana_cloudwatch.arn
   cluster_autoscaler_role_arn = data.aws_iam_role.cluster_autoscaler.arn

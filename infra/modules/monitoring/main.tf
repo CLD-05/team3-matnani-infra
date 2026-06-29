@@ -205,7 +205,9 @@ resource "aws_cloudwatch_metric_alarm" "rds_free_storage_space" {
 
 # NAT Gateway 연결 수 (55,000으로 제한함)
 resource "aws_cloudwatch_metric_alarm" "nat_gw_connection_count" {
-  alarm_name          = "team3-matnani-${var.env}-nat-gw-connection-count"
+  for_each = { for index, nat_id in var.nat_gateway_id : tostring(index) => nat_id }
+
+  alarm_name          = length(var.nat_gateway_id) == 1 ? "team3-matnani-${var.env}-nat-gw-connection-count" : "team3-matnani-${var.env}-nat-gw-connection-count-${each.key}"
   metric_name         = "ConnectionCount"
   namespace           = "AWS/NatGateway"
   threshold           = var.nat_gw_connection_count_threshold
@@ -213,14 +215,16 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_connection_count" {
   period              = "60"
   evaluation_periods  = "1"
   statistic           = "Maximum"
-  dimensions          = { NatGatewayId = var.nat_gateway_id[0] }
+  dimensions          = { NatGatewayId = each.value }
   alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data  = "notBreaching"
 }
 
 # NAT Gateway 에러 (포트 할당 실패)
 resource "aws_cloudwatch_metric_alarm" "nat_gw_error_port_allocation" {
-  alarm_name          = "team3-matnani-${var.env}-nat-gw-port-alloc-error"
+  for_each = { for index, nat_id in var.nat_gateway_id : tostring(index) => nat_id }
+
+  alarm_name          = length(var.nat_gateway_id) == 1 ? "team3-matnani-${var.env}-nat-gw-port-alloc-error" : "team3-matnani-${var.env}-nat-gw-port-alloc-error-${each.key}"
   metric_name         = "ErrorPortAllocation"
   namespace           = "AWS/NatGateway"
   threshold           = "10"
@@ -228,14 +232,16 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_error_port_allocation" {
   period              = "60"
   evaluation_periods  = "1"
   statistic           = "Sum"
-  dimensions          = { NatGatewayId = var.nat_gateway_id[0] }
+  dimensions          = { NatGatewayId = each.value }
   alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data  = "notBreaching"
 }
 
 # NAT Gateway 바이트 출력
 resource "aws_cloudwatch_metric_alarm" "nat_gw_bytes_out_to_destination" {
-  alarm_name          = "team3-matnani-${var.env}-nat-gw-bytes-out"
+  for_each = { for index, nat_id in var.nat_gateway_id : tostring(index) => nat_id }
+
+  alarm_name          = length(var.nat_gateway_id) == 1 ? "team3-matnani-${var.env}-nat-gw-bytes-out" : "team3-matnani-${var.env}-nat-gw-bytes-out-${each.key}"
   metric_name         = "BytesOutToDestination"
   namespace           = "AWS/NatGateway"
   threshold           = var.nat_gw_bytes_out_threshold
@@ -243,7 +249,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_gw_bytes_out_to_destination" {
   period              = "300"
   evaluation_periods  = "2"
   statistic           = "Sum"
-  dimensions          = { NatGatewayId = var.nat_gateway_id[0] }
+  dimensions          = { NatGatewayId = each.value }
   alarm_actions       = [aws_sns_topic.matnani_alerts.arn]
   treat_missing_data  = "notBreaching"
 }
@@ -291,6 +297,8 @@ resource "aws_cloudwatch_metric_alarm" "redis_connections_high" {
 
 # EKS 노드 CPU 사용률
 resource "aws_cloudwatch_metric_alarm" "eks_node_cpu" {
+  count = var.enable_eks_alarms ? 1 : 0
+
   alarm_name          = "team3-matnani-${var.env}-eks-node-cpu"
   metric_name         = "node_cpu_utilization"
   namespace           = "ContainerInsights"
@@ -306,6 +314,8 @@ resource "aws_cloudwatch_metric_alarm" "eks_node_cpu" {
 
 # EKS 노드 메모리 사용률
 resource "aws_cloudwatch_metric_alarm" "eks_node_memory" {
+  count = var.enable_eks_alarms ? 1 : 0
+
   alarm_name          = "team3-matnani-${var.env}-eks-node-memory"
   metric_name         = "node_memory_utilization"
   namespace           = "ContainerInsights"

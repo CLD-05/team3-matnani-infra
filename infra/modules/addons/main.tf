@@ -204,6 +204,8 @@ resource "helm_release" "kube_prometheus_stack" {
 
 # ExternalDNS
 resource "helm_release" "external_dns" {
+  count = var.enable_external_dns ? 1 : 0
+
   name       = "team3-matnani-external-dns"
   repository = "https://kubernetes-sigs.github.io/external-dns"
   chart      = "external-dns"
