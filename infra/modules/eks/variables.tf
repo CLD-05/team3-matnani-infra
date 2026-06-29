@@ -90,8 +90,9 @@ variable "ebs_csi_version" {
 }
 
 variable "ebs_csi_role_arn" {
-  description = "EBS CSI IRSA Role ARN — ebs-csi-controller-sa에 연결"
+  description = "EBS CSI IRSA Role ARN — ebs-csi-controller-sa에 연결 (platform-addons 적용 후 입력)"
   type        = string
+  default     = ""
 }
 
 variable "pod_identity_agent_version" {
