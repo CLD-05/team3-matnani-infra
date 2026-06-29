@@ -28,8 +28,8 @@ module "eks" {
   vpc_id             = module.network.vpc_id
   private_subnet_ids = module.network.private_subnet_ids
 
-  # prod: 퍼블릭 API 접근 차단
-  endpoint_public_access = false
+  # 기본값은 비공개이며, 초기 구축 시에만 tfvars로 명시적으로 활성화합니다.
+  endpoint_public_access = var.endpoint_public_access
 
   node_instance_types = var.node_instance_type
   node_desired_size   = var.node_desired
@@ -188,6 +188,7 @@ module "monitoring" {
   enable_cluster_resources = false
   enable_aiops             = false
   enable_alb_alarms        = false
+  enable_eks_alarms        = false
   log_retention_days       = var.log_retention_days
 
   eks_cluster_name  = module.eks.cluster_name
