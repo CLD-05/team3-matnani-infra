@@ -50,7 +50,16 @@ resource "aws_fis_experiment_template" "eks_node_terminate" {
     name           = "eks-nodegroup"
     resource_type  = "aws:eks:nodegroup"
     selection_mode = "ALL"
-    resource_arns  = [data.aws_eks_node_group.main.arn]
+
+    resource_tag {
+      key   = "Team"
+      value = var.team
+    }
+
+    resource_tag {
+      key   = "Environment"
+      value = var.env
+    }
   }
 
   tags = {
@@ -97,7 +106,16 @@ resource "aws_fis_experiment_template" "rds_failover" {
     name           = "rds-instance"
     resource_type  = "aws:rds:db"
     selection_mode = "ALL"
-    resource_arns  = [data.aws_db_instance.main.db_instance_arn]
+
+    resource_tag {
+      key   = "Team"
+      value = var.team
+    }
+
+    resource_tag {
+      key   = "Environment"
+      value = var.env
+    }
   }
 
   tags = {
@@ -235,6 +253,11 @@ resource "aws_fis_experiment_template" "pod_delete" {
     resource_tag {
       key   = "Name"
       value = "${local.prefix}-bastion"
+    }
+
+    resource_tag {
+      key   = "Team"
+      value = var.team
     }
   }
 
