@@ -27,3 +27,7 @@ data "aws_db_instance" "main" {
 data "aws_elasticache_replication_group" "main" {
   replication_group_id = "${local.prefix}-redis"
 }
+
+data "aws_lb" "main" {
+  name = "${local.prefix}-alb"
+}
