@@ -164,16 +164,11 @@ resource "aws_fis_experiment_template" "redis_failover" {
 
   action {
     name      = "redis-az-interrupt"
-    action_id = "aws:elasticache:interrupt-cluster-az-power"
+    action_id = "aws:elasticache:replicationgroup-interrupt-az-power"
 
     parameter {
       key   = "duration"
       value = "PT1M"
-    }
-
-    parameter {
-      key   = "availabilityZoneIdentifier"
-      value = "apne2-az1"
     }
 
     target {

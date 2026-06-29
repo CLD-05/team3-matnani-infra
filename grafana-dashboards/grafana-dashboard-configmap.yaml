@@ -636,49 +636,6 @@ data:
                        },
                        {
                            "type":  "row",
-                           "title":  "부하테스트 결과",
-                           "id":  25,
-                           "gridPos":  {
-                                           "h":  1,
-                                           "w":  24,
-                                           "x":  0,
-                                           "y":  13
-                                       },
-                           "collapsed":  false,
-                           "panels":  [
-    
-                                      ]
-                       },
-                       {
-                           "type":  "text",
-                           "title":  "동시성 결과",
-                           "id":  26,
-                           "gridPos":  {
-                                           "h":  8,
-                                           "w":  12,
-                                           "x":  0,
-                                           "y":  14
-                                       },
-                           "options":  {
-                                           "mode":  "markdown",
-                                           "content":  "## 동시성 테스트 결과\n\n\u003e 데이터 소스 연동 예정\n\n**측정 항목**\n- 총 요청 수 / 성공 수 / 실패 수\n- 성공 예약 수 vs 재고 수 (초과 여부)\n- VUs (동시 가상 사용자 수)\n\n**연동 방법**\n- k6 → Prometheus Remote Write\n- 또는 k6 결과 JSON 파싱 후 수동 입력"
-                                       }
-                       },
-                       {
-                           "type":  "text",
-                           "title":  "마감된 상품 Top5",
-                           "id":  27,
-                           "gridPos":  {
-                                           "h":  8,
-                                           "w":  12,
-                                           "x":  12,
-                                           "y":  14
-                                       },
-                           "options":  {
-                                           "mode":  "markdown",
-                                           "content":  "## 마감된 상품 Top5\n\n\u003e 데이터 소스 연동 예정\n\n**측정 항목**\n- 상품명 / 상품 ID\n- 예약 성공 건수\n- 마감 시각\n\n**연동 방법**\n- 앱 로그 → CloudWatch Logs Insights\n- 또는 DB 직접 쿼리 후 수동 입력"
-                                       }
-                       },
                        {
                            "type":  "row",
                            "title":  "RDS",
