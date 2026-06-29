@@ -105,8 +105,12 @@ resource "aws_instance" "bastion" {
   user_data = <<-EOT
     #!/bin/bash
     apt-get update -y
-    apt-get install -y mysql-client
-    apt-get install -y redis-tools
+    apt-get install -y mysql-client redis-tools unzip
+
+    # SSM Agent (Ubuntu에 기본 미설치)
+    snap install amazon-ssm-agent --classic
+    systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service
+    systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
 
     # AWS CLI v2
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
