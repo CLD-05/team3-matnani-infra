@@ -151,56 +151,6 @@ resource "aws_fis_experiment_template" "cpu_stress" {
 }
 
 # ─────────────────────────────────────────
-# 4. Redis Failover
-#    ElastiCache primary 노드 AZ 파워 중단 → 자동 failover 및 재연결 확인
-# ─────────────────────────────────────────
-resource "aws_fis_experiment_template" "redis_failover" {
-  description = "[카오스] Redis primary AZ 장애 → 자동 failover 및 애플리케이션 재연결 확인"
-  role_arn    = data.aws_iam_role.fis.arn
-
-  stop_condition {
-    source = "none"
-  }
-
-  action {
-    name      = "redis-az-interrupt"
-    action_id = "aws:elasticache:replicationgroup-interrupt-az-power"
-
-    parameter {
-      key   = "duration"
-      value = "PT1M"
-    }
-
-    parameter {
-      key   = "availabilityZoneIdentifier"
-      value = "ap-northeast-2a"
-    }
-
-    target {
-      key   = "ReplicationGroups"
-      value = "redis-replication-group"
-    }
-  }
-
-  target {
-    name           = "redis-replication-group"
-    resource_type  = "aws:elasticache:replicationgroup"
-    selection_mode = "ALL"
-
-    resource_tag {
-      key   = "Name"
-      value = "${local.prefix}-redis"
-    }
-  }
-
-  tags = {
-    Name        = "${local.prefix}-redis-failover"
-    Scenario    = "redis-failover"
-    Environment = var.env
-  }
-}
-
-# ─────────────────────────────────────────
 # 5. POD 강제 종료
 #    bastion SSM을 통해 matnani 네임스페이스 POD 전체 삭제
 #    → Deployment 자동 재시작 및 서비스 복구 확인
