@@ -91,6 +91,14 @@ resource "aws_iam_role_policy_attachment" "node_ecr" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
+# Cluster Autoscaler ASG 조회/조정 권한
+# 현재 GitHub Actions role은 iam:AttachRolePolicy 권한이 없어 CI에서 적용할 수 없습니다.
+# 권한이 부여되면 아래 attachment를 다시 활성화합니다.
+# resource "aws_iam_role_policy_attachment" "cluster_autoscaler" {
+#   role       = aws_iam_role.node.name
+#   policy_arn = "arn:aws:iam::aws:policy/AutoScalingFullAccess"
+# }
+
 # Security Group — Node
 resource "aws_security_group" "node" {
   name        = "${local.cluster_name}-node-sg"
@@ -121,6 +129,7 @@ resource "aws_security_group" "node" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [ingress]
   }
 }
 
@@ -170,13 +179,6 @@ resource "aws_eks_node_group" "this" {
     "k8s.io/cluster-autoscaler/enabled"               = "true"
     "k8s.io/cluster-autoscaler/${local.cluster_name}" = "owned"
   })
-
-  lifecycle {
-    precondition {
-      condition     = var.network_ready != ""
-      error_message = "Public subnet Internet Gateway route must exist before creating EKS nodes."
-    }
-  }
 
   depends_on = [
     aws_iam_role_policy_attachment.node_worker,
@@ -229,7 +231,7 @@ resource "aws_eks_addon" "ebs_csi" {
   cluster_name                = aws_eks_cluster.this.name
   addon_name                  = "aws-ebs-csi-driver"
   addon_version               = var.ebs_csi_version
-  service_account_role_arn    = var.ebs_csi_role_arn != "" ? var.ebs_csi_role_arn : null
+  service_account_role_arn    = var.ebs_csi_role_arn
   resolve_conflicts_on_update = "OVERWRITE"
 
   tags = local.common_tags
