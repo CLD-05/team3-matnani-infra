@@ -15,6 +15,7 @@ module "network" {
 
   # prod: AZ별 NAT GW
   single_nat_gateway = false
+  enable_nat         = var.node_desired > 0
 }
 
 module "eks" {
