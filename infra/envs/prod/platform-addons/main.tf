@@ -66,7 +66,7 @@ locals {
 
 # 2. IRSA Role 4개 (Prod 격리 이름 지정)
 
-# 1. EBS CSI
+# EBS CSI
 resource "aws_iam_role" "ebs_csi" {
   name                 = "${var.team}-${var.project}-${var.env}-ebs-csi-role"
   permissions_boundary = var.permissions_boundary
@@ -93,7 +93,7 @@ resource "aws_iam_role_policy_attachment" "ebs_csi" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 }
 
-# 2. ALB Controller
+# ALB Controller — ALB 생성/수정/삭제용
 resource "aws_iam_policy" "alb_controller" {
   name   = "${var.team}-${var.project}-${var.env}-alb-controller-policy"
   policy = file("${path.module}/policies/alb-controller-policy.json")
@@ -126,7 +126,7 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
   policy_arn = aws_iam_policy.alb_controller.arn
 }
 
-# 3. ESO (Prod Parameter Store 전용)
+# ESO — SSM Parameter Store 읽기용
 resource "aws_iam_role" "eso" {
   name                 = "${var.team}-${var.project}-${var.env}-eso-role"
   permissions_boundary = var.permissions_boundary
@@ -216,7 +216,6 @@ module "addons" {
   team                   = var.team
   project                = var.project
   env                    = var.env
-  environment            = var.env
   cluster_name           = local.cluster_name
   cluster_endpoint       = local.cluster_endpoint
   cluster_ca_certificate = local.cluster_ca
