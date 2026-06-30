@@ -67,7 +67,7 @@ variable "backup_retention_period" {
 
 variable "multi_az" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "deletion_protection" {
