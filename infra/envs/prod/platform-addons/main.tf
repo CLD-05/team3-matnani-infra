@@ -93,6 +93,37 @@ resource "aws_iam_role_policy_attachment" "ebs_csi" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 }
 
+resource "aws_eks_addon" "ebs_csi" {
+  cluster_name             = local.cluster_name
+  addon_name               = "aws-ebs-csi-driver"
+  service_account_role_arn = aws_iam_role.ebs_csi.arn
+
+  depends_on = [aws_iam_role_policy_attachment.ebs_csi]
+
+  tags = merge(local.common_tags, { Name = "${var.team}-${var.project}-${var.env}-ebs-csi-addon" })
+}
+
+resource "kubernetes_storage_class" "gp3" {
+  metadata {
+    name = "gp3"
+    annotations = {
+      "storageclass.kubernetes.io/is-default-class" = "true"
+    }
+  }
+
+  storage_provisioner    = "ebs.csi.aws.com"
+  reclaim_policy         = "Delete"
+  volume_binding_mode    = "WaitForFirstConsumer"
+  allow_volume_expansion = true
+
+  parameters = {
+    type      = "gp3"
+    encrypted = "true"
+  }
+
+  depends_on = [aws_eks_addon.ebs_csi]
+}
+
 # ALB Controller — ALB 생성/수정/삭제용
 resource "aws_iam_policy" "alb_controller" {
   name   = "${var.team}-${var.project}-${var.env}-alb-controller-policy"
@@ -229,4 +260,6 @@ module "addons" {
   grafana_cloudwatch_role_arn = data.aws_iam_role.grafana_cloudwatch.arn
   cluster_autoscaler_role_arn = data.aws_iam_role.cluster_autoscaler.arn
   slack_webhook_url           = data.aws_ssm_parameter.slack_webhook_url.value
+
+  depends_on = [kubernetes_storage_class.gp3]
 }
