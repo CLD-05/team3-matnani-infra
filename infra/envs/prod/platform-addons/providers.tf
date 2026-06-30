@@ -17,7 +17,7 @@ provider "aws" {
   }
 }
 
-# EKS 인증 토큰 가져오기 (클러스터 이름 변수 활용)
+# EKS 연결 설정
 data "aws_eks_cluster_auth" "cluster" {
   name = var.cluster_name
 }
