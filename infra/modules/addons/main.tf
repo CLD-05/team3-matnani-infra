@@ -186,6 +186,11 @@ resource "helm_release" "kube_prometheus_stack" {
   }
 
   set {
+    name  = "prometheusOperator.tls.enabled"
+    value = "false"
+  }
+
+  set {
     name  = "alertmanager.alertmanagerSpec.alertmanagerConfigSelector.matchLabels.alertmanagerConfig"
     value = "team3-matnani"
   }
