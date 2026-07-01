@@ -61,7 +61,41 @@ data:
                      "monitoring"
                  ],
         "templating":  {
-                           "list":  []
+                           "list":  [
+                               {
+                                   "name":  "env",
+                                   "type":  "custom",
+                                   "label":  "환경",
+                                   "query":  "dev,prod",
+                                   "current":  {"text":  "dev", "value":  "dev"},
+                                   "options":  [
+                                       {"text":  "dev", "value":  "dev", "selected":  true},
+                                       {"text":  "prod", "value":  "prod", "selected":  false}
+                                   ],
+                                   "hide":  0,
+                                   "includeAll":  false,
+                                   "multi":  false,
+                                   "refresh":  0,
+                                   "sort":  0
+                               },
+                               {
+                                   "name":  "alb",
+                                   "type":  "custom",
+                                   "label":  "ALB",
+                                   "query":  "dev : app/team3-matnani-dev-alb/022f655163e2b5d6,prod : app/team3-matnani-prod-alb/041bcc798ef23408",
+                                   "regex":  "/${env}/",
+                                   "current":  {},
+                                   "options":  [
+                                       {"text":  "dev", "value":  "app/team3-matnani-dev-alb/022f655163e2b5d6", "selected":  true},
+                                       {"text":  "prod", "value":  "app/team3-matnani-prod-alb/041bcc798ef23408", "selected":  false}
+                                   ],
+                                   "hide":  2,
+                                   "includeAll":  false,
+                                   "multi":  false,
+                                   "refresh":  2,
+                                   "sort":  0
+                               }
+                           ]
                        },
         "time":  {
                      "from":  "now-3h",
@@ -305,7 +339,7 @@ data:
                                                "namespace":  "AWS/ApplicationELB",
                                                "metricName":  "HTTPCode_Target_2XX_Count",
                                                "dimensions":  {
-                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                                  "LoadBalancer":  "${alb}"
                                                               },
                                                "statistic":  "Sum",
                                                "period":  "300",
@@ -332,7 +366,7 @@ data:
                                                "namespace":  "AWS/ApplicationELB",
                                                "metricName":  "RequestCount",
                                                "dimensions":  {
-                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                                  "LoadBalancer":  "${alb}"
                                                               },
                                                "statistic":  "Sum",
                                                "period":  "300",
@@ -404,7 +438,7 @@ data:
                            "targets":  [
                                            {
                                                "dimensions":  {
-                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                                  "LoadBalancer":  "${alb}"
                                                               },
                                                "metricQueryType":  0,
                                                "matchExact":  true,
@@ -525,7 +559,7 @@ data:
                                                "namespace":  "AWS/ApplicationELB",
                                                "metricName":  "TargetResponseTime",
                                                "dimensions":  {
-                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                                  "LoadBalancer":  "${alb}"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
@@ -723,7 +757,7 @@ data:
                                                "namespace":  "AWS/RDS",
                                                "metricName":  "CPUUtilization",
                                                "dimensions":  {
-                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                                  "DBInstanceIdentifier":  "team3-matnani-${env}-mysql"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
@@ -806,7 +840,7 @@ data:
                                                "namespace":  "AWS/RDS",
                                                "metricName":  "DatabaseConnections",
                                                "dimensions":  {
-                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                                  "DBInstanceIdentifier":  "team3-matnani-${env}-mysql"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
@@ -889,7 +923,7 @@ data:
                                                "namespace":  "AWS/RDS",
                                                "metricName":  "FreeStorageSpace",
                                                "dimensions":  {
-                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                                  "DBInstanceIdentifier":  "team3-matnani-${env}-mysql"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
@@ -972,7 +1006,7 @@ data:
                                                "namespace":  "AWS/RDS",
                                                "metricName":  "ReadLatency",
                                                "dimensions":  {
-                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                                  "DBInstanceIdentifier":  "team3-matnani-${env}-mysql"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
@@ -1055,7 +1089,7 @@ data:
                                                "namespace":  "AWS/RDS",
                                                "metricName":  "WriteLatency",
                                                "dimensions":  {
-                                                                  "DBInstanceIdentifier":  "team3-matnani-dev-mysql"
+                                                                  "DBInstanceIdentifier":  "team3-matnani-${env}-mysql"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
@@ -1157,7 +1191,7 @@ data:
                                                "namespace":  "AWS/ElastiCache",
                                                "metricName":  "CPUUtilization",
                                                "dimensions":  {
-                                                                  "CacheClusterId":  "team3-matnani-dev-redis-001"
+                                                                  "CacheClusterId":  "team3-matnani-${env}-redis-001"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
@@ -1244,7 +1278,7 @@ data:
                                                "namespace":  "AWS/ElastiCache",
                                                "metricName":  "CurrConnections",
                                                "dimensions":  {
-                                                                  "CacheClusterId":  "team3-matnani-dev-redis-001"
+                                                                  "CacheClusterId":  "team3-matnani-${env}-redis-001"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
@@ -1326,7 +1360,7 @@ data:
                                                "namespace":  "AWS/ApplicationELB",
                                                "metricName":  "RequestCount",
                                                "dimensions":  {
-                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                                  "LoadBalancer":  "${alb}"
                                                               },
                                                "statistic":  "Sum",
                                                "period":  "",
@@ -1409,7 +1443,7 @@ data:
                                                "namespace":  "AWS/ApplicationELB",
                                                "metricName":  "TargetResponseTime",
                                                "dimensions":  {
-                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                                  "LoadBalancer":  "${alb}"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
@@ -1492,7 +1526,7 @@ data:
                                                "namespace":  "AWS/ApplicationELB",
                                                "metricName":  "HTTPCode_Target_5XX_Count",
                                                "dimensions":  {
-                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                                  "LoadBalancer":  "${alb}"
                                                               },
                                                "statistic":  "Sum",
                                                "period":  "",
@@ -1575,7 +1609,7 @@ data:
                                                "namespace":  "AWS/ApplicationELB",
                                                "metricName":  "HTTPCode_Target_4XX_Count",
                                                "dimensions":  {
-                                                                  "LoadBalancer":  "app/team3-matnani-dev-alb/022f655163e2b5d6"
+                                                                  "LoadBalancer":  "${alb}"
                                                               },
                                                "statistic":  "Sum",
                                                "period":  "",
@@ -1795,7 +1829,7 @@ data:
                                                "namespace":  "AWS/Lambda",
                                                "metricName":  "Invocations",
                                                "dimensions":  {
-                                                                  "FunctionName":  "team3-matnani-dev-aiops-alarm-analyzer"
+                                                                  "FunctionName":  "team3-matnani-${env}-aiops-alarm-analyzer"
                                                               },
                                                "statistic":  "Sum",
                                                "period":  "",
@@ -1858,7 +1892,7 @@ data:
                                                "namespace":  "AWS/Lambda",
                                                "metricName":  "Errors",
                                                "dimensions":  {
-                                                                  "FunctionName":  "team3-matnani-dev-aiops-alarm-analyzer"
+                                                                  "FunctionName":  "team3-matnani-${env}-aiops-alarm-analyzer"
                                                               },
                                                "statistic":  "Sum",
                                                "period":  "",
@@ -1921,7 +1955,7 @@ data:
                                                "namespace":  "AWS/Lambda",
                                                "metricName":  "Duration",
                                                "dimensions":  {
-                                                                  "FunctionName":  "team3-matnani-dev-aiops-alarm-analyzer"
+                                                                  "FunctionName":  "team3-matnani-${env}-aiops-alarm-analyzer"
                                                               },
                                                "statistic":  "Average",
                                                "period":  "",
