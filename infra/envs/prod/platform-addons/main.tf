@@ -32,11 +32,6 @@ data "aws_ssm_parameter" "grafana_password" {
   with_decryption = true
 }
 
-data "aws_ssm_parameter" "slack_webhook_url" {
-  name            = "/team3/matnani/prod/monitoring/slack-webhook"
-  with_decryption = true
-}
-
 data "aws_iam_role" "grafana_cloudwatch" {
   name = "${var.team}-${var.project}-${var.env}-grafana-cloudwatch-role"
 }
@@ -259,7 +254,6 @@ module "addons" {
   grafana_admin_password      = data.aws_ssm_parameter.grafana_password.value
   grafana_cloudwatch_role_arn = data.aws_iam_role.grafana_cloudwatch.arn
   cluster_autoscaler_role_arn = data.aws_iam_role.cluster_autoscaler.arn
-  slack_webhook_url           = data.aws_ssm_parameter.slack_webhook_url.value
 
   depends_on = [kubernetes_storage_class.gp3]
 }
