@@ -144,7 +144,7 @@ module "cloudfront" {
   alb_dns_name = var.alb_dns_name
 
   domain_name         = "matnani.store"
-  acm_certificate_arn = aws_acm_certificate_validation.cloudfront.certificate_arn
+  acm_certificate_arn = local.acm_certificate_arn
 }
 
 module "github_oidc" {
