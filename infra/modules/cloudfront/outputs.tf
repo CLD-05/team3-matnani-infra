@@ -32,3 +32,13 @@ output "image_bucket_arn" {
   description = "이미지 업로드용 S3 버킷 ARN"
   value       = aws_s3_bucket.image_bucket.arn
 }
+
+output "distribution_hosted_zone_id" {
+  description = "CloudFront 배포의 hosted zone ID (Route 53 alias 레코드용)"
+  value       = aws_cloudfront_distribution.this.hosted_zone_id
+}
+
+output "distribution_domain_name" {
+  description = "CloudFront 배포 도메인 (Route 53 alias 레코드 타겟용)"
+  value       = aws_cloudfront_distribution.this.domain_name
+}
