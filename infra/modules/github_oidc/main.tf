@@ -46,8 +46,8 @@ resource "aws_iam_role" "gha_ci" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          # app repo — main 브랜치 push 및 workflow_dispatch 모두 허용
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.app_repo}:*"
+          # app repo — main 브랜치 push 및 main에서 실행한 workflow_dispatch만 허용
+          "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.app_repo}:ref:refs/heads/main"
         }
       }
     }]
