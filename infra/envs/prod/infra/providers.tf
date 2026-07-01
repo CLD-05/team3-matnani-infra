@@ -30,3 +30,17 @@ provider "aws" {
     }
   }
 }
+
+# ACM은 CloudFront 사용을 위해 반드시 us-east-1에서 발급해야 함
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+
+  default_tags {
+    tags = {
+      Team      = "team3"
+      Project   = "matnani"
+      ManagedBy = "terraform"
+    }
+  }
+}
