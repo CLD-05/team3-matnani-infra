@@ -71,9 +71,3 @@ variable "cluster_autoscaler_role_arn" {
   type        = string
   default     = null
 }
-
-variable "slack_webhook_url" {
-  description = "AlertManager Slack Webhook URL"
-  type        = string
-  sensitive   = true
-}

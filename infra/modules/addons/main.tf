@@ -139,9 +139,7 @@ resource "helm_release" "kube_prometheus_stack" {
   atomic     = true
 
   values = [
-    templatefile("${path.module}/alertmanager-values.yaml.tpl", {
-      webhook_url = var.slack_webhook_url
-    })
+    file("${path.module}/alertmanager-values.yaml.tpl")
   ]
 
   set {
