@@ -198,6 +198,68 @@ resource "aws_iam_role_policy" "eso_ssm" {
     ignore_changes = [policy]
   }
 }
+
+# Matnani API — S3 Presigned URL 발급용 IRSA Role
+resource "aws_iam_role" "app" {
+  name                 = "${var.team}-${var.project}-${var.env}-app-role"
+  permissions_boundary = var.permissions_boundary
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Federated = local.oidc_provider_arn }
+      Action    = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+        StringEquals = {
+          "${local.oidc_provider_host}:aud" = "sts.amazonaws.com"
+          "${local.oidc_provider_host}:sub" = "system:serviceaccount:${var.team}-${var.project}-${var.env}:${var.project}-api"
+        }
+      }
+    }]
+  })
+
+  tags = merge(local.common_tags, {
+    Name = "${var.team}-${var.project}-${var.env}-app-role"
+  })
+}
+
+resource "aws_iam_policy" "app_s3" {
+  name        = "${var.team}-${var.project}-${var.env}-app-s3-policy"
+  description = "Allow the Matnani API to manage product images in the Prod S3 bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "ListImageBucket"
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
+        Resource = "arn:aws:s3:::${var.team}-${var.project}-${var.env}-images"
+      },
+      {
+        Sid    = "ManageProductImages"
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject",
+        ]
+        Resource = "arn:aws:s3:::${var.team}-${var.project}-${var.env}-images/*"
+      }
+    ]
+  })
+
+  tags = merge(local.common_tags, {
+    Name = "${var.team}-${var.project}-${var.env}-app-s3-policy"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "app_s3" {
+  role       = aws_iam_role.app.name
+  policy_arn = aws_iam_policy.app_s3.arn
+}
+
 /*
 # 4. ExternalDNS
 resource "aws_iam_role" "external_dns" {
