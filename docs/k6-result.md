@@ -179,12 +179,12 @@ ArgoCD Application 설정에서 `Deployment`의 `/spec/replicas` 필드를 ignor
 - HPA 이벤트: cpu resource utilization above target 사유로 scale out 발생
 ```
 
----
+
 ### 개선 2 — 부하 테스트 실행 시간 연장
 
 기존 2분 30초 → 10분으로 변경해 워밍업 이후의 지속 부하 구간을 확보했다.
 
----
+
 
 ### 개선 3 — 백엔드 로직 수정
 
@@ -193,7 +193,7 @@ ArgoCD Application 설정에서 `Deployment`의 `/spec/replicas` 필드를 ignor
 | `RedissonConfig.java` | 커넥션 풀 추가: `connectionPoolSize=10`, `connectionMinimumIdleSize=5` |
 | `ReservationService.java` | `tryLock(5, 10)` → `tryLock(2, 10)` (waitTime 단축) |
 
----
+
 
 ### 개선 4 — Lua 스크립트 도입
 
@@ -203,9 +203,8 @@ ArgoCD Application 설정에서 `Deployment`의 `/spec/replicas` 필드를 ignor
 200명 요청 → Redis 락 획득 대기 (직렬) → DB 재고 확인 → DB 재고 차감 + 예약 저장 → 락 해제
 ```
 
-200명이 한 줄로 대기하는 구조로 락 경합·타임아웃·응답 지연이 발생했다.
+- 200명이 한 줄로 대기하는 구조로 락 경합·타임아웃·응답 지연이 발생
 
-<br>
 
 **변경 후 (Lua 스크립트)**
 
