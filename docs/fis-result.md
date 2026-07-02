@@ -63,12 +63,15 @@ SchedulingDisabled 상태로 기존 Pod 드레인 후 종료되어 서비스 연
 ### 🔭 실험 결과 
 
 **실험 전** 
+
 ![eks-1.png](images/eks-1.png)
 
 **장애 주입 중**
+
 ![eks-2.png](images/eks-2.png)
 
 **복구 완료**
+
 ![eks-3.png](images/eks-3.png)
 
 
@@ -99,14 +102,17 @@ Multi-AZ Standby가 자동으로 Primary로 승격 \
 ### 🔭 실험 결과
 
 **실험 전 Primary AZ 확인**
+
 ![rds-1.png](images/rds-1.png)
 
 
 **Failover 진행 중**
+
 ![rds-2.png](images/rds-2.png)
 
 
 **실험 후 Primary AZ가 2c로 변경**
+
 ![rds-3.png](images/rds-3.png)
 
 
@@ -135,9 +141,11 @@ Multi-AZ Standby가 자동으로 Primary로 승격 \
 
 
 **CPU 급등 그래프**
+
 ![cpu-1.png](images/cpu-1.png)
 
 **60초 후 정상 복귀**
+
 ![cpu-2.png](images/cpu-2.png)
 
 
@@ -168,10 +176,12 @@ Multi-AZ Standby가 자동으로 Primary로 승격 \
 ### 🔭 실험 결과
 
 **Pod 삭제 직후 Slack 알람**
+
 ![pod-1.png](images/pod-1.png)
 
 
 **새 Pod 생성 완료**
+
 ![pod-2.png](images/pod-2.png)
 
 
