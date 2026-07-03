@@ -14,9 +14,10 @@ locals {
   name = "${var.team}-${var.project}-${var.env}-k6"
 
   common_tags = {
-    Team      = var.team
-    Project   = var.project
-    ManagedBy = "terraform"
+    Team        = var.team
+    Project     = var.project
+    Environment = var.env
+    ManagedBy   = "terraform"
   }
 }
 
