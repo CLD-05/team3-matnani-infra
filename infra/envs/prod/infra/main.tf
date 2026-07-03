@@ -48,6 +48,29 @@ module "eks" {
   gha_role_arn          = module.github_oidc.gha_prod_role_arn
 }
 
+module "k6" {
+  source  = "../../../modules/k6"
+  env     = var.env
+  team    = var.team
+  project = var.project
+
+  vpc_id           = module.network.vpc_id
+  public_subnet_id = module.network.public_subnet_ids[0]
+  instance_type    = "t3.medium"
+}
+
+# k6 EC2 → EKS 워커노드 30090  허용
+resource "aws_security_group_rule" "k6_to_prometheus" {
+  type                     = "ingress"
+  description              = "k6 EC2 to Prometheus NodePort"
+  from_port                = 30090
+  to_port                  = 30090
+  protocol                 = "tcp"
+  security_group_id        = module.eks.node_sg_id
+  source_security_group_id = module.k6.sg_id
+}
+
+
 # prod bastion — SSM 접속, SSH 22번 닫음
 module "bastion" {
   source               = "../../../modules/bastion"

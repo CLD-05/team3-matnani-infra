@@ -63,6 +63,18 @@ output "gha_prod_role_arn" {
 }
 
 
+# k6
+output "k6_instance_id" {
+  description = "k6 EC2 인스턴스 ID — aws ssm start-session --target {id}"
+  value       = module.k6.instance_id
+}
+
+output "k6_sg_id" {
+  description = "k6 Security Group ID"
+  value       = module.k6.sg_id
+}
+
+
 # CloudFront
 output "cloudfront_domain_name" {
   description = "프론트엔드 접속 URL (prod만 생성)"
