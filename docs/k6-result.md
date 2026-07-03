@@ -67,7 +67,7 @@
 
 ### 동시성 테스트 — Redis 분산 락 검증
 
-![con.png](images/con.png)
+![con.png](images/concurrency-result.png)
 
 ![con-r.png](images/con-r.png)
 
