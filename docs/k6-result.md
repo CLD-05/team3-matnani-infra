@@ -179,12 +179,14 @@ ArgoCD Application 설정에서 `Deployment`의 `/spec/replicas` 필드를 ignor
 - HPA 이벤트: cpu resource utilization above target 사유로 scale out 발생
 ```
 
+<br>
 
 ### 개선 2 — 부하 테스트 실행 시간 연장
 
 기존 2분 30초 → 10분으로 변경해 워밍업 이후의 지속 부하 구간을 확보했다.
 
 
+<br>
 
 ### 개선 3 — 백엔드 로직 수정
 
@@ -193,7 +195,7 @@ ArgoCD Application 설정에서 `Deployment`의 `/spec/replicas` 필드를 ignor
 | `RedissonConfig.java` | 커넥션 풀 추가: `connectionPoolSize=10`, `connectionMinimumIdleSize=5` |
 | `ReservationService.java` | `tryLock(5, 10)` → `tryLock(2, 10)` (waitTime 단축) |
 
-
+<br>
 
 ### 개선 4 — Lua 스크립트 도입
 
@@ -241,3 +243,83 @@ ArgoCD Application 설정에서 `Deployment`의 `/spec/replicas` 필드를 ignor
 | 락 타임아웃 | 742건 | 0건 ✅ | 완전 해소 |
 | 임계값 통과 | FAIL | PASS | — |
 
+
+<br>
+<br>
+
+<hr style="border: 2px solid #000;">
+
+## Dev vs Prod 부하테스트 비교
+
+### 사전 설정
+
+Dev·Prod 두 환경의 테스트 데이터(DB)와 k6 시나리오를 동기화하였으며, k6 실행 환경은 Terraform k6 모듈로 생성해 각 환경에 동일 사양의 EC2를 프로비저닝하여 테스트를 진행하였다.
+
+### 환경 스펙 차이
+
+| 항목 | Dev | Prod |
+| --- | --- | --- |
+| EKS 노드 | t3.medium | m6i.large |
+| RDS | db.t4g.micro (Single-AZ) | db.m6i.large (Multi-AZ) |
+| Redis | 단일 노드, TLS 비활성 | cache.m7g.large × 2, TLS 활성 |
+| 도메인 | CloudFront URL | matnani.store |
+
+<br>
+
+---
+
+### 시나리오 A — 홈 피드 부하 테스트
+
+![a-p.png](images/a-p.png)
+
+| 지표 | Dev | Prod | 변화 |
+| --- | --- | --- | --- |
+| 총 요청 수 | 57,464건 | 58,888건 | +2.5% |
+| RPS | 95.7 | 97.8 | +2.2% |
+| 홈 피드 p95 | 133ms | **4ms** | **-97%** |
+| 타임세일 피드 p95 | 127ms | **4ms** | **-97%** |
+| 에러율 | 0.00% | 0.00% | — |
+| 최종 결과 | PASS | PASS | — |
+
+Prod의 홈 피드·타임세일 피드 p95가 각각 4ms로 Dev(133ms, 127ms) 대비 약 97% 단축되었다. 이는 Prod의 RDS(db.m6i.large)와 Redis(cache.m7g.large × 2)가 Dev(db.t4g.micro, 단일 노드)보다 높은 스펙을 사용하기 때문이다.
+
+<br>
+
+---
+
+### 시나리오 B — 타임세일 급증
+
+![b-p.png](images/b-p.png)
+
+| 지표 | Dev | Prod | 변화 |
+| --- | --- | --- | --- |
+| 총 요청 수 | 50,345건 | 58,886건 | +17% |
+| RPS | 67.5 | **88.7** | +31% |
+| 타임세일 목록 p95 | 1,224ms | **34ms** | **-97%** |
+| 상품 상세 p95 | 926ms | **28ms** | **-97%** |
+| 예약 요청 p95 | 642ms | **14ms** | **-98%** |
+| 에러율 | 0.00% | 0.11% | +0.11% |
+| 예약 성공 | 20건 | 20건 | 재고 정합성 ✅ |
+| 락 타임아웃 | 0건 | 0건 | ✅ |
+
+Prod는 RPS 88.7로 Dev 대비 31% 더 많은 요청을 처리했다. 응답시간은 세 항목 모두 97~98% 단축되었으며, 예약 요청 p95가 642ms → 14ms로 Dev 환경 대비 46배 단축하는 가장 큰 개선을 보였다. 
+
+Prod 에러율 0.11%는 Dev 0.00% 대비 소폭 높으나 임계값(5%) 이내로 PASS이다. 정확한 원인은 특정할 수 없으나, Prod Redis의 `transit_encryption=true`(TLS) 오버헤드로 인한 미묘한 타이밍 차이가 발생했을 가능성이 있다. Dev는 Redis TLS가 비활성화되어 있어 에러율 0.00%가 기록된 것으로 추측된다.
+
+<br>
+
+---
+
+### 시나리오 C — 다중 상품 동시 예약
+
+![c-p.png](images/c-p.png)
+
+| 지표 | Dev | Prod | 변화 |
+| --- | --- | --- | --- |
+| 총 요청 수 | 81,022건 | 106,201건 | +31% |
+| RPS | 110.7 | **161.1** | +45% |
+| 예약 요청 p95 | 1,961ms | **17ms** | **-99%** |
+| 예약 성공 | 102건 | **102건** | 동일 ✅ |
+| 락 타임아웃 | 0건 | 0건 | — |
+
+Prod는 RPS 161.1로 Dev 대비 45% 높은 처리량을 기록했으며, 총 요청 수도 81,022건에서 106,201건으로 31% 증가했다. 예약 요청 p95는 1,961ms → 17ms로 99% 단축되어 세 시나리오 중 가장 큰 개선폭을 보였다. 8개 상품의 총 재고 102개에 대해 두 환경 모두 정확히 102건의 예약이 성공하여 재고 정합성이 완벽하게 유지되었으며, 락 타임아웃은 0건으로 Lua 스크립트 기반의 원자적 재고 차감이 Prod 환경에서도 정상 동작함을 확인하였다.
