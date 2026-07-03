@@ -163,12 +163,10 @@ module "github_oidc" {
 # CloudWatch 알람 → SNS → Amazon Q Developer → Slack 파이프라인을 활성화합니다.
 # AIOps와 ALB 알람, EKS 내부 리소스는 각 선행 리소스가 준비된 뒤 별도로 활성화합니다.
 
-/* AIOps 활성화 시 주석을 해제하고 module.monitoring에 값을 전달합니다.
 data "aws_ssm_parameter" "slack_webhook" {
   name            = "/team3/matnani/prod/monitoring/slack-webhook"
   with_decryption = true
 }
-*/
 
 /* ALB Ingress 배포 후 ALB 알람을 활성화할 때 사용합니다.
 data "aws_lb_target_group" "matnani" {
@@ -187,8 +185,10 @@ module "monitoring" {
   slack_channel_id   = var.slack_channel_id
   chatbot_role_arn   = var.chatbot_role_arn
 
+  slack_webhook_url = data.aws_ssm_parameter.slack_webhook.value
+
   enable_cluster_resources = false
-  enable_aiops             = false
+  enable_aiops             = true
   enable_alb_alarms        = false
   enable_eks_alarms        = false
   log_retention_days       = var.log_retention_days
