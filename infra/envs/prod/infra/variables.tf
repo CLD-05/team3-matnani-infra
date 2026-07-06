@@ -209,7 +209,7 @@ variable "pod_identity_agent_version" {
 variable "endpoint_public_access" {
   description = "EKS API public endpoint 활성화 여부 — 초기 구축 시에만 true"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "team_member_user_arns" {
