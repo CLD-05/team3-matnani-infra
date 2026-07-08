@@ -127,7 +127,7 @@ team3-matnani-infra/
 
 **1. MySQL 8 (RDS Multi-AZ)**
 
-유저·상품·예약·후기가 JOIN으로 엮이는 관계형 구조이기 때문에 RDB가 적합하다.
+유저·상품·예약·후기가 JOIN으로 엮이는 관계형 구조이기 때문에 RDB를 사용합니다.
 
 ```
 유저 ─── 상품 ─── 예약
@@ -135,29 +135,30 @@ team3-matnani-infra/
         후기 ─── 비밀댓글
 ```
 
-예약 생성 시 재고 차감·상태 변경·알림이 하나의 트랜잭션으로 처리돼야 해 트랜잭션 보장이 필수적이다.
+예약 생성 시 재고 차감·상태 변경·알림이 하나의 트랜잭션으로 처리돼야 하므로 트랜잭션 보장이 필요합니다.
 
 <br>
 
 **2. Redis (ElastiCache)**
 
-단순 캐싱 외에 Lua 스크립트 기반 동시성 제어가 필요해 Memcached 대신 Redis를 선택하였다.
-ElastiCache를 직접 Redis 서버 대신 쓰는 이유는 클러스터 장애 조치·모니터링을 AWS가 관리하기 때문이다.
+단순 캐싱 외에 Lua 스크립트 기반 동시성 제어가 필요해 Memcached 대신 Redis를 선택했습니다.
+ElastiCache를 직접 Redis 서버 대신 사용하는 이유는 클러스터 장애 조치·모니터링을 AWS가 관리하기 때문입니다.
 
 | 용도 | 설명 |
 |------|------|
-| 재고 동시성 제어 | Lua 스크립트로 GET → 검증 → DECRBY 원자 처리. 락 없이 동시 예약 요청 처리 |
-| JWT 블랙리스트 | 로그아웃 시 Access Token을 잔여 만료시간 TTL로 블랙리스트 등록 |
-| Refresh Token 관리 | Rotation 방식으로 Redis에 저장, 재사용 방지 |
-| 타임세일 Delayed Queue | 픽업 마감 2시간·1시간 전 자동 할인 예약 |
-| 행정동 코드 캐싱 | 정적 데이터로 DB 반복 조회 불필요 |
+| 재고 동시성 제어 | Lua 스크립트로 GET → 검증 → DECRBY 원자 처리. 락 없이 동시 예약 요청을 처리 |
+| JWT 블랙리스트 | 로그아웃 시 Access Token을 잔여 만료시간 TTL로 블랙리스트에 등록 |
+| Refresh Token 관리 | Rotation 방식으로 Redis에 저장해 재사용을 방지 |
+| 타임세일 Delayed Queue | 픽업 마감 2시간·1시간 전 자동 할인을 예약 |
+| 행정동 코드 캐싱 | 정적 데이터로 DB 반복 조회가 불필요 |
 
 <br>
 
 
 **3. S3 + CloudFront**
 
-판매글 등록 시 상품 이미지 업로드가 필수. 마감 임박 상품 특성상 단시간에 조회가 집중되기 때문에 CloudFront CDN으로 원본 S3 부하를 줄이기 위해 도입하였다.
+해당 서비스는 판매글 등록 시 상품 이미지 업로드가 필수입니다. \
+마감 임박 상품 특성상 단시간에 조회가 집중되므로 CloudFront CDN으로 원본 S3 부하를 줄이기 위해 도입했습니다.
 
 <br>
 
@@ -167,43 +168,43 @@ ElastiCache를 직접 Redis 서버 대신 쓰는 이유는 클러스터 장애 �
 
 **1. EKS (Kubernetes)**
 
-| 비교 | 이유 |
-|------|------|
-| EC2 대신 EKS | 예약 버튼 트래픽처럼 예측 불가능한 스파이크에 Pod 단위 스케일링이 유연함 |
-| ECS 대신 EKS | 마감 시간대 트래픽 급증 시 KEDA + HPA 조합으로 세밀한 오토스케일링 가능. ArgoCD GitOps와 자연스럽게 연동 |
+| 비교 | 이유                                                                            |
+|------|-------------------------------------------------------------------------------|
+| EC2 대신 EKS | 예약 버튼 트래픽처럼 예측 불가능한 스파이크에 Pod 단위 스케일링이 유연합니다.                                 |
+| ECS 대신 EKS | 마감 시간대 트래픽 급증 시 KEDA + HPA 조합으로 세밀한 오토스케일링이 가능하고, ArgoCD GitOps와 자연스럽게 연동됩니다. |
 
 
 <br>
 
 **2. Terraform**
 
-AWS CDK·CloudFormation 대신 Terraform을 선택한 이유는 GitHub OIDC Provider처럼 AWS 외 리소스를 동일한 코드 안에서 관리 가능하기 때문이다.
-동일한 모듈로 dev·prod 환경을 코드로 재현할 수 있다.
+AWS CDK·CloudFormation 대신 Terraform을 선택한 이유는 GitHub OIDC Provider처럼 AWS 외 리소스를 동일한 코드 안에서 관리할 수 있기 때문입니다.
+동일한 모듈로 dev·prod 환경을 코드로 재현하고, S3 native state locking(v1.10+)으로 DynamoDB 없이 동시 수정을 방지합니다.
 
 <br>
 
 
 **3. GitHub Actions (OIDC) + ArgoCD**
 
-| 비교 | 이유 |
-|------|------|
-| Jenkins 대신 GitHub Actions | 별도 서버 운영 없이 app 레포와 같은 공간에서 CI 관리 가능 |
-| Access Key 대신 OIDC | 키 유출 없이 GitHub Actions가 AWS에 직접 인증 |
-| Helm 직접 배포 대신 ArgoCD | config repo를 단일 진실 공급원으로 삼아 드리프트 방지. 배포 이력을 Git으로 추적 |
+| 비교 | 이유                                                          |
+|------|-------------------------------------------------------------|
+| Jenkins 대신 GitHub Actions | 별도 서버 운영 없이 app 레포와 같은 공간에서 CI를 관리할 수 있습니다.                 |
+| Access Key 대신 OIDC | 키 유출 없이 GitHub Actions가 AWS에 직접 인증할 수 있습니다.                 |
+| Helm 직접 배포 대신 ArgoCD | config repo를 단일 진실 공급원으로 삼아 드리프트를 방지하고, 배포 이력을 Git으로 추적합니다. |
 
 <br>
 
 **4. Prometheus + Grafana + KEDA**
 
-K8s 내부 메트릭(Pod CPU·메모리·요청률)을 세밀하게 수집하려면 Prometheus가 필요하다.
-트래픽 과부하를 대비하여 KEDA를 사용해 Prometheus 메트릭 기반 Pod 오토스케일링을 연동하였다.
+K8s 내부 메트릭(Pod CPU·메모리·요청률)을 세밀하게 수집하려면 Prometheus가 필요합니다.
+트래픽 과부하에 대비하여 KEDA로 Prometheus 메트릭 기반 Pod 오토스케일링을 연동합니다.
 
 <br>
 
 **5. AIOps (Bedrock Claude + Lambda)**
 
-CloudWatch 알람 → Lambda → Claude 3 Haiku 분석 → Slack \
-알람 원인과 조치 방안을 자동 요약해 on-call 대응 속도를 향상 시킴.
+CloudWatch 알람 → Lambda → Claude 3 Haiku 분석 → Slack으로 전달합니다.
+알람 원인과 조치 방안을 자동 요약해 on-call 대응 속도를 향상시킵니다.
 
 <br>
 <br>
