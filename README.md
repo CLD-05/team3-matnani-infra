@@ -14,38 +14,17 @@ Terraform으로 Dev/Prod 인프라를 관리하고, GitHub Actions OIDC와 ArgoC
 | [team3-matnani-config](https://github.com/CLD-05/team3-matnani-config) | Kubernetes 매니페스트 (ArgoCD GitOps) |
 | [team3-matnani-infra](https://github.com/CLD-05/team3-matnani-infra) | AWS 인프라 (Terraform) |
 
+<br>
+
 <hr style="border: 2px solid #000;">
 
-## 🪜 아키텍처
+## 🪜 아키텍처 다이어그램
 
-```mermaid
-flowchart LR
-    User["사용자"] --> DNS["Route 53 + ACM"]
-    DNS --> CF["CloudFront"]
-    CF --> FrontS3["S3 Frontend"]
-    CF --> ImageS3["S3 Product Images"]
-    CF -->|"/api/*"| ALB["Application Load Balancer"]
-    ALB --> API["Spring Boot API on EKS"]
-    API --> RDS["RDS MySQL 8.4"]
-    API --> Redis["ElastiCache Redis 7.1"]
+![dev.png](docs/images/dev.png)
 
-    GHA["GitHub Actions + OIDC"] --> ECR["Amazon ECR"]
-    ECR --> API
-    GHA --> Config["Config Repository"]
-    Config --> ArgoCD["ArgoCD"]
-    ArgoCD --> API
+<br>
 
-    EKSMetric["Kubernetes Metrics"] --> Prometheus["Prometheus"]
-    Prometheus --> Alertmanager["Alertmanager"]
-    Alertmanager --> Slack["Slack"]
-
-    AWSMetric["AWS Metrics"] --> CloudWatch["CloudWatch"]
-    CloudWatch --> SNS["SNS"]
-    SNS --> Q["Amazon Q Developer"]
-    Q --> Slack
-    SNS -. "Dev AIOps" .-> Lambda["Lambda + Bedrock"]
-    Lambda -.-> Slack
-```
+![prod.png](docs/images/prod.png)
 
 <br>
 
