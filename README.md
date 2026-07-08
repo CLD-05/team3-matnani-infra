@@ -193,14 +193,14 @@ AWS CDK·CloudFormation 대신 Terraform을 선택한 이유는 GitHub OIDC Prov
 
 <br>
 
-**Prometheus + Grafana + KEDA**
+**4. Prometheus + Grafana + KEDA**
 
 K8s 내부 메트릭(Pod CPU·메모리·요청률)을 세밀하게 수집하려면 Prometheus가 필요하다.
 트래픽 과부하를 대비하여 KEDA를 사용해 Prometheus 메트릭 기반 Pod 오토스케일링을 연동하였다.
 
 <br>
 
-**AIOps (Bedrock Claude + Lambda)**
+**5. AIOps (Bedrock Claude + Lambda)**
 
 CloudWatch 알람 → Lambda → Claude 3 Haiku 분석 → Slack \
 알람 원인과 조치 방안을 자동 요약해 on-call 대응 속도를 향상 시킴.
